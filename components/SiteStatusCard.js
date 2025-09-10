@@ -1,9 +1,47 @@
 import React from "react";
 import Link from "next/link";
-import { ExternalLink, BarChart2, Clock, Activity, Wifi } from "lucide-react";
+import { 
+  ExternalLink, 
+  BarChart2, 
+  Clock, 
+  Activity, 
+  Wifi,
+  Rocket,
+  Monitor,
+  BookOpen,
+  Package,
+  Compass,
+  Newspaper,
+  Cloud,
+  Container,
+  FlaskConical,
+  Wrench,
+  FileText,
+  BarChart3
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { fadeInUp, cardHover, scaleUp } from "../lib/animations";
 import StatusPulse from "./StatusPulse";
+
+// Icon mapping for site IDs
+const getSiteIcon = (siteId) => {
+  const iconMap = {
+    'main': Rocket,
+    'projects': Monitor,
+    'docs': BookOpen,
+    'repos': Package,
+    'jobs': Compass,
+    'blog': Newspaper,
+    'cloud': Cloud,
+    'docker2k8s': Container,
+    'devopslab': FlaskConical,
+    'toolguides': Wrench,
+    'cheatsheet': FileText,
+    'monitoring': BarChart3,
+  };
+  
+  return iconMap[siteId] || Activity;
+};
 
 const SiteStatusCard = ({ site = {}, className = "", id }) => {
   const {
@@ -87,15 +125,10 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            {icon ? (
-              <span className="text-lg">{icon}</span>
-            ) : status === "operational" ? (
-              <Activity className="h-5 w-5" strokeWidth={2.5} />
-            ) : status === "degraded" ? (
-              <Wifi className="h-5 w-5" strokeWidth={2.5} />
-            ) : (
-              <Wifi className="h-5 w-5" strokeWidth={2.5} off={true} />
-            )}
+            {React.createElement(getSiteIcon(siteId), { 
+              className: "h-5 w-5", 
+              strokeWidth: 2 
+            })}
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: -10 }}

@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Monitor } from "lucide-react";
 
 const LoadingSkeleton = ({ count = 6 }) => {
   const shimmerVariants = {
