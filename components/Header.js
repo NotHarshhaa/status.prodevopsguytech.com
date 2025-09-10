@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeSwitcher from "./ThemeSwitcher";
 
-const Header = ({ toggleTheme, isDarkMode }) => {
+const Header = ({ toggleTheme, isDarkMode, overallStatus = "operational" }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -94,12 +94,34 @@ const Header = ({ toggleTheme, isDarkMode }) => {
                 onThemeChange={handleThemeChange}
               />
               <motion.div
-                className="flex items-center px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20"
+                className={`flex items-center px-3 py-1.5 rounded-full ${
+                  overallStatus === "operational" 
+                    ? "bg-green-50 dark:bg-green-900/20" 
+                    : overallStatus === "degraded"
+                    ? "bg-yellow-50 dark:bg-yellow-900/20"
+                    : "bg-red-50 dark:bg-red-900/20"
+                }`}
                 whileHover={{ scale: 1.05 }}
               >
-                <Activity className="h-4 w-4 text-blue-500 dark:text-blue-400 mr-1.5" />
-                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                  All Systems Operational
+                <Activity className={`h-4 w-4 mr-1.5 ${
+                  overallStatus === "operational" 
+                    ? "text-green-500 dark:text-green-400" 
+                    : overallStatus === "degraded"
+                    ? "text-yellow-500 dark:text-yellow-400"
+                    : "text-red-500 dark:text-red-400"
+                }`} />
+                <span className={`text-xs font-medium ${
+                  overallStatus === "operational" 
+                    ? "text-green-600 dark:text-green-400" 
+                    : overallStatus === "degraded"
+                    ? "text-yellow-600 dark:text-yellow-400"
+                    : "text-red-600 dark:text-red-400"
+                }`}>
+                  {overallStatus === "operational" 
+                    ? "All Systems Operational" 
+                    : overallStatus === "degraded"
+                    ? "Degraded Performance"
+                    : "System Issues Detected"}
                 </span>
               </motion.div>
             </div>

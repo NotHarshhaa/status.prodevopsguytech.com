@@ -17,6 +17,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
       shadowColor: "shadow-green-500/50",
       label: "Operational",
       pulseInterval: 2,
+      glowColor: "shadow-green-500/75",
     },
     degraded: {
       color: "bg-yellow-500",
@@ -24,6 +25,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
       shadowColor: "shadow-yellow-500/50",
       label: "Degraded",
       pulseInterval: 1.2,
+      glowColor: "shadow-yellow-500/75",
     },
     outage: {
       color: "bg-red-500",
@@ -31,6 +33,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
       shadowColor: "shadow-red-500/50",
       label: "Outage",
       pulseInterval: 0.8,
+      glowColor: "shadow-red-500/75",
     },
     maintenance: {
       color: "bg-blue-500",
@@ -38,6 +41,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
       shadowColor: "shadow-blue-500/50",
       label: "Maintenance",
       pulseInterval: 1.5,
+      glowColor: "shadow-blue-500/75",
     },
     unknown: {
       color: "bg-gray-500",
@@ -45,6 +49,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
       shadowColor: "shadow-gray-500/50",
       label: "Unknown",
       pulseInterval: 3,
+      glowColor: "shadow-gray-500/75",
     },
   };
 
@@ -92,7 +97,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
       <div className="relative">
         {/* Static Dot */}
         <motion.div
-          className={`${config.color} ${sizeClass.dot} rounded-full ${config.shadowColor} shadow-lg z-10 relative`}
+          className={`${config.color} ${sizeClass.dot} rounded-full ${config.shadowColor} shadow-lg z-10 relative ring-2 ring-white/20 dark:ring-black/20`}
           initial={{ scale: 0.8 }}
           animate={{ scale: [0.8, 1, 0.8] }}
           transition={{
@@ -100,6 +105,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
             repeat: Infinity,
             repeatType: "loop",
           }}
+          whileHover={{ scale: 1.2 }}
         />
 
         {/* Pulse Animation */}

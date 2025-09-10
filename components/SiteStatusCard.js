@@ -82,12 +82,14 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
       >
         <div className="flex items-center">
           <motion.div
-            className={`p-2 rounded-lg bg-gray-100 dark:bg-dark-light ${statusClasses.icon} mr-3`}
+            className={`p-2 rounded-lg bg-gray-100 dark:bg-dark-light ${statusClasses.icon} mr-3 flex items-center justify-center`}
             variants={scaleUp}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            {status === "operational" ? (
+            {icon ? (
+              <span className="text-lg">{icon}</span>
+            ) : status === "operational" ? (
               <Activity className="h-5 w-5" strokeWidth={2.5} />
             ) : status === "degraded" ? (
               <Wifi className="h-5 w-5" strokeWidth={2.5} />
@@ -137,13 +139,13 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
       </motion.div>
 
       <motion.div
-        className="mt-3 sm:mt-4 flex flex-wrap sm:flex-nowrap items-center justify-between text-xs sm:text-sm"
+        className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs sm:text-sm gap-3 sm:gap-0"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
         <motion.div
-          className="flex space-x-2 sm:space-x-4 mb-2 sm:mb-0 w-full sm:w-auto"
+          className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
