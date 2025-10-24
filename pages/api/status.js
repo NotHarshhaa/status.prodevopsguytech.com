@@ -50,6 +50,7 @@ export default async function handler(req, res) {
         ...siteConfig,
         ...siteStatus,
         id: siteConfig.id, // Ensure ID is set correctly
+        icon: siteConfig.icon.displayName || siteConfig.icon.name || 'Monitor', // Convert React component to string identifier
       };
 
       return res.status(200).json({ site: siteData });

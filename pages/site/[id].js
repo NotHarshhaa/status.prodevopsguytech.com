@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
@@ -9,9 +9,39 @@ import HistoricalChart from "../../components/HistoricalChart";
 import RealTimeStatusChart from "../../components/RealTimeStatusChart";
 import { getSiteHistory } from "../../lib/services/statusChecker";
 import { initializeDarkMode, toggleDarkMode } from "../../lib/utils";
-import { ArrowLeft } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Rocket, 
+  Monitor, 
+  BookOpen, 
+  Package, 
+  Compass, 
+  Newspaper, 
+  Cloud, 
+  Container, 
+  FlaskConical, 
+  Wrench, 
+  FileText, 
+  BarChart3 
+} from "lucide-react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Icon mapping for string identifiers to React components
+const iconMap = {
+  Rocket,
+  Monitor,
+  BookOpen,
+  Package,
+  Compass,
+  Newspaper,
+  Cloud,
+  Container,
+  FlaskConical,
+  Wrench,
+  FileText,
+  BarChart3
+};
 
 export default function SiteDetail() {
   const router = useRouter();
@@ -57,7 +87,12 @@ export default function SiteDetail() {
           console.log("Site data received:", siteData);
           
           // Ensure we have all required fields
-          if (!siteData.name || !siteData.description || !siteData.icon) {
+          if (!siteData.name || !siteData.description) {
+            console.error("Missing required fields:", { 
+              name: siteData.name, 
+              description: siteData.description, 
+              icon: siteData.icon 
+            });
             setError("Invalid site data received");
             return;
           }
@@ -186,7 +221,7 @@ export default function SiteDetail() {
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 260, damping: 20 }}
                   >
-                    {site.icon}
+                    {React.createElement(iconMap[site.icon] || Monitor, { className: "h-8 w-8" })}
                   </motion.span>
                   <div>
                     <motion.h1
