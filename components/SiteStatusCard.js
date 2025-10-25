@@ -103,7 +103,7 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
   return (
     <motion.div
       id={id}
-      className={`bg-white dark:bg-black rounded-lg shadow-sm p-5 sm:p-5 p-3 flex flex-col border-l-4 border border-gray-100 dark:border-gray-900 ${statusClasses.border} ${statusClasses.bgHover} ${className}`}
+      className={`status-card ${statusClasses.border} ${statusClasses.bgHover} ${className}`}
       initial="hidden"
       animate="visible"
       exit={{ opacity: 0, y: 10 }}
@@ -120,7 +120,7 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
       >
         <div className="flex items-center">
           <motion.div
-            className={`p-2 rounded-lg bg-gray-100 dark:bg-dark-light ${statusClasses.icon} mr-3 flex items-center justify-center`}
+            className={`p-2 rounded-xl bg-white/60 dark:bg-black/30 backdrop-blur-sm ${statusClasses.icon} mr-3 flex items-center justify-center shadow-md border border-white/20 dark:border-gray-800/50`}
             variants={scaleUp}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -154,7 +154,7 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
           </motion.div>
         </div>
         <motion.span
-          className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${statusClasses.badge}`}
+          className={`status-badge ${statusClasses.badge} flex items-center space-x-1`}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{

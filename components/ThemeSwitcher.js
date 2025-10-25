@@ -19,13 +19,13 @@ const ThemeSwitcher = ({ currentTheme, onThemeChange }) => {
   return (
     <motion.button
       onClick={toggleTheme}
-      className={`p-2 rounded-lg ${
+      className={`p-2 rounded-xl backdrop-blur-sm border transition-all duration-300 focus-ring ${
         isDark
-          ? "bg-gray-700 text-yellow-300 hover:bg-gray-600"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      } transition-all duration-300`}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+          ? "bg-white/10 text-yellow-300 hover:bg-white/20 border-white/20"
+          : "bg-black/10 text-gray-700 hover:bg-black/20 border-black/20"
+      }`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

@@ -40,8 +40,8 @@ const Header = ({ toggleTheme, isDarkMode, overallStatus = "operational" }) => {
   return (
     <>
       <motion.header
-        className={`bg-white dark:bg-black sticky top-0 z-50 transition-all duration-300 ${
-          isScrolled ? "shadow-lg" : "shadow-sm"
+        className={`glass-header sticky top-0 z-50 transition-all duration-300 ${
+          isScrolled ? "shadow-glass-lg" : "shadow-glass"
         } ${isMobileMenuOpen ? "h-screen md:h-auto" : ""}`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -56,11 +56,11 @@ const Header = ({ toggleTheme, isDarkMode, overallStatus = "operational" }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="h-8 w-8 sm:h-9 sm:w-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                <div className="h-8 w-8 sm:h-9 sm:w-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-glow transition-all duration-300">
                   <BarChart2 className="h-4 w-4 sm:h-5 sm:w-5 text-white" strokeWidth={2} />
                 </div>
                 <motion.div 
-                  className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full"
+                  className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full shadow-lg"
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
@@ -151,7 +151,7 @@ const Header = ({ toggleTheme, isDarkMode, overallStatus = "operational" }) => {
           <AnimatePresence>
             {isMobileMenuOpen && (
               <motion.div
-                className="mobile-menu md:hidden fixed inset-x-0 top-14 bottom-0 bg-white dark:bg-dark-lighter z-40 overflow-y-auto border-t border-gray-100 dark:border-dark-border"
+                className="mobile-menu md:hidden fixed inset-x-0 top-14 bottom-0 glass-header z-40 overflow-y-auto border-t border-white/20 dark:border-gray-800/50 backdrop-blur-xl"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -159,7 +159,7 @@ const Header = ({ toggleTheme, isDarkMode, overallStatus = "operational" }) => {
               >
                 <div className="p-4 space-y-4">
                   <motion.div
-                    className="flex items-center justify-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20"
+                    className="flex items-center justify-center p-3 rounded-xl bg-blue-50/80 dark:bg-blue-900/20 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/30"
                     initial={{ scale: 0.95 }}
                     animate={{ scale: 1 }}
                   >
@@ -169,7 +169,7 @@ const Header = ({ toggleTheme, isDarkMode, overallStatus = "operational" }) => {
                     </span>
                   </motion.div>
                   
-                  <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="pt-4 border-t border-white/20 dark:border-gray-700/50">
                     <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
                       Real-time monitoring and status updates
                     </div>

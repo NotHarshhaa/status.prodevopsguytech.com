@@ -97,7 +97,7 @@ const StatusPulse = ({ status = "operational", size = "medium", className = "", 
       <div className="relative">
         {/* Static Dot */}
         <motion.div
-          className={`${config.color} ${sizeClass.dot} rounded-full ${config.shadowColor} shadow-lg z-10 relative ring-2 ring-white/20 dark:ring-black/20`}
+          className={`${config.color} ${sizeClass.dot} rounded-full ${config.shadowColor} shadow-lg z-10 relative ring-2 ring-white/20 dark:ring-black/20 backdrop-blur-sm`}
           initial={{ scale: 0.8 }}
           animate={{ scale: [0.8, 1, 0.8] }}
           transition={{

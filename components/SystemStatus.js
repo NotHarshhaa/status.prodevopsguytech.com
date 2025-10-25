@@ -114,7 +114,7 @@ const SystemStatus = ({ sites }) => {
 
   return (
     <motion.div
-      className={`rounded-lg border-2 ${statusConfig.borderColor} ${statusConfig.bgColor} p-3 md:p-4 mb-3 md:mb-4 shadow-md`}
+      className={`system-status-card mb-4 md:mb-6`}
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
@@ -124,7 +124,7 @@ const SystemStatus = ({ sites }) => {
       <div className="flex items-start md:items-center gap-2.5 md:gap-4">
         {/* Status Icon */}
         <motion.div
-          className="p-2 md:p-2.5 bg-white dark:bg-black rounded-lg shadow-sm flex-shrink-0 border border-gray-100 dark:border-gray-900"
+          className="p-2 md:p-2.5 bg-white/80 dark:bg-black/40 backdrop-blur-sm rounded-xl shadow-lg flex-shrink-0 border border-white/20 dark:border-gray-800/50"
           variants={scaleUp}
         >
           {statusConfig.icon}
@@ -170,7 +170,7 @@ const SystemStatus = ({ sites }) => {
 
         {/* Status Indicator */}
         <motion.div
-          className="hidden md:flex flex-col items-center justify-center bg-white dark:bg-black rounded-lg h-16 w-16 md:h-18 md:w-18 shadow-sm flex-shrink-0 relative overflow-hidden border border-gray-100 dark:border-gray-900"
+          className="hidden md:flex flex-col items-center justify-center bg-white/80 dark:bg-black/40 backdrop-blur-sm rounded-xl h-16 w-16 md:h-18 md:w-18 shadow-lg flex-shrink-0 relative overflow-hidden border border-white/20 dark:border-gray-800/50"
           variants={pulseAnimation}
           initial="initial"
           animate="animate"

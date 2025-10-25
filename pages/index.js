@@ -8,6 +8,7 @@ import RefreshButton from "../components/RefreshButton";
 import StatusFilter from "../components/StatusFilter";
 import SearchSites from "../components/SearchSites";
 import LoadingSkeleton from "../components/LoadingSkeleton";
+import ModernLoader from "../components/ModernLoader";
 import { initializeDarkMode, toggleDarkMode } from "../lib/utils";
 import { fetchStatusData } from "../lib/utils/statusData";
 import {
@@ -48,10 +49,23 @@ export default function Home() {
         setSelectedSite(null);
         setStatusFilters([]);
       }
+      // Accessibility: Focus management
+      if (event.key === 'Tab') {
+        // Ensure focus is visible
+        document.body.classList.add('keyboard-navigation');
+      }
+    };
+
+    const handleMouseDown = () => {
+      document.body.classList.remove('keyboard-navigation');
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
   }, []);
 
   // Fetch site status data
@@ -209,7 +223,7 @@ export default function Home() {
 
   return (
     <motion.div
-      className={`min-h-screen flex flex-col ${darkMode ? "dark" : ""} transition-colors duration-300`}
+      className={`min-h-screen flex flex-col ${darkMode ? "dark" : ""} transition-colors duration-300 custom-scrollbar`}
       initial="hidden"
       animate="visible"
       variants={pageTransition}
@@ -221,7 +235,11 @@ export default function Home() {
           name="description"
           content="Real-time status of ProDevOpsGuy Tech platforms and websites"
         />
+        <meta name="theme-color" content="#3b82f6" />
+        <meta name="color-scheme" content="light dark" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
 
       <Header 
@@ -231,59 +249,13 @@ export default function Home() {
       />
 
       <motion.main
-        className="flex-grow py-4 sm:py-8 px-3 sm:px-4 md:px-6 lg:px-8 bg-gray-50 dark:bg-black transition-colors duration-300"
+        className="flex-grow py-4 sm:py-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-colors duration-300"
         variants={fadeInUp}
       >
         <motion.div className="max-w-7xl mx-auto" variants={staggerContainer}>
           {loading ? (
-            // Loading skeleton
-            <motion.div
-              className="space-y-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {/* System Status Skeleton */}
-              <div className="bg-white dark:bg-black rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 shadow-md">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                  <div className="flex-1">
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-2/3 animate-pulse" />
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse" />
-                  </div>
-                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                </div>
-              </div>
-              
-              {/* Metrics Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="bg-white dark:bg-black rounded-lg shadow p-4 border border-gray-100 dark:border-gray-900">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full mr-4 animate-pulse" />
-                      <div className="flex-1">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-3/4 animate-pulse" />
-                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-1/2 animate-pulse" />
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3 animate-pulse" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Sites Skeleton */}
-              <div className="bg-white dark:bg-black shadow-sm rounded-lg p-6 border border-gray-100 dark:border-gray-900">
-                <div className="flex justify-between items-center mb-6">
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse" />
-                  <div className="flex space-x-2">
-                    <div className="w-24 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                    <div className="w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                    <div className="w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                  </div>
-                </div>
-                <LoadingSkeleton count={6} />
-              </div>
-            </motion.div>
+            // Modern loading state
+            <ModernLoader message="Initializing status dashboard..." />
           ) : (
             <AnimatePresence mode="wait">
               <motion.div
@@ -306,8 +278,8 @@ export default function Home() {
                       animate="visible"
                     >
                       {/* Operational Percentage */}
-                      <div className="bg-white dark:bg-black rounded-lg shadow p-3 sm:p-4 flex items-center border border-gray-100 dark:border-gray-900">
-                        <div className="bg-green-100 dark:bg-green-900/10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                      <div className="metrics-card flex items-center">
+                        <div className="bg-green-100/80 dark:bg-green-900/20 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 backdrop-blur-sm border border-green-200/50 dark:border-green-700/30">
                           <CheckCircle
                             className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400"
                             strokeWidth={2}
@@ -327,8 +299,8 @@ export default function Home() {
                       </div>
 
                       {/* Average Response Time */}
-                      <div className="bg-white dark:bg-black rounded-lg shadow p-3 sm:p-4 flex items-center border border-gray-100 dark:border-gray-900">
-                        <div className="bg-blue-100 dark:bg-blue-900/10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                      <div className="metrics-card flex items-center">
+                        <div className="bg-blue-100/80 dark:bg-blue-900/20 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/30">
                           <Clock
                             className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400"
                             strokeWidth={2}
@@ -348,8 +320,8 @@ export default function Home() {
                       </div>
 
                       {/* Sites with Issues */}
-                      <div className="bg-white dark:bg-black rounded-lg shadow p-3 sm:p-4 flex items-center border border-gray-100 dark:border-gray-900">
-                        <div className="bg-red-100 dark:bg-red-900/10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                      <div className="metrics-card flex items-center">
+                        <div className="bg-red-100/80 dark:bg-red-900/20 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 backdrop-blur-sm border border-red-200/50 dark:border-red-700/30">
                           <Server
                             className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400"
                             strokeWidth={2}
@@ -375,7 +347,7 @@ export default function Home() {
 
                 {/* Sites Status List */}
                 <motion.div
-                  className="bg-white dark:bg-black shadow-sm rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-100 dark:border-gray-900"
+                  className="glass-card p-4 sm:p-6 mb-4 sm:mb-6"
                   variants={fadeInUp}
                   initial="hidden"
                   animate="visible"
