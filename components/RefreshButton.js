@@ -1,7 +1,12 @@
 import React from "react";
 import { RefreshCw, Clock } from "lucide-react";
 
-const RefreshButton = ({ onRefresh, lastUpdated, isRefreshing }) => {
+const RefreshButton = ({
+  onRefresh,
+  lastUpdated,
+  isRefreshing,
+  className = "",
+}) => {
   const handleRefresh = async () => {
     if (isRefreshing) return;
 
@@ -23,7 +28,7 @@ const RefreshButton = ({ onRefresh, lastUpdated, isRefreshing }) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${className}`}>
       <button
         onClick={handleRefresh}
         disabled={isRefreshing}
@@ -34,9 +39,11 @@ const RefreshButton = ({ onRefresh, lastUpdated, isRefreshing }) => {
         }`}
         aria-label="Refresh status data"
       >
-        <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        <RefreshCw
+          className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+        />
         <span className="hidden sm:inline ml-1.5">
-          {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          {isRefreshing ? "Refreshing..." : "Refresh"}
         </span>
       </button>
       {lastUpdated && (

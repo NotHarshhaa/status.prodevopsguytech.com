@@ -65,14 +65,15 @@ export default function StatusFilter({ onFilterChange }) {
 
   return (
     <div className="flex flex-col">
-      <div className="relative" ref={dropdownRef}>
-        <motion.div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+      <div className="relative z-10" ref={dropdownRef}>
+        <motion.div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 relative custom-scrollbar">
           <motion.button
             className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-dark-lighter border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm transition-all duration-200 ${
               isOpen
                 ? "ring-2 ring-blue-500 border-transparent"
                 : "hover:bg-gray-50 dark:hover:bg-gray-700"
             }`}
+            style={{ zIndex: 20 }}
             type="button"
             id="status-filter-button"
             aria-expanded={isOpen}
@@ -95,13 +96,15 @@ export default function StatusFilter({ onFilterChange }) {
           </motion.button>
 
           {selectedFilters.length > 0 && (
-            <motion.div 
-              className="flex flex-wrap gap-1.5 sm:gap-2 max-w-full sm:max-w-none overflow-x-auto"
+            <motion.div
+              className="flex flex-wrap gap-1.5 sm:gap-2 max-w-full sm:max-w-none overflow-x-auto pb-1 custom-scrollbar"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               {selectedFilters.map((filter) => {
-                const option = statusOptions.find((opt) => opt.value === filter);
+                const option = statusOptions.find(
+                  (opt) => opt.value === filter,
+                );
                 return (
                   <motion.span
                     key={filter}
@@ -132,19 +135,19 @@ export default function StatusFilter({ onFilterChange }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="fixed sm:absolute right-2 left-2 sm:left-auto sm:right-0 top-20 sm:top-auto z-50 mt-2 sm:w-64 origin-top rounded-lg bg-white dark:bg-dark-lighter shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden"
+              className="filter-dropdown absolute right-0 left-0 sm:left-auto sm:right-0 top-12 sm:top-auto z-[100] mt-2 w-full sm:w-64 origin-top-right rounded-lg focus:outline-none overflow-hidden"
               role="menu"
               aria-orientation="vertical"
               aria-labelledby="status-filter-button"
             >
-              <div className="p-2 space-y-1" role="none">
+              <div className="p-2 space-y-1 custom-scrollbar" role="none">
                 {statusOptions.map((option) => (
                   <motion.button
                     key={option.value}
-                    className={`flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors ${
+                    className={`filter-item ${
                       selectedFilters.includes(option.value)
-                        ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200"
-                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        ? "filter-item-selected"
+                        : "filter-item-normal"
                     }`}
                     role="menuitem"
                     onClick={() => toggleFilter(option.value)}
@@ -159,11 +162,17 @@ export default function StatusFilter({ onFilterChange }) {
                       }`}
                     >
                       <span
-                        className={`inline-block w-3 h-3 rounded-full ${option.color === 'status-green' ? 'bg-green-500' : 
-                          option.color === 'status-yellow' ? 'bg-yellow-500' : 
-                          option.color === 'status-red' ? 'bg-red-500' : 
-                          option.color === 'status-blue' ? 'bg-blue-500' : 
-                          'bg-gray-500'}`}
+                        className={`inline-block w-3 h-3 rounded-full ${
+                          option.color === "status-green"
+                            ? "bg-green-500"
+                            : option.color === "status-yellow"
+                              ? "bg-yellow-500"
+                              : option.color === "status-red"
+                                ? "bg-red-500"
+                                : option.color === "status-blue"
+                                  ? "bg-blue-500"
+                                  : "bg-gray-500"
+                        }`}
                       />
                     </motion.span>
                     {option.label}

@@ -52,12 +52,14 @@ html {
 body {
     color: rgb(var(--foreground-rgb));
     background: linear-gradient(
-            135deg,
-            rgb(var(--gradient-start)) 0%,
-            rgb(var(--gradient-end)) 100%
-        );
+        135deg,
+        rgb(var(--gradient-start)) 0%,
+        rgb(var(--gradient-end)) 100%
+    );
     min-height: 100vh;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+        "rlig" 1,
+        "calt" 1;
     text-rendering: optimizeLegibility;
 }
 
@@ -90,7 +92,8 @@ body {
 
     .status-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 20px 40px rgba(var(--shadow-color), calc(var(--shadow-opacity) * 1.5));
+        box-shadow: 0 20px 40px
+            rgba(var(--shadow-color), calc(var(--shadow-opacity) * 1.5));
     }
 
     /* Enhanced status badges */
@@ -125,7 +128,8 @@ body {
 
     .metrics-card:hover {
         transform: translateY(-1px);
-        box-shadow: 0 15px 35px rgba(var(--shadow-color), calc(var(--shadow-opacity) * 1.2));
+        box-shadow: 0 15px 35px
+            rgba(var(--shadow-color), calc(var(--shadow-opacity) * 1.2));
     }
 
     /* Enhanced system status */
@@ -141,8 +145,29 @@ body {
     }
 
     @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+
+    /* Filter Dropdown Styles */
+    .filter-dropdown {
+        @apply z-[100] origin-top-right bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 rounded-lg;
+        filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04))
+            drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+    }
+
+    .filter-overlay {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 50;
+        background: transparent;
     }
 
     /* Enhanced buttons */
@@ -160,9 +185,23 @@ body {
     }
 
     /* Improved scrollbar */
+    /* Enhanced scrollbar */
     .custom-scrollbar::-webkit-scrollbar {
         width: 6px;
         height: 6px;
+    }
+
+    /* Filter items styles */
+    .filter-item {
+        @apply flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors;
+    }
+
+    .filter-item-selected {
+        @apply bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200;
+    }
+
+    .filter-item-normal {
+        @apply text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700;
     }
 
     .custom-scrollbar::-webkit-scrollbar-track {
@@ -179,8 +218,13 @@ body {
     }
 
     @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
     }
 
     .animate-glow {
@@ -188,8 +232,12 @@ body {
     }
 
     @keyframes glow {
-        from { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-        to { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+        from {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        to {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+        }
     }
 
     /* Accessibility improvements */
@@ -225,7 +273,7 @@ body {
         .status-card {
             border: 2px solid currentColor;
         }
-        
+
         .status-badge {
             border: 2px solid currentColor;
         }
@@ -240,7 +288,7 @@ body {
             box-shadow: none !important;
             border: 1px solid #ccc !important;
         }
-        
+
         .dark {
             color: black !important;
             background: white !important;

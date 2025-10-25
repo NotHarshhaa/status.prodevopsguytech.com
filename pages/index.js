@@ -41,30 +41,30 @@ export default function Home() {
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'r' && (event.ctrlKey || event.metaKey)) {
+      if (event.key === "r" && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         fetchData(true);
       }
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setSelectedSite(null);
         setStatusFilters([]);
       }
       // Accessibility: Focus management
-      if (event.key === 'Tab') {
+      if (event.key === "Tab") {
         // Ensure focus is visible
-        document.body.classList.add('keyboard-navigation');
+        document.body.classList.add("keyboard-navigation");
       }
     };
 
     const handleMouseDown = () => {
-      document.body.classList.remove('keyboard-navigation');
+      document.body.classList.remove("keyboard-navigation");
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleMouseDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleMouseDown);
     };
   }, []);
 
@@ -239,13 +239,17 @@ export default function Home() {
         <meta name="color-scheme" content="light dark" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
       </Head>
 
-      <Header 
-        toggleTheme={handleToggleDarkMode} 
-        isDarkMode={darkMode} 
-        overallStatus={metrics?.status || "operational"} 
+      <Header
+        toggleTheme={handleToggleDarkMode}
+        isDarkMode={darkMode}
+        overallStatus={metrics?.status || "operational"}
       />
 
       <motion.main
@@ -363,16 +367,20 @@ export default function Home() {
                         Site Status
                       </h2>
                     </div>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-                      <SearchSites
-                        sites={sites}
-                        onResultSelect={handleSearchResultSelect}
-                      />
-                      <StatusFilter onFilterChange={handleFilterChange} />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                      <div className="flex items-center gap-2 w-full sm:w-auto overflow-visible">
+                        <SearchSites
+                          sites={sites}
+                          onResultSelect={handleSearchResultSelect}
+                          className="flex-grow sm:flex-grow-0"
+                        />
+                        <StatusFilter onFilterChange={handleFilterChange} />
+                      </div>
                       <RefreshButton
                         onRefresh={() => fetchData(true)}
                         lastUpdated={lastUpdated}
                         isRefreshing={refreshing}
+                        className="self-end sm:self-auto mt-2 sm:mt-0"
                       />
                       {metrics && metrics.source && (
                         <div className="flex items-center text-xs text-gray-400 mt-1.5">
@@ -401,20 +409,21 @@ export default function Home() {
                   >
                     {sites.length > 0 ? (
                       <AnimatePresence>
-                        {(statusFilters.length === 0 ? sites : filteredSites).map(
-                          (site, index) => (
-                            <SiteStatusCard
-                              key={site.id}
-                              site={site}
-                              id={`site-${site.id}`}
-                              className={`${
-                                index % 2 === 0
-                                  ? "transform hover:-translate-y-1"
-                                  : "transform hover:translate-y-1"
-                              } ${selectedSite?.id === site.id ? "ring-2 ring-blue-500" : ""}`}
-                            />
-                          ),
-                        )}
+                        {(statusFilters.length === 0
+                          ? sites
+                          : filteredSites
+                        ).map((site, index) => (
+                          <SiteStatusCard
+                            key={site.id}
+                            site={site}
+                            id={`site-${site.id}`}
+                            className={`${
+                              index % 2 === 0
+                                ? "transform hover:-translate-y-1"
+                                : "transform hover:translate-y-1"
+                            } ${selectedSite?.id === site.id ? "ring-2 ring-blue-500" : ""}`}
+                          />
+                        ))}
                       </AnimatePresence>
                     ) : (
                       <motion.div
