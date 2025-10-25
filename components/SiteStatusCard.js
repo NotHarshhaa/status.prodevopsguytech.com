@@ -38,6 +38,10 @@ const getSiteIcon = (siteId) => {
     'toolguides': Wrench,
     'cheatsheet': FileText,
     'monitoring': BarChart3,
+    'interviews': FileText,
+    'devopstools': Wrench,
+    'awesomeui': Monitor,
+    'resources': BookOpen,
   };
   
   return iconMap[siteId] || Activity;

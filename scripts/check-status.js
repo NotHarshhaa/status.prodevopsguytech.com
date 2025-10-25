@@ -92,6 +92,46 @@ const sitesConfig = [
     url: "https://cheatsheet.prodevopsguytech.com",
     icon: "📑",
   },
+  {
+    id: "monitoring",
+    name: "DevOps Monitoring Platform",
+    description:
+      "A ready-to-use advanced monitoring platform for DevOps engineers and beginners",
+    url: "https://devops-monitoring-in-a-box.vercel.app",
+    icon: "📊",
+  },
+  {
+    id: "interviews",
+    name: "DevOps Interview Hub",
+    description:
+      "DevOps 1100+ interview preparation materials, Q&A sets, and scenario-based practice",
+    url: "https://interviews.prodevopsguytech.com",
+    icon: "📝",
+  },
+  {
+    id: "devopstools",
+    name: "DevOps Arsenal",
+    description:
+      "Collection of essential DevOps tools and utilities for daily use",
+    url: "https://tools.prodevopsguytech.com",
+    icon: "🛠️",
+  },
+  {
+    id: "awesomeui",
+    name: "Awesome DevOps",
+    description:
+      "A showcase of powerful, user-friendly UIs for managing DevOps workflows and monitoring systems",
+    url: "https://awesomedevopsui.site",
+    icon: "💻",
+  },
+  {
+    id: "resources",
+    name: "Home of Best DevOps Resources",
+    description:
+      "All-in-one portal for curated DevOps learning materials, articles, and best practices",
+    url: "https://devopsresourceshub.site",
+    icon: "📚",
+  },
 ];
 
 /**
