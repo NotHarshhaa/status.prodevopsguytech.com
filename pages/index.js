@@ -206,8 +206,10 @@ export default function Home() {
       // Update document class for Tailwind
       if (newDarkMode) {
         document.documentElement.classList.add("dark");
+        document.documentElement.classList.remove("light");
       } else {
         document.documentElement.classList.remove("dark");
+        document.documentElement.classList.add("light");
       }
     } else {
       const newDarkMode = !darkMode;
@@ -215,8 +217,10 @@ export default function Home() {
       localStorage.setItem("darkMode", newDarkMode ? "true" : "false");
       if (newDarkMode) {
         document.documentElement.classList.add("dark");
+        document.documentElement.classList.remove("light");
       } else {
         document.documentElement.classList.remove("dark");
+        document.documentElement.classList.add("light");
       }
     }
   };
@@ -290,13 +294,13 @@ export default function Home() {
                           />
                         </div>
                         <div>
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-500">
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-500">
                             Operational
                           </p>
                           <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                             {metrics.operationalPercentage}%
                           </p>
-                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">
+                          <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500">
                             {metrics.totalSites} monitored sites
                           </p>
                         </div>
@@ -311,13 +315,13 @@ export default function Home() {
                           />
                         </div>
                         <div>
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-500">
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-500">
                             Avg Response Time
                           </p>
                           <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                             {metrics.averageResponseTime} ms
                           </p>
-                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">
+                          <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500">
                             For operational sites
                           </p>
                         </div>
@@ -332,13 +336,13 @@ export default function Home() {
                           />
                         </div>
                         <div>
-                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-500">
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-500">
                             Sites with Issues
                           </p>
                           <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                             {metrics.sitesWithIssues.length}
                           </p>
-                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-500">
+                          <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500">
                             {metrics.sitesWithIssues.length
                               ? "Requires attention"
                               : "All systems operational"}
@@ -383,7 +387,7 @@ export default function Home() {
                         className="self-end sm:self-auto mt-2 sm:mt-0"
                       />
                       {metrics && metrics.source && (
-                        <div className="flex items-center text-xs text-gray-400 mt-1.5">
+                        <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1.5">
                           {metrics.source === "static" ? (
                             <Server className="h-3 w-3 mr-1" />
                           ) : (
@@ -397,7 +401,7 @@ export default function Home() {
                           </span>
                         </div>
                       )}
-                      <div className="hidden lg:flex items-center text-xs text-gray-400 mt-1.5">
+                      <div className="hidden lg:flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1.5">
                         <span>Press Ctrl+R to refresh</span>
                       </div>
                     </div>
@@ -441,7 +445,7 @@ export default function Home() {
                           <RefreshCw className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 dark:text-gray-500 mb-3 sm:mb-4" />
                         </motion.div>
                         <motion.p
-                          className="text-gray-500 dark:text-gray-500 text-center text-base sm:text-lg"
+                          className="text-gray-700 dark:text-gray-500 text-center text-base sm:text-lg"
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.2 }}
@@ -451,7 +455,7 @@ export default function Home() {
                             : "No sites found."}
                         </motion.p>
                         <motion.p
-                          className="text-gray-400 dark:text-gray-500 text-center text-xs sm:text-sm mt-1"
+                          className="text-gray-600 dark:text-gray-500 text-center text-xs sm:text-sm mt-1"
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.3 }}

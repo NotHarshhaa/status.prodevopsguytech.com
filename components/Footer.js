@@ -27,7 +27,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="glass-header border-t border-white/20 dark:border-gray-800/50 transition-colors duration-300">
+    <footer className="glass-header border-t border-gray-200/50 dark:border-gray-800/50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Mobile View */}
         <div className="md:hidden py-3">
@@ -68,7 +68,7 @@ const Footer = () => {
               <span>by ProDevOpsGuy</span>
             </div>
 
-            <div className="text-center text-[10px] text-gray-400 dark:text-gray-500">
+            <div className="text-center text-[10px] text-gray-600 dark:text-gray-500">
               <div>Powered by Next.js & Tailwind CSS</div>
               <div>© {year} All rights reserved</div>
             </div>
@@ -141,7 +141,7 @@ const Footer = () => {
                 <GitBranch className="h-4 w-4 text-green-500" />
                 <span>Updated via GitHub Actions</span>
               </motion.div>
-              <div className="flex flex-col items-end text-xs text-gray-400 dark:text-gray-500">
+              <div className="flex flex-col items-end text-xs text-gray-600 dark:text-gray-500">
                 <span>Powered by Next.js & Tailwind CSS</span>
                 <span>© {year} All rights reserved</span>
               </div>

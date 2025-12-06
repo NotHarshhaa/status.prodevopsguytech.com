@@ -81,7 +81,7 @@ const Header = ({ toggleTheme, isDarkMode, overallStatus = "operational" }) => {
                     </span>
                   </div>
                 </div>
-                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 hidden sm:block">
                   Status Dashboard
                 </p>
               </div>

@@ -124,7 +124,7 @@ const SystemStatus = ({ sites }) => {
       <div className="flex items-start md:items-center gap-2.5 md:gap-4">
         {/* Status Icon */}
         <motion.div
-          className="p-2 md:p-2.5 bg-white/80 dark:bg-black/40 backdrop-blur-sm rounded-xl shadow-lg flex-shrink-0 border border-white/20 dark:border-gray-800/50"
+          className="p-2 md:p-2.5 bg-white/90 dark:bg-black/40 backdrop-blur-sm rounded-xl shadow-lg flex-shrink-0 border border-gray-200/50 dark:border-gray-800/50"
           variants={scaleUp}
         >
           {statusConfig.icon}
@@ -140,7 +140,7 @@ const SystemStatus = ({ sites }) => {
             {statusConfig.title}
           </motion.h2>
           <motion.p
-            className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mt-0.5 line-clamp-1 md:line-clamp-2"
+            className="text-xs md:text-sm text-gray-700 dark:text-gray-300 mt-0.5 line-clamp-1 md:line-clamp-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -148,7 +148,7 @@ const SystemStatus = ({ sites }) => {
           </motion.p>
 
           {/* Status Details */}
-          <div className="flex flex-wrap items-center mt-1.5 gap-x-3 gap-y-1 text-[10px] md:text-xs text-gray-500 dark:text-gray-500">
+          <div className="flex flex-wrap items-center mt-1.5 gap-x-3 gap-y-1 text-[10px] md:text-xs text-gray-600 dark:text-gray-500">
             <div className="flex items-center">
               <Activity className="h-3 w-3 mr-1 text-blue-500" />
               <span>{operationalPercentage}% Operational</span>
@@ -170,7 +170,7 @@ const SystemStatus = ({ sites }) => {
 
         {/* Status Indicator */}
         <motion.div
-          className="hidden md:flex flex-col items-center justify-center bg-white/80 dark:bg-black/40 backdrop-blur-sm rounded-xl h-16 w-16 md:h-18 md:w-18 shadow-lg flex-shrink-0 relative overflow-hidden border border-white/20 dark:border-gray-800/50"
+          className="hidden md:flex flex-col items-center justify-center bg-white/90 dark:bg-black/40 backdrop-blur-sm rounded-xl h-16 w-16 md:h-18 md:w-18 shadow-lg flex-shrink-0 relative overflow-hidden border border-gray-200/50 dark:border-gray-800/50"
           variants={pulseAnimation}
           initial="initial"
           animate="animate"
@@ -202,7 +202,7 @@ const SystemStatus = ({ sites }) => {
             {operationalPercentage}%
           </motion.span>
           <motion.span
-            className="text-[9px] text-gray-500 dark:text-gray-500"
+            className="text-[9px] text-gray-600 dark:text-gray-500"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >

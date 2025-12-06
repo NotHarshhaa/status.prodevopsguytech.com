@@ -18,7 +18,17 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     const savedPreference = localStorage.getItem('darkMode');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setIsDarkMode(savedPreference === 'true' || (!savedPreference && systemPrefersDark));
+    const shouldBeDark = savedPreference === 'true' || (!savedPreference && systemPrefersDark);
+    setIsDarkMode(shouldBeDark);
+    
+    // Set initial theme classes
+    if (shouldBeDark) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    }
 
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -28,8 +38,10 @@ function MyApp({ Component, pageProps }) {
         setIsDarkMode(e.matches);
         if (e.matches) {
           document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
         } else {
           document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
         }
       }
     };

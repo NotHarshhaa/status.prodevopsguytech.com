@@ -233,7 +233,7 @@ export default function SiteDetail() {
                       {site.name}
                     </motion.h1>
                     <motion.p
-                      className="text-gray-500 dark:text-gray-500"
+                      className="text-gray-600 dark:text-gray-500"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.2 }}
@@ -269,7 +269,7 @@ export default function SiteDetail() {
                       className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
                         activeTab === "realtime"
                           ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-500"
-                          : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          : "text-gray-600 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                       }`}
                       onClick={() => setActiveTab("realtime")}
                       whileHover={{ scale: 1.05 }}
@@ -281,7 +281,7 @@ export default function SiteDetail() {
                       className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
                         activeTab === "historical"
                           ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-500"
-                          : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          : "text-gray-600 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                       }`}
                       onClick={() => setActiveTab("historical")}
                       whileHover={{ scale: 1.05 }}
@@ -293,7 +293,7 @@ export default function SiteDetail() {
                       className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
                         activeTab === "metrics"
                           ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-500"
-                          : "text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          : "text-gray-600 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                       }`}
                       onClick={() => setActiveTab("metrics")}
                       whileHover={{ scale: 1.05 }}

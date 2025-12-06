@@ -124,7 +124,7 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
       >
         <div className="flex items-center">
           <motion.div
-            className={`p-2 rounded-xl bg-white/60 dark:bg-black/30 backdrop-blur-sm ${statusClasses.icon} mr-3 flex items-center justify-center shadow-md border border-white/20 dark:border-gray-800/50`}
+            className={`p-2 rounded-xl bg-white/80 dark:bg-black/30 backdrop-blur-sm ${statusClasses.icon} mr-3 flex items-center justify-center shadow-md border border-gray-200/50 dark:border-gray-800/50`}
             variants={scaleUp}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -148,7 +148,7 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
               {name}
             </motion.h3>
             <motion.p
-              className="text-xs sm:text-sm text-gray-500 dark:text-gray-500"
+              className="text-xs sm:text-sm text-gray-600 dark:text-gray-500"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -221,11 +221,11 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <span className="text-gray-500 dark:text-gray-500 flex items-center text-xs sm:text-sm">
+          <span className="text-gray-600 dark:text-gray-500 flex items-center text-xs sm:text-sm">
             <Activity className="h-3 sm:h-3.5 w-3 sm:w-3.5 mr-1" />
             <span>{responseTime || "--"}ms</span>
           </span>
-          <span className="text-gray-500 dark:text-gray-500 flex items-center text-xs sm:text-sm">
+          <span className="text-gray-600 dark:text-gray-500 flex items-center text-xs sm:text-sm">
             <Clock className="h-3 sm:h-3.5 w-3 sm:w-3.5 mr-1" />
             <span>{lastChecked ? formatTime(lastChecked) : "--"}</span>
           </span>
