@@ -1,17 +1,11 @@
 {
-  "timestamp": "2026-03-09T12:35:40.113Z",
+  "timestamp": "2026-03-09T18:37:14.196Z",
   "overall": "degraded",
   "metrics": {
     "status": "degraded",
-    "operationalPercentage": 73,
-    "averageResponseTime": 710,
+    "operationalPercentage": 87,
+    "averageResponseTime": 1315,
     "sitesWithIssues": [
-      {
-        "id": "docs",
-        "name": "Ultimate Docs Portal",
-        "status": "degraded",
-        "statusText": "Slow Response"
-      },
       {
         "id": "blog",
         "name": "DevOps Blog",
@@ -23,12 +17,6 @@
         "name": "Cloud Blog",
         "status": "degraded",
         "statusText": "Client Error"
-      },
-      {
-        "id": "docker2k8s",
-        "name": "Docker to Kubernetes",
-        "status": "degraded",
-        "statusText": "Slow Response"
       }
     ],
     "totalSites": 15
@@ -43,9 +31,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 148,
+      "responseTime": 209,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:33.942Z"
+      "lastChecked": "2026-03-09T18:37:11.871Z"
     },
     {
       "id": "docs",
@@ -53,12 +41,12 @@
       "url": "https://docs.prodevopsguytech.com",
       "icon": "📚",
       "description": "900+ curated DevOps learning materials",
-      "status": "degraded",
-      "statusText": "Slow Response",
+      "status": "operational",
+      "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 6282,
+      "responseTime": 2496,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:40.111Z"
+      "lastChecked": "2026-03-09T18:37:14.194Z"
     },
     {
       "id": "repos",
@@ -69,9 +57,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 152,
+      "responseTime": 346,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:33.983Z"
+      "lastChecked": "2026-03-09T18:37:12.045Z"
     },
     {
       "id": "jobs",
@@ -82,9 +70,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 1543,
+      "responseTime": 2387,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:35.375Z"
+      "lastChecked": "2026-03-09T18:37:14.088Z"
     },
     {
       "id": "blog",
@@ -95,9 +83,9 @@
       "status": "degraded",
       "statusText": "Client Error",
       "statusCode": 429,
-      "responseTime": 182,
+      "responseTime": 743,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.015Z"
+      "lastChecked": "2026-03-09T18:37:12.445Z"
     },
     {
       "id": "cloud",
@@ -108,9 +96,9 @@
       "status": "degraded",
       "statusText": "Client Error",
       "statusCode": 429,
-      "responseTime": 296,
+      "responseTime": 744,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.130Z"
+      "lastChecked": "2026-03-09T18:37:12.447Z"
     },
     {
       "id": "docker2k8s",
@@ -118,12 +106,12 @@
       "url": "https://dockertokubernetes.live",
       "icon": "🐳",
       "description": "Master containerization journey",
-      "status": "degraded",
-      "statusText": "Slow Response",
+      "status": "operational",
+      "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 5706,
+      "responseTime": 1983,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:39.541Z"
+      "lastChecked": "2026-03-09T18:37:13.687Z"
     },
     {
       "id": "devopslab",
@@ -134,9 +122,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 352,
+      "responseTime": 1015,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.188Z"
+      "lastChecked": "2026-03-09T18:37:12.720Z"
     },
     {
       "id": "toolguides",
@@ -147,9 +135,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 449,
+      "responseTime": 1005,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.286Z"
+      "lastChecked": "2026-03-09T18:37:12.711Z"
     },
     {
       "id": "cheatsheet",
@@ -160,9 +148,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 597,
+      "responseTime": 921,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.435Z"
+      "lastChecked": "2026-03-09T18:37:12.628Z"
     },
     {
       "id": "monitoring",
@@ -173,9 +161,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 1647,
+      "responseTime": 2161,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:35.486Z"
+      "lastChecked": "2026-03-09T18:37:13.870Z"
     },
     {
       "id": "interviews",
@@ -186,9 +174,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 609,
+      "responseTime": 1067,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.449Z"
+      "lastChecked": "2026-03-09T18:37:12.776Z"
     },
     {
       "id": "devopstools",
@@ -199,9 +187,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 757,
+      "responseTime": 1135,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.599Z"
+      "lastChecked": "2026-03-09T18:37:12.846Z"
     },
     {
       "id": "awesomeui",
@@ -212,9 +200,9 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 534,
+      "responseTime": 1007,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.376Z"
+      "lastChecked": "2026-03-09T18:37:12.719Z"
     },
     {
       "id": "resources",
@@ -225,19 +213,15 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 1021,
+      "responseTime": 1361,
       "error": null,
-      "lastChecked": "2026-03-09T12:35:34.864Z"
+      "lastChecked": "2026-03-09T18:37:13.073Z"
     }
   ],
-  "lastChecked": "2026-03-09T12:35:40.113Z",
+  "lastChecked": "2026-03-09T18:37:14.196Z",
   "historical": {
     "hourly": {
       "projects": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 247
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 326
@@ -253,13 +237,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 148
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 209
         }
       },
       "docs": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 2449
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 2419
@@ -275,13 +259,13 @@
         "2026-03-09T12": {
           "status": "degraded",
           "responseTime": 6282
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 2496
         }
       },
       "repos": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 639
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 241
@@ -297,13 +281,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 152
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 346
         }
       },
       "jobs": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 2014
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 1880
@@ -319,13 +303,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 1543
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 2387
         }
       },
       "blog": {
-        "2026-03-08T12": {
-          "status": "degraded",
-          "responseTime": 282
-        },
         "2026-03-08T18": {
           "status": "degraded",
           "responseTime": 277
@@ -341,13 +325,13 @@
         "2026-03-09T12": {
           "status": "degraded",
           "responseTime": 182
+        },
+        "2026-03-09T18": {
+          "status": "degraded",
+          "responseTime": 743
         }
       },
       "cloud": {
-        "2026-03-08T12": {
-          "status": "degraded",
-          "responseTime": 383
-        },
         "2026-03-08T18": {
           "status": "degraded",
           "responseTime": 438
@@ -363,13 +347,13 @@
         "2026-03-09T12": {
           "status": "degraded",
           "responseTime": 296
+        },
+        "2026-03-09T18": {
+          "status": "degraded",
+          "responseTime": 744
         }
       },
       "docker2k8s": {
-        "2026-03-08T12": {
-          "status": "degraded",
-          "responseTime": 5606
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 1849
@@ -385,13 +369,13 @@
         "2026-03-09T12": {
           "status": "degraded",
           "responseTime": 5706
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 1983
         }
       },
       "devopslab": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 529
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 395
@@ -407,13 +391,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 352
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 1015
         }
       },
       "toolguides": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 791
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 593
@@ -429,13 +413,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 449
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 1005
         }
       },
       "cheatsheet": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 736
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 554
@@ -451,13 +435,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 597
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 921
         }
       },
       "monitoring": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 1969
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 1469
@@ -473,13 +457,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 1647
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 2161
         }
       },
       "interviews": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 868
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 588
@@ -495,13 +479,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 609
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 1067
         }
       },
       "devopstools": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 1164
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 663
@@ -517,13 +501,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 757
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 1135
         }
       },
       "awesomeui": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 847
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 618
@@ -539,13 +523,13 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 534
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 1007
         }
       },
       "resources": {
-        "2026-03-08T12": {
-          "status": "operational",
-          "responseTime": 1803
-        },
         "2026-03-08T18": {
           "status": "operational",
           "responseTime": 1172
@@ -561,6 +545,10 @@
         "2026-03-09T12": {
           "status": "operational",
           "responseTime": 1021
+        },
+        "2026-03-09T18": {
+          "status": "operational",
+          "responseTime": 1361
         }
       }
     },
@@ -630,11 +618,11 @@
           "avgResponseTime": 254
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 630,
+          "totalResponseTime": 839,
           "uptime": 100,
           "avgResponseTime": 210
         }
@@ -704,13 +692,13 @@
           "avgResponseTime": 2233
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 2,
+          "checks": 4,
+          "operational": 3,
           "degraded": 1,
           "outage": 0,
-          "totalResponseTime": 10966,
-          "uptime": 67,
-          "avgResponseTime": 3655
+          "totalResponseTime": 13462,
+          "uptime": 75,
+          "avgResponseTime": 3366
         }
       },
       "repos": {
@@ -778,13 +766,13 @@
           "avgResponseTime": 418
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 1028,
+          "totalResponseTime": 1374,
           "uptime": 100,
-          "avgResponseTime": 343
+          "avgResponseTime": 344
         }
       },
       "jobs": {
@@ -852,13 +840,13 @@
           "avgResponseTime": 1734
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 5383,
+          "totalResponseTime": 7770,
           "uptime": 100,
-          "avgResponseTime": 1794
+          "avgResponseTime": 1943
         }
       },
       "blog": {
@@ -926,13 +914,13 @@
           "avgResponseTime": 263
         },
         "2026-03-09": {
-          "checks": 3,
+          "checks": 4,
           "operational": 0,
-          "degraded": 3,
+          "degraded": 4,
           "outage": 0,
-          "totalResponseTime": 824,
+          "totalResponseTime": 1567,
           "uptime": 0,
-          "avgResponseTime": 275
+          "avgResponseTime": 392
         }
       },
       "cloud": {
@@ -1000,13 +988,13 @@
           "avgResponseTime": 376
         },
         "2026-03-09": {
-          "checks": 3,
+          "checks": 4,
           "operational": 0,
-          "degraded": 3,
+          "degraded": 4,
           "outage": 0,
-          "totalResponseTime": 1102,
+          "totalResponseTime": 1846,
           "uptime": 0,
-          "avgResponseTime": 367
+          "avgResponseTime": 462
         }
       },
       "docker2k8s": {
@@ -1074,13 +1062,13 @@
           "avgResponseTime": 3436
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 2,
+          "checks": 4,
+          "operational": 3,
           "degraded": 1,
           "outage": 0,
-          "totalResponseTime": 10379,
-          "uptime": 67,
-          "avgResponseTime": 3460
+          "totalResponseTime": 12362,
+          "uptime": 75,
+          "avgResponseTime": 3091
         }
       },
       "devopslab": {
@@ -1148,13 +1136,13 @@
           "avgResponseTime": 421
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 1265,
+          "totalResponseTime": 2280,
           "uptime": 100,
-          "avgResponseTime": 422
+          "avgResponseTime": 570
         }
       },
       "toolguides": {
@@ -1222,13 +1210,13 @@
           "avgResponseTime": 604
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 1734,
+          "totalResponseTime": 2739,
           "uptime": 100,
-          "avgResponseTime": 578
+          "avgResponseTime": 685
         }
       },
       "cheatsheet": {
@@ -1296,13 +1284,13 @@
           "avgResponseTime": 603
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 2020,
+          "totalResponseTime": 2941,
           "uptime": 100,
-          "avgResponseTime": 673
+          "avgResponseTime": 735
         }
       },
       "monitoring": {
@@ -1370,13 +1358,13 @@
           "avgResponseTime": 1560
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 4686,
+          "totalResponseTime": 6847,
           "uptime": 100,
-          "avgResponseTime": 1562
+          "avgResponseTime": 1712
         }
       },
       "interviews": {
@@ -1444,13 +1432,13 @@
           "avgResponseTime": 608
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 2080,
+          "totalResponseTime": 3147,
           "uptime": 100,
-          "avgResponseTime": 693
+          "avgResponseTime": 787
         }
       },
       "devopstools": {
@@ -1518,13 +1506,13 @@
           "avgResponseTime": 776
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 2789,
+          "totalResponseTime": 3924,
           "uptime": 100,
-          "avgResponseTime": 930
+          "avgResponseTime": 981
         }
       },
       "awesomeui": {
@@ -1592,13 +1580,13 @@
           "avgResponseTime": 658
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 1756,
+          "totalResponseTime": 2763,
           "uptime": 100,
-          "avgResponseTime": 585
+          "avgResponseTime": 691
         }
       },
       "resources": {
@@ -1666,13 +1654,13 @@
           "avgResponseTime": 1177
         },
         "2026-03-09": {
-          "checks": 3,
-          "operational": 3,
+          "checks": 4,
+          "operational": 4,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 2983,
+          "totalResponseTime": 4344,
           "uptime": 100,
-          "avgResponseTime": 994
+          "avgResponseTime": 1086
         }
       }
     }
