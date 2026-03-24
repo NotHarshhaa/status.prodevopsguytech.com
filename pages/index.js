@@ -9,6 +9,9 @@ import StatusFilter from "../components/StatusFilter";
 import SearchSites from "../components/SearchSites";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import ModernLoader from "../components/ModernLoader";
+import IncidentBanner from "../components/IncidentBanner";
+import SLAGauge from "../components/SLAGauge";
+import UptimeHeatmap from "../components/UptimeHeatmap";
 import { initializeDarkMode, toggleDarkMode } from "../lib/utils";
 import { fetchStatusData } from "../lib/utils/statusData";
 import {
@@ -250,6 +253,8 @@ export default function Home() {
         />
       </Head>
 
+      <IncidentBanner sites={sites} />
+
       <Header
         toggleTheme={handleToggleDarkMode}
         isDarkMode={darkMode}
@@ -280,7 +285,7 @@ export default function Home() {
                 <AnimatePresence>
                   {metrics && (
                     <motion.div
-                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6"
+                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6"
                       variants={fadeInUp}
                       initial="hidden"
                       animate="visible"
@@ -349,9 +354,15 @@ export default function Home() {
                           </p>
                         </div>
                       </div>
+
+                      {/* SLA Gauge */}
+                      <SLAGauge sites={sites} />
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* 90-Day Uptime Heatmap */}
+                {sites.length > 0 && <UptimeHeatmap sites={sites} />}
 
                 {/* Sites Status List */}
                 <motion.div

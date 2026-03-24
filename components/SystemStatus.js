@@ -122,30 +122,21 @@ const SystemStatus = ({ sites }) => {
       layout
     >
       <div className="flex items-start md:items-center gap-2.5 md:gap-4">
-        {/* Status Icon */}
-        <motion.div
+        {/* Status Icon — plain div, removed motion nesting */}
+        <div
           className="p-2 md:p-2.5 bg-white/90 dark:bg-black/40 backdrop-blur-sm rounded-xl shadow-lg flex-shrink-0 border border-gray-200/50 dark:border-gray-800/50"
-          variants={scaleUp}
         >
           {statusConfig.icon}
-        </motion.div>
+        </div>
 
-        {/* Status Info */}
+        {/* Status Info — plain divs for text */}
         <div className="flex-1 min-w-0">
-          <motion.h2
-            className={`text-base md:text-xl font-semibold ${statusConfig.textColor} truncate leading-tight`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          <h2 className={`text-base md:text-xl font-semibold ${statusConfig.textColor} truncate leading-tight`}>
             {statusConfig.title}
-          </motion.h2>
-          <motion.p
-            className="text-xs md:text-sm text-gray-700 dark:text-gray-300 mt-0.5 line-clamp-1 md:line-clamp-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          </h2>
+          <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 mt-0.5 line-clamp-1 md:line-clamp-2">
             {statusConfig.description}
-          </motion.p>
+          </p>
 
           {/* Status Details */}
           <div className="flex flex-wrap items-center mt-1.5 gap-x-3 gap-y-1 text-[10px] md:text-xs text-gray-600 dark:text-gray-500">
@@ -168,17 +159,17 @@ const SystemStatus = ({ sites }) => {
           </div>
         </div>
 
-        {/* Status Indicator */}
+        {/* Status Indicator — single motion.div for pulsing */}
         <motion.div
           className="hidden md:flex flex-col items-center justify-center bg-white/90 dark:bg-black/40 backdrop-blur-sm rounded-xl h-16 w-16 md:h-18 md:w-18 shadow-lg flex-shrink-0 relative overflow-hidden border border-gray-200/50 dark:border-gray-800/50"
           variants={pulseAnimation}
           initial="initial"
           animate="animate"
         >
-          <motion.div
+          {/* Top progress bar */}
+          <div
             className="absolute inset-x-0 top-0 h-1"
-            initial={{ width: "0%" }}
-            animate={{
+            style={{
               width: "100%",
               backgroundColor:
                 overallStatus === "operational"
@@ -187,31 +178,17 @@ const SystemStatus = ({ sites }) => {
                     ? "#F59E0B"
                     : "#EF4444",
             }}
-            transition={{ duration: 0.8 }}
           />
-          <motion.span
-            className="text-xl font-bold text-blue-600 dark:text-blue-400"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 260,
-              damping: 20,
-            }}
-          >
+          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
             {operationalPercentage}%
-          </motion.span>
-          <motion.span
-            className="text-[9px] text-gray-600 dark:text-gray-500"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          </span>
+          <span className="text-[9px] text-gray-600 dark:text-gray-500">
             Operational
-          </motion.span>
-          <motion.div
-            className="absolute bottom-0 inset-x-0 h-1"
-            initial={{ width: "0%" }}
-            animate={{
+          </span>
+          {/* Bottom progress bar */}
+          <div
+            className="absolute bottom-0 inset-x-0 h-1 transition-all duration-700"
+            style={{
               width: `${operationalPercentage}%`,
               backgroundColor:
                 overallStatus === "operational"
@@ -220,19 +197,14 @@ const SystemStatus = ({ sites }) => {
                     ? "#F59E0B"
                     : "#EF4444",
             }}
-            transition={{ duration: 0.8 }}
           />
         </motion.div>
       </div>
 
-      {/* Mobile percentage indicator (shown only on mobile) */}
-      <motion.div
-        className="md:hidden mt-2 h-1.5 bg-gray-200 dark:bg-dark-light rounded-full overflow-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <motion.div
-          className="h-full rounded-full"
+      {/* Mobile percentage indicator — unified motion.div usage */}
+      <div className="md:hidden mt-2 h-1.5 bg-gray-200 dark:bg-dark-light rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-700"
           style={{
             width: `${operationalPercentage}%`,
             backgroundColor:
@@ -242,11 +214,8 @@ const SystemStatus = ({ sites }) => {
                   ? "#F59E0B"
                   : "#EF4444",
           }}
-          initial={{ width: "0%" }}
-          animate={{ width: `${operationalPercentage}%` }}
-          transition={{ duration: 0.8 }}
         />
-      </motion.div>
+      </div>
     </motion.div>
   );
 };

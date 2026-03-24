@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,13 +7,14 @@
 :root {
     --foreground-rgb: 17, 24, 39;
     --background-start-rgb: 248, 250, 252;
-    --background-end-rgb: 255, 255, 255;
+    --background-end-rgb: 241, 245, 249;
     --gradient-start: 248, 250, 252;
     --gradient-end: 241, 245, 249;
     --glass-bg: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(0, 0, 0, 0.1);
+    --glass-border: rgba(0, 0, 0, 0.08);
     --shadow-color: 0, 0, 0;
-    --shadow-opacity: 0.1;
+    --shadow-opacity: 0.08;
+    --accent: 59, 130, 246;
 }
 
 /* Ensure light mode is explicit when dark class is not present */
@@ -72,6 +75,7 @@ body {
         rgb(var(--gradient-end)) 100%
     );
     min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-feature-settings:
         "rlig" 1,
         "calt" 1;
@@ -87,6 +91,23 @@ html:not(.dark) body {
     color: rgb(17, 24, 39) !important;
 }
 
+.dark body {
+    background: linear-gradient(
+        135deg,
+        rgb(0, 0, 0) 0%,
+        rgb(5, 5, 10) 100%
+    ) !important;
+}
+
+/* Gradient text utility */
+.gradient-text {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+
 @layer components {
     /* Glass morphism components */
     .glass-card {
@@ -95,6 +116,17 @@ html:not(.dark) body {
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid var(--glass-border);
         box-shadow: 0 8px 32px rgba(var(--shadow-color), var(--shadow-opacity));
+        /* Performance optimizations for scroll lag */
+        will-change: transform;
+        contain: layout style;
+    }
+
+    /* CSS-only hover for heatmap squares to avoid JS overhead */
+    .heat-square:hover {
+        opacity: 0.7 !important;
+        transform: scale(1.1);
+        z-index: 10;
+        position: relative;
     }
 
     .glass-header {
@@ -109,15 +141,17 @@ html:not(.dark) body {
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* Enhanced status cards */
+    /* Status cards — scale is now driven by framer-motion, not CSS */
     .status-card {
-        @apply bg-white/90 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-lg p-4 mb-4 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border border-gray-200/50 dark:border-gray-800/50;
+        @apply bg-white/90 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-lg p-4 mb-4 border border-gray-200/50 dark:border-gray-800/50;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        /* Promote to its own compositor layer for smooth scrolling */
+        will-change: transform;
+        contain: layout style;
     }
 
     .status-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 40px
-            rgba(var(--shadow-color), calc(var(--shadow-opacity) * 1.5));
+        box-shadow: 0 16px 32px rgba(var(--shadow-color), calc(var(--shadow-opacity) * 1.4));
     }
 
     /* Enhanced status badges */
