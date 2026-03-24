@@ -35,6 +35,17 @@ on:
           - "10"
           - "15"
           - "20"
+      update_only:
+        description: "Only update status data without running checks"
+        required: false
+        default: false
+      create_backup:
+        description: "Create backup before updating"
+        required: false
+        default: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
   contents: write
@@ -91,6 +102,7 @@ jobs:
           ls -la scripts/
 
       - name: Run status check with enhanced logging
+        if: github.event.inputs.update_only != 'true'
         run: |
           echo "Starting status check at $(date)"
           echo "Force check: ${{ github.event.inputs.force_check || 'false' }}"
@@ -111,6 +123,20 @@ jobs:
         id: status-check
         timeout-minutes: ${{ github.event.inputs.timeout_minutes || 10 }}
 
+      - name: Update status data only mode
+        if: github.event.inputs.update_only == 'true'
+        run: |
+          echo "Running in update-only mode - skipping status checks"
+          echo "This mode only commits existing status data changes"
+          
+          if [ ! -f "public/status-data.json" ]; then
+            echo "Error: No existing status data file found"
+            exit 1
+          fi
+          
+          echo "Found existing status data file:"
+          ls -la public/status-data.json
+
       - name: Verify status data file was created
         run: |
           if [ ! -f "public/status-data.json" ]; then
@@ -127,6 +153,29 @@ jobs:
           echo "Status data file exists and is valid JSON"
           echo "File size: $(du -h public/status-data.json | cut -f1)"
           echo "Last modified: $(stat -c %y public/status-data.json)"
+
+      - name: Create backup before update
+        if: github.event.inputs.create_backup == 'true'
+        run: |
+          echo "Creating backup of current status data..."
+          BACKUP_DIR="backups"
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          BACKUP_FILE="${BACKUP_DIR}/status-data-backup-${TIMESTAMP}.json"
+          
+          # Create backups directory if it doesn't exist
+          mkdir -p $BACKUP_DIR
+          
+          if [ -f "public/status-data.json" ]; then
+            cp public/status-data.json "$BACKUP_FILE"
+            echo "Backup created: $BACKUP_FILE"
+            echo "Backup file size: $(du -h "$BACKUP_FILE" | cut -f1)"
+            
+            # Add backup to git tracking
+            git add "$BACKUP_FILE"
+            echo "Backup file added to git tracking"
+          else
+            echo "No existing status data file to backup"
+          fi
 
       - name: Analyze status data
         run: |
@@ -155,15 +204,18 @@ jobs:
             TOTAL_SITES=$(jq '.metrics.totalSites // 0' public/status-data.json)
             OPERATIONAL=$(jq '.metrics.operationalPercentage // 0' public/status-data.json)
             ISSUES_COUNT=$(jq '.metrics.sitesWithIssues | length // 0' public/status-data.json)
+            LAST_CHECKED=$(jq -r '.lastChecked // "unknown"' public/status-data.json)
             
             echo "total_sites=$TOTAL_SITES" >> $GITHUB_OUTPUT
             echo "operational_percentage=$OPERATIONAL" >> $GITHUB_OUTPUT
             echo "issues_count=$ISSUES_COUNT" >> $GITHUB_OUTPUT
+            echo "last_checked=$LAST_CHECKED" >> $GITHUB_OUTPUT
             
             echo "Changes detected:"
             echo "- Total sites: $TOTAL_SITES"
             echo "- Operational: $OPERATIONAL%"
             echo "- Sites with issues: $ISSUES_COUNT"
+            echo "- Last checked: $LAST_CHECKED"
           fi
 
       - name: Commit and push changes
@@ -172,20 +224,25 @@ jobs:
           echo "Committing status data changes..."
           
           # Configure git
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          
-          # Add the status data file
-          git add public/status-data.json
+          git config --local user.email "reddyharshhaa12@gmail.com"
+          git config --local user.name "NotHarshhaa"
           
           # Create detailed commit message
           TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S UTC")
           TOTAL_SITES="${{ steps.changes.outputs.total_sites }}"
           OPERATIONAL="${{ steps.changes.outputs.operational_percentage }}"
           ISSUES="${{ steps.changes.outputs.issues_count }}"
+          MODE="${{ github.event.inputs.update_only == 'true' && 'UPDATE-ONLY' || 'FULL-CHECK' }}"
           
           COMMIT_MSG="${{ github.event.inputs.message || 'status: Update status data' }} (${TIMESTAMP}) [skip ci]"
-          COMMIT_MSG="$COMMIT_MSG | Sites: $TOTAL_SITES | Operational: $OPERATIONAL% | Issues: $ISSUES"
+          COMMIT_MSG="$COMMIT_MSG | $MODE | Sites: $TOTAL_SITES | Operational: $OPERATIONAL% | Issues: $ISSUES"
+          
+          # Check if we're in update-only mode
+          if [ "${{ github.event.inputs.update_only }}" == "true" ]; then
+            echo "Running in update-only mode - committing existing changes"
+          else
+            echo "Running full status check - committing new results"
+          fi
           
           git commit -m "$COMMIT_MSG"
           
@@ -193,6 +250,7 @@ jobs:
           git push origin "${{ github.event.inputs.branch || 'master' }}"
           
           echo "Changes committed and pushed successfully"
+          echo "Commit message: $COMMIT_MSG"
         continue-on-error: false
 
       - name: Create summary
@@ -200,7 +258,9 @@ jobs:
         run: |
           echo "## Status Check Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Completed at**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mode**: ${{ github.event.inputs.update_only == 'true' && 'Update Only' || 'Full Check' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Force check**: ${{ github.event.inputs.force_check || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backup created**: ${{ github.event.inputs.create_backup || 'true' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Timeout**: ${{ github.event.inputs.timeout_minutes || '10' }} minutes" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ steps.changes.outputs.has_changes }}" == "true" ]; then
@@ -208,6 +268,7 @@ jobs:
             echo "- **Total sites**: ${{ steps.changes.outputs.total_sites }}" >> $GITHUB_STEP_SUMMARY
             echo "- **Operational**: ${{ steps.changes.outputs.operational_percentage }}%" >> $GITHUB_STEP_SUMMARY
             echo "- **Issues**: ${{ steps.changes.outputs.issues_count }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Last checked**: ${{ steps.changes.outputs.last_checked }}" >> $GITHUB_STEP_SUMMARY
           else
             echo "- **Changes detected**: No" >> $GITHUB_STEP_SUMMARY
           fi
