@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -137,29 +137,27 @@ export const NotificationProvider = ({ children }) => {
   const notificationLimit = useRef(5); // Maximum number of notifications to show at once
 
   // Add a new notification
-  const addNotification = (notification) => {
+  const addNotification = useCallback((notification) => {
     const id = Date.now();
     setNotifications((prev) => {
-      // If we already have the max number of notifications, remove the oldest one
       if (prev.length >= notificationLimit.current) {
         return [...prev.slice(1), { ...notification, id }];
       }
       return [...prev, { ...notification, id }];
     });
     return id;
-  };
+  }, []);
 
-  // Remove a notification by id
-  const removeNotification = (id) => {
+  const removeNotification = useCallback((id) => {
     setNotifications((prev) =>
       prev.filter((notification) => notification.id !== id),
     );
-  };
+  }, []);
 
-  const contextValue = {
-    addNotification,
-    removeNotification,
-  };
+  const contextValue = useMemo(
+    () => ({ addNotification, removeNotification }),
+    [addNotification, removeNotification],
+  );
 
   return (
     <NotificationContext.Provider value={contextValue}>
@@ -188,57 +186,24 @@ export const NotificationContext = React.createContext({
 
 // Custom hook to use notifications
 export const useNotification = () => {
-  const context = React.useContext(NotificationContext);
+  const { addNotification, removeNotification } = React.useContext(NotificationContext);
 
-  if (!context) {
-    throw new Error(
-      "useNotification must be used within a NotificationProvider",
-    );
-  }
-
-  return {
-    notify: (message, options = {}) => {
-      return context.addNotification({
-        message,
-        ...options,
-      });
-    },
-    success: (message, options = {}) => {
-      return context.addNotification({
-        message,
-        type: "success",
-        duration: 5000,
-        ...options,
-      });
-    },
-    error: (message, options = {}) => {
-      return context.addNotification({
-        message,
-        type: "error",
-        duration: 10000, // Errors stay longer by default
-        ...options,
-      });
-    },
-    warning: (message, options = {}) => {
-      return context.addNotification({
-        message,
-        type: "warning",
-        duration: 7000, // Warnings stay a bit longer
-        ...options,
-      });
-    },
-    info: (message, options = {}) => {
-      return context.addNotification({
-        message,
-        type: "info",
-        duration: 5000,
-        ...options,
-      });
-    },
-    dismiss: (id) => {
-      context.removeNotification(id);
-    },
-  };
+  return useMemo(
+    () => ({
+      notify: (message, options = {}) =>
+        addNotification({ message, ...options }),
+      success: (message, options = {}) =>
+        addNotification({ message, type: "success", duration: 5000, ...options }),
+      error: (message, options = {}) =>
+        addNotification({ message, type: "error", duration: 10000, ...options }),
+      warning: (message, options = {}) =>
+        addNotification({ message, type: "warning", duration: 7000, ...options }),
+      info: (message, options = {}) =>
+        addNotification({ message, type: "info", duration: 5000, ...options }),
+      dismiss: (id) => removeNotification(id),
+    }),
+    [addNotification, removeNotification],
+  );
 };
 
 export default Notification;

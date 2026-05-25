@@ -92,11 +92,17 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
     }
   }, [checkForStatusChanges, notification]);
 
+  const fetchDataRef = useRef(fetchData);
+
   useEffect(() => {
-    fetchData();
-    const interval = setInterval(() => fetchData(), 60000);
+    fetchDataRef.current = fetchData;
+  });
+
+  useEffect(() => {
+    fetchDataRef.current();
+    const interval = setInterval(() => fetchDataRef.current(), 60000);
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, []);
 
   const overall = getOverallStatus(sites);
   const hero = OVERALL_STATUS[overall] || OVERALL_STATUS.operational;
