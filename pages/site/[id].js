@@ -1,46 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import Head from "next/head";
 import Link from "next/link";
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
-import SiteMetrics from "../../components/SiteMetrics";
-import HistoricalChart from "../../components/HistoricalChart";
-import RealTimeStatusChart from "../../components/RealTimeStatusChart";
-import { getSiteHistory } from "../../lib/services/statusChecker";
-import { 
-  ArrowLeft, 
-  Rocket, 
-  Monitor, 
-  BookOpen, 
-  Package, 
-  Compass, 
-  Newspaper, 
-  Cloud, 
-  Container, 
-  FlaskConical, 
-  Wrench, 
-  FileText, 
-  BarChart3 
-} from "lucide-react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
-
-// Icon mapping for string identifiers to React components
-const iconMap = {
-  Rocket,
-  Monitor,
-  BookOpen,
-  Package,
-  Compass,
-  Newspaper,
-  Cloud,
-  Container,
-  FlaskConical,
-  Wrench,
-  FileText,
-  BarChart3
-};
+import { ArrowLeft, ExternalLink } from "lucide-react";
+import StatusLayout from "../../components/StatusLayout";
+import UptimeSection from "../../components/UptimeSection";
+import RealTimeStatusChart from "../../components/RealTimeStatusChart";
+import HistoricalChart from "../../components/HistoricalChart";
+import { getSiteHistory } from "../../lib/services/statusChecker";
+import {
+  COMPONENT_STATUS,
+  generateUptimeHistory,
+  getUptimePercent,
+  formatRelativeTime,
+} from "../../lib/statusTheme";
+import { PageLoader } from "../../components/PageToolbar";
 
 export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
   const router = useRouter();
@@ -49,283 +23,166 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
   const [siteHistory, setSiteHistory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("realtime");
-  const [siteId, setSiteId] = useState(null);
 
-  // Set the site ID when the router query changes
   useEffect(() => {
-    if (id) {
-      setSiteId(id);
-    }
-  }, [id]);
+    if (!id) return;
 
-  // Fetch site data when siteId is available
-  useEffect(() => {
-    if (!siteId) return;
-
-    const fetchSiteData = async () => {
+    const fetchSite = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        // Fetch site status from API
-        const response = await axios.get(
-          `/api/status?siteId=${encodeURIComponent(siteId)}`,
+        const res = await axios.get(
+          `/api/status?siteId=${encodeURIComponent(id)}`,
         );
-
-        if (response.data && response.data.site) {
-          const siteData = response.data.site;
-
-          if (!siteData.name || !siteData.description) {
-            setError("Invalid site data received");
-            return;
-          }
-
-          setSite(siteData);
-
-          // Get historical data (currently simulated)
-          const history = getSiteHistory(siteId);
-          setSiteHistory(history);
+        if (res.data?.site) {
+          setSite(res.data.site);
+          setSiteHistory(getSiteHistory(id));
         } else {
-          console.error("Site data not available in response:", response.data);
-          setError("Site not found or data unavailable");
+          setError("Service not found.");
         }
       } catch (err) {
-        console.error("Error fetching site data:", err);
-        setError("Failed to load site data. Please try again later.");
+        console.error(err);
+        setError("Failed to load service status.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSiteData();
+    fetchSite();
+    const interval = setInterval(fetchSite, 30000);
+    return () => clearInterval(interval);
+  }, [id]);
 
-    // Refresh data every 30 seconds
-    const refreshInterval = setInterval(fetchSiteData, 30000);
-    return () => clearInterval(refreshInterval);
-  }, [siteId]);
+  const uptime90 = useMemo(() => {
+    if (!site) return 100;
+    return getUptimePercent(
+      generateUptimeHistory(site.id, site.status, 90),
+    );
+  }, [site]);
 
-  if (!id) {
-    return null; // Don't render until we have an ID
-  }
+  if (!id) return null;
+
+  const statusCfg = site
+    ? COMPONENT_STATUS[site.status] || COMPONENT_STATUS.unknown
+    : null;
 
   return (
-    <motion.div
-      className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+    <StatusLayout
+      isDarkMode={isDarkMode}
+      onThemeToggle={onThemeToggle}
+      overallStatus={site?.status || "operational"}
+      title={
+        site
+          ? `${site.name} — ProDevOpsGuy Status`
+          : "Service Status — ProDevOpsGuy"
+      }
+      description={
+        site
+          ? `Status and uptime for ${site.name}`
+          : "Loading service status"
+      }
     >
-      <Head>
-        <title>
-          {site
-            ? `${site.name} Status - ProDevOpsGuy`
-            : "Loading Site Status..."}
-        </title>
-        <meta
-          name="description"
-          content={
-            site
-              ? `Current status and performance metrics for ${site.name}`
-              : "Loading site status information"
-          }
-        />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-      </Head>
+      <div className="status-container-wide">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-[#0969da] dark:text-[#58a6ff] hover:underline mb-6"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to status page
+        </Link>
 
-      <Header toggleTheme={onThemeToggle} isDarkMode={isDarkMode} />
-
-      <main className="flex-grow py-4 sm:py-8 px-3 sm:px-6 lg:px-8 bg-gray-50 dark:bg-black">
-        <div className="max-w-7xl mx-auto">
-          {/* Back button */}
-          <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Link
-              href="/"
-              className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to Status Dashboard
-            </Link>
-          </motion.div>
-
-          {loading ? (
-            <motion.div
-              className="flex justify-center items-center h-64"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              ></motion.div>
-            </motion.div>
-          ) : error ? (
-            <motion.div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-200">
-              {error}
-            </motion.div>
-          ) : site ? (
-            <>
-              {/* Site Header */}
-              <motion.div
-                className="bg-white dark:bg-black rounded-lg shadow p-4 sm:p-6 mb-3 sm:mb-6 border border-gray-100 dark:border-gray-900"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="flex items-center">
-                  <motion.span
-                    className="text-2xl sm:text-3xl mr-2 sm:mr-3"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        {loading ? (
+          <PageLoader message="Loading service details..." />
+        ) : error ? (
+          <div className="status-card p-6 text-sm text-red-700 dark:text-red-400">
+            {error}
+          </div>
+        ) : site ? (
+          <div className="space-y-8">
+            {/* Service header */}
+            <div className="status-card p-5 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <span className={`status-dot ${statusCfg.dot}`} />
+                    <span className={`text-sm font-medium ${statusCfg.text}`}>
+                      {site.statusText || statusCfg.label}
+                    </span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-semibold">
+                    {site.name}
+                  </h1>
+                  <p className="text-sm text-[var(--text-muted)] mt-1">
+                    {site.description}
+                  </p>
+                  <a
+                    href={site.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-[#0969da] dark:text-[#58a6ff] hover:underline mt-3"
                   >
-                    {React.createElement(iconMap[site.icon] || Monitor, { className: "h-8 w-8" })}
-                  </motion.span>
+                    {site.url}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+                <div className="flex gap-6 sm:text-right">
                   <div>
-                    <motion.h1
-                      className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      {site.name}
-                    </motion.h1>
-                    <motion.p
-                      className="text-gray-600 dark:text-gray-500"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      {site.description}
-                    </motion.p>
-                    <motion.a
-                      href={site.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline text-sm inline-block mt-2"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {site.url}
-                    </motion.a>
+                    <p className="text-2xl font-semibold tabular-nums">
+                      {site.responseTime ?? "—"}
+                      <span className="text-sm font-normal text-[var(--text-muted)]">
+                        ms
+                      </span>
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
+                      Response time
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold tabular-nums">
+                      {uptime90}%
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
+                      90-day uptime
+                    </p>
                   </div>
                 </div>
-              </motion.div>
-
-              <motion.div
-                className="mb-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-              >
-                <div className="bg-white dark:bg-black rounded-lg shadow p-3 mb-1 border border-gray-100 dark:border-gray-900 overflow-hidden">
-                  <div className="flex space-x-2 border-b border-gray-100 dark:border-gray-900">
-                    <motion.button
-                      className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
-                        activeTab === "realtime"
-                          ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-500"
-                          : "text-gray-600 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                      }`}
-                      onClick={() => setActiveTab("realtime")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Real-Time Performance
-                    </motion.button>
-                    <motion.button
-                      className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
-                        activeTab === "historical"
-                          ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-500"
-                          : "text-gray-600 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                      }`}
-                      onClick={() => setActiveTab("historical")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Historical Data
-                    </motion.button>
-                    <motion.button
-                      className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
-                        activeTab === "metrics"
-                          ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-500"
-                          : "text-gray-600 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                      }`}
-                      onClick={() => setActiveTab("metrics")}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Site Metrics
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-
-              <AnimatePresence mode="wait">
-                {activeTab === "realtime" && (
-                  <motion.div
-                    key="realtime"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <RealTimeStatusChart
-                      siteId={siteId ? siteId.toString() : ""}
-                      siteName={site?.name || "Unknown Site"}
-                      timeRange="24h"
-                    />
-                  </motion.div>
-                )}
-
-                {activeTab === "historical" && (
-                  <motion.div
-                    key="historical"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <HistoricalChart
-                      siteHistory={siteHistory || {}}
-                      siteId={siteId ? siteId.toString() : ""}
-                      siteName={site?.name || "Unknown Site"}
-                    />
-                  </motion.div>
-                )}
-
-                {activeTab === "metrics" && (
-                  <motion.div
-                    key="metrics"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <SiteMetrics site={site || {}} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </>
-          ) : (
-            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-yellow-800 dark:text-yellow-200">
-              Site not found
+              </div>
+              {site.lastChecked && (
+                <p className="text-xs text-[var(--text-muted)] mt-4 pt-4 border-t border-[var(--border)]">
+                  Last checked {formatRelativeTime(site.lastChecked)}
+                  {site.statusCode ? ` · HTTP ${site.statusCode}` : ""}
+                </p>
+              )}
             </div>
-          )}
-        </div>
-      </main>
 
-      <Footer />
-    </motion.div>
+            {/* Uptime bar */}
+            <UptimeSection sites={[site]} days={90} />
+
+            {/* Charts */}
+            <section className="space-y-4">
+              <h2 className="text-lg font-semibold">Performance</h2>
+              <div className="status-card p-4 sm:p-5">
+                <h3 className="text-sm font-medium mb-4">Response time (24h)</h3>
+                <RealTimeStatusChart
+                  siteId={String(id)}
+                  siteName={site.name}
+                  timeRange="24h"
+                  embedded
+                />
+              </div>
+              <div className="status-card p-4 sm:p-5">
+                <h3 className="text-sm font-medium mb-4">Historical trends</h3>
+                <HistoricalChart
+                  siteHistory={siteHistory || {}}
+                  siteId={String(id)}
+                  siteName={site.name}
+                  embedded
+                />
+              </div>
+            </section>
+          </div>
+        ) : null}
+      </div>
+    </StatusLayout>
   );
 }

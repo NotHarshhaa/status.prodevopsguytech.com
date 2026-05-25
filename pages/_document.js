@@ -9,8 +9,8 @@ export default function Document() {
           rel="stylesheet"
         />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#0969da" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

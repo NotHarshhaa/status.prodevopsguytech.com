@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Line } from "react-chartjs-2";
-import { motion } from "framer-motion";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,7 +11,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-import { Activity, Clock, RefreshCw } from "lucide-react";
+import { Activity, RefreshCw } from "lucide-react";
 
 // Register Chart.js components
 ChartJS.register(
@@ -36,7 +35,8 @@ const RealTimeStatusChart = ({
   siteId = "",
   siteName = "Unknown Site",
   className = "",
-  timeRange = "24h", // Options: 1h, 24h, 7d, 30d
+  timeRange = "24h",
+  embedded = false,
 }) => {
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -289,145 +289,117 @@ const RealTimeStatusChart = ({
     { value: "30d", label: "30 Days" },
   ];
 
+  const tabClass = (active) =>
+    `px-3 py-1 text-xs font-medium rounded-md border transition-colors ${
+      active
+        ? "bg-[#0969da] text-white border-[#0969da] dark:bg-[#238636] dark:border-[#238636]"
+        : "bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:bg-[var(--page-bg)]"
+    }`;
+
   return (
-    <motion.div
-      className={`bg-white dark:bg-black rounded-lg shadow-sm p-3 sm:p-4 border border-gray-100 dark:border-gray-900 ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center">
-          <Activity className="h-5 w-5 text-blue-500 mr-2" />
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
-            {siteName || "Site"} Performance
-          </h3>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400">
-            <Clock className="h-3 w-3" />
-            <span>Updated {new Date().toLocaleTimeString()}</span>
+    <div className={embedded ? className : `status-card p-4 sm:p-5 ${className}`}>
+      {!embedded && (
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-[#0969da] dark:text-[#58a6ff]" />
+            <h3 className="text-base font-semibold truncate">{siteName} Performance</h3>
           </div>
-          <motion.button
-            onClick={refreshData}
-            className="p-1.5 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            disabled={loading || refreshing}
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-            />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[var(--text-muted)] hidden sm:inline">
+              Updated {new Date().toLocaleTimeString()}
+            </span>
+            <button
+              type="button"
+              onClick={refreshData}
+              className="status-btn-secondary p-1.5"
+              disabled={loading || refreshing}
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+      {embedded && (
+        <div className="flex justify-end mb-3">
+          <button
+            type="button"
+            onClick={refreshData}
+            className="status-btn-secondary p-1.5"
+            disabled={loading || refreshing}
+            aria-label="Refresh chart"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2 mb-4">
         {timeRanges.map((range) => (
-          <motion.button
+          <button
             key={range.value}
+            type="button"
             onClick={() => handleTimeRangeChange(range.value)}
-            className={`px-3 py-1 text-xs font-medium rounded-full transition-colors
-              ${
-                selectedTimeRange === range.value
-                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                  : "bg-gray-100 text-gray-700 dark:bg-dark-light dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className={tabClass(selectedTimeRange === range.value)}
           >
             {range.label}
-          </motion.button>
+          </button>
         ))}
       </div>
 
-      <div className="relative h-64 sm:h-80">
+      <div className="relative h-56 sm:h-64">
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              className="h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            />
+            <RefreshCw className="h-6 w-6 animate-spin text-[var(--text-muted)]" />
           </div>
         ) : chartData ? (
           <Line ref={chartRef} data={chartData} options={chartOptions} />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-gray-400">
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-[var(--text-muted)]">
             No data available
           </div>
         )}
       </div>
 
-      {/* Stats summary */}
-      {!loading &&
-        chartData &&
-        chartData.datasets &&
-        chartData.datasets[0] &&
-        chartData.datasets[0].data && (
-          <motion.div
-            className="grid grid-cols-3 gap-1.5 sm:gap-2 mt-3 sm:mt-4 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="bg-gray-50 dark:bg-dark-light/30 rounded-lg p-2">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Avg
+      {!loading && chartData?.datasets?.[0]?.data && (
+        <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+          {[
+            {
+              label: "Avg",
+              value: Math.round(
+                chartData.datasets[0].data
+                  .filter((v) => v != null)
+                  .reduce((a, b) => a + b, 0) /
+                  Math.max(1, chartData.datasets[0].data.filter((v) => v != null).length),
+              ),
+              color: "text-[#0969da] dark:text-[#58a6ff]",
+            },
+            {
+              label: "Min",
+              value: Math.min(...chartData.datasets[0].data.filter((v) => v != null)),
+              color: "text-emerald-600 dark:text-emerald-400",
+            },
+            {
+              label: "Max",
+              value: Math.max(...chartData.datasets[0].data.filter((v) => v != null)),
+              color: "text-red-600 dark:text-red-400",
+            },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="rounded-md border border-[var(--border)] bg-[var(--page-bg)] p-2"
+            >
+              <div className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
+                {stat.label}
               </div>
-              <div className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400">
-                {Math.round(
-                  chartData.datasets[0].data
-                    .filter((v) => v !== null && v !== undefined)
-                    .reduce((a, b) => a + b, 0) /
-                    Math.max(
-                      1,
-                      chartData.datasets[0].data.filter(
-                        (v) => v !== null && v !== undefined,
-                      ).length,
-                    ),
-                )}
-                ms
-              </div>
-            </div>
-            <div className="bg-gray-50 dark:bg-dark-light/30 rounded-lg p-2">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Min
-              </div>
-              <div className="text-base sm:text-lg font-bold text-green-600 dark:text-green-400">
-                {chartData.datasets[0].data.filter(
-                  (v) => v !== null && v !== undefined,
-                ).length > 0
-                  ? Math.min(
-                      ...chartData.datasets[0].data.filter(
-                        (v) => v !== null && v !== undefined,
-                      ),
-                    )
-                  : 0}
-                ms
+              <div className={`text-base font-semibold tabular-nums ${stat.color}`}>
+                {stat.value}ms
               </div>
             </div>
-            <div className="bg-gray-50 dark:bg-dark-light/30 rounded-lg p-2">
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                Max
-              </div>
-              <div className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400">
-                {chartData.datasets[0].data.filter(
-                  (v) => v !== null && v !== undefined,
-                ).length > 0
-                  ? Math.max(
-                      ...chartData.datasets[0].data.filter(
-                        (v) => v !== null && v !== undefined,
-                      ),
-                    )
-                  : 0}
-                ms
-              </div>
-            </div>
-          </motion.div>
-        )}
-    </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

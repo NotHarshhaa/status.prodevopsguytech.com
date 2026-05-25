@@ -24,15 +24,13 @@ ChartJS.register(
   Filler
 );
 
-const HistoricalChart = ({ siteHistory, siteId, siteName }) => {
+const HistoricalChart = ({ siteHistory, siteId, siteName, embedded = false }) => {
   const [timeRange, setTimeRange] = useState('24h');
 
   if (!siteHistory) {
     return (
-      <div className="bg-white dark:bg-dark-lighter rounded-lg shadow p-4 flex justify-center items-center h-64">
-        <p className="text-gray-500 dark:text-gray-400">
-          No historical data available
-        </p>
+      <div className="flex justify-center items-center h-48 text-sm text-[var(--text-muted)]">
+        No historical data available
       </div>
     );
   }
@@ -203,56 +201,59 @@ const HistoricalChart = ({ siteHistory, siteId, siteName }) => {
     },
   };
 
+  const tabClass = (active) =>
+    `px-3 py-1 text-xs font-medium rounded-md border transition-colors ${
+      active
+        ? "bg-[#0969da] text-white border-[#0969da] dark:bg-[#238636] dark:border-[#238636]"
+        : "bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)] hover:bg-[var(--page-bg)]"
+    }`;
+
   return (
-    <div className="bg-white dark:bg-dark-lighter rounded-lg shadow p-3 sm:p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white truncate">
-          {siteName} - Historical Performance
-        </h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setTimeRange('24h')}
-            className={`px-3 py-1 text-sm rounded-full ${
-              timeRange === '24h'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 dark:bg-dark-light text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
+    <div className={embedded ? "" : "status-card p-4 sm:p-5"}>
+      {!embedded && (
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-base font-semibold truncate">{siteName}</h3>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setTimeRange("24h")} className={tabClass(timeRange === "24h")}>
+              24 Hours
+            </button>
+            <button type="button" onClick={() => setTimeRange("30d")} className={tabClass(timeRange === "30d")}>
+              30 Days
+            </button>
+          </div>
+        </div>
+      )}
+      {embedded && (
+        <div className="flex gap-2 mb-4">
+          <button type="button" onClick={() => setTimeRange("24h")} className={tabClass(timeRange === "24h")}>
             24 Hours
           </button>
-          <button
-            onClick={() => setTimeRange('30d')}
-            className={`px-3 py-1 text-sm rounded-full ${
-              timeRange === '30d'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 dark:bg-dark-light text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
-          >
+          <button type="button" onClick={() => setTimeRange("30d")} className={tabClass(timeRange === "30d")}>
             30 Days
           </button>
         </div>
-      </div>
+      )}
       <div className="h-48 sm:h-64">
         <Line data={chartData} options={chartOptions} />
       </div>
-      <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-        {timeRange === '24h' ? (
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <div className="flex items-center">
-              <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>
-              <span>Operational</span>
-            </div>
-            <div className="flex items-center">
-              <span className="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-1"></span>
-              <span>Degraded</span>
-            </div>
-            <div className="flex items-center">
-              <span className="inline-block w-3 h-3 bg-red-500 rounded-full mr-1"></span>
-              <span>Outage</span>
-            </div>
+      <div className="mt-3 text-xs text-[var(--text-muted)]">
+        {timeRange === "24h" ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              Operational
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-amber-400" />
+              Degraded
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-red-500" />
+              Outage
+            </span>
           </div>
         ) : (
-          <p>30-day historical data showing average response times and uptime percentage</p>
+          <p>30-day historical data showing average response times and uptime</p>
         )}
       </div>
     </div>

@@ -1,31 +1,22 @@
 import { useState, useEffect } from "react";
-import Head from "next/head";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import SystemStatus from "../components/SystemStatus";
-import SiteStatusCard from "../components/SiteStatusCard";
-import RefreshButton from "../components/RefreshButton";
-import StatusFilter from "../components/StatusFilter";
-import SearchSites from "../components/SearchSites";
-import LoadingSkeleton from "../components/LoadingSkeleton";
-import ModernLoader from "../components/ModernLoader";
-import IncidentBanner from "../components/IncidentBanner";
-import SLAGauge from "../components/SLAGauge";
-import UptimeHeatmap from "../components/UptimeHeatmap";
+import StatusLayout from "../components/StatusLayout";
+import ComponentStatusList, {
+  StatusSummaryBar,
+} from "../components/ComponentStatusList";
+import UptimeSection from "../components/UptimeSection";
+import IncidentList from "../components/IncidentList";
+import PageToolbar, { PageLoader, PageSection } from "../components/PageToolbar";
 import { fetchStatusData } from "../lib/utils/statusData";
 import {
+  getOverallStatus,
+  OVERALL_STATUS,
+} from "../lib/statusTheme";
+import {
   CheckCircle,
-  Clock,
-  Server,
   AlertTriangle,
   XCircle,
-  BarChart2,
-  RefreshCw,
-  Activity,
 } from "lucide-react";
 import { useNotification } from "../components/Notification";
-import { motion, AnimatePresence } from "framer-motion";
-import { pageTransition, staggerContainer, fadeInUp } from "../lib/animations";
 
 export default function Home({ isDarkMode = false, onThemeToggle }) {
   const [sites, setSites] = useState([]);
@@ -34,78 +25,35 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
   const [previousSites, setPreviousSites] = useState([]);
-  const [filteredSites, setFilteredSites] = useState([]);
-  const [statusFilters, setStatusFilters] = useState([]);
-  const [selectedSite, setSelectedSite] = useState(null);
   const [fetchError, setFetchError] = useState(null);
   const notification = useNotification();
 
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === "r" && (event.ctrlKey || event.metaKey)) {
-        event.preventDefault();
-        fetchData(true);
-      }
-      if (event.key === "Escape") {
-        setSelectedSite(null);
-        setStatusFilters([]);
-      }
-      // Accessibility: Focus management
-      if (event.key === "Tab") {
-        // Ensure focus is visible
-        document.body.classList.add("keyboard-navigation");
-      }
-    };
-
-    const handleMouseDown = () => {
-      document.body.classList.remove("keyboard-navigation");
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleMouseDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleMouseDown);
-    };
-  }, []);
-
-  // Fetch site status data
   const fetchData = async (forceRefresh = false) => {
     try {
       setFetchError(null);
-      if (!sites.length) {
-        setLoading(true);
-      } else {
-        setRefreshing(true);
-      }
+      if (!sites.length) setLoading(true);
+      else setRefreshing(true);
 
-      // Fetch site statuses with fallback to static data if real-time fails
       const data = await fetchStatusData({
         preferStatic: false,
         refresh: forceRefresh,
       });
 
-      // Save current sites for comparison
-      if (sites.length > 0) {
-        setPreviousSites([...sites]);
-      }
+      if (sites.length > 0) setPreviousSites([...sites]);
 
-      const newSites = data.sites;
+      const newSites = data.sites || [];
       setSites(newSites);
-
-      // Apply any existing filters to the new data
-      applyStatusFilters(newSites, statusFilters);
       setMetrics(data.metrics);
       setLastUpdated(new Date(data.timestamp || Date.now()));
 
-      // Check for status changes and notify
       if (previousSites.length > 0 && newSites.length > 0) {
         checkForStatusChanges(previousSites, newSites);
       }
     } catch (error) {
       console.error("Failed to fetch status data:", error);
-      setFetchError("Unable to load status data. Showing last known data if available.");
+      setFetchError(
+        "Unable to load latest status. Showing last known data if available.",
+      );
       notification.error("Failed to refresh status data", { duration: 6000 });
     } finally {
       setLoading(false);
@@ -115,360 +63,102 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
 
   useEffect(() => {
     fetchData();
-
-    // Setup periodic refresh (every 60 seconds)
-    const refreshInterval = setInterval(fetchData, 60000);
-
-    return () => clearInterval(refreshInterval);
+    const interval = setInterval(fetchData, 60000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Apply filters whenever sites or statusFilters change
-  useEffect(() => {
-    applyStatusFilters(sites, statusFilters);
-  }, [sites, statusFilters]);
-
-  // Apply status filters to the sites
-  const applyStatusFilters = (sitesToFilter, filters) => {
-    if (!filters || filters.length === 0) {
-      // No filters, show all sites
-      setFilteredSites(sitesToFilter);
-    } else {
-      // Filter sites by selected statuses
-      const filtered = sitesToFilter.filter((site) =>
-        filters.includes(site.status),
-      );
-      setFilteredSites(filtered);
-    }
-  };
-
-  // Handle filter changes
-  const handleFilterChange = (selectedFilters) => {
-    setStatusFilters(selectedFilters);
-    applyStatusFilters(sites, selectedFilters);
-  };
-
-  // Handle search result selection
-  const handleSearchResultSelect = (site) => {
-    setSelectedSite(site);
-    setStatusFilters([]);
-    setTimeout(() => {
-      const siteElement = document.getElementById(`site-${site.id}`);
-      if (siteElement) {
-        siteElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        siteElement.classList.add("ring-2", "ring-blue-500", "ring-offset-2");
-        setTimeout(() => {
-          siteElement.classList.remove(
-            "ring-2",
-            "ring-blue-500",
-            "ring-offset-2",
-          );
-        }, 2000);
-      }
-    }, 100);
-  };
-
-  // Check for status changes and display notifications
   const checkForStatusChanges = (oldSites, newSites) => {
     newSites.forEach((newSite) => {
-      const oldSite = oldSites.find((site) => site.id === newSite.id);
+      const oldSite = oldSites.find((s) => s.id === newSite.id);
       if (oldSite && oldSite.status !== newSite.status) {
-        // Status changed - show notification
         if (
           newSite.status === "operational" &&
           oldSite.status !== "operational"
         ) {
           notification.success(`${newSite.name} is now operational`, {
-            icon: <CheckCircle className="h-5 w-5" strokeWidth={2} />,
+            icon: <CheckCircle className="h-5 w-5" />,
             duration: 8000,
           });
         } else if (newSite.status === "degraded") {
           notification.warning(
             `${newSite.name} is experiencing degraded performance`,
             {
-              icon: <AlertTriangle className="h-5 w-5" strokeWidth={2} />,
+              icon: <AlertTriangle className="h-5 w-5" />,
               duration: 10000,
             },
           );
         } else if (newSite.status === "outage") {
           notification.error(`${newSite.name} is currently down`, {
-            icon: <XCircle className="h-5 w-5" strokeWidth={2} />,
-            duration: 0, // Won't auto-dismiss
+            icon: <XCircle className="h-5 w-5" />,
+            duration: 0,
           });
         }
       }
     });
   };
 
-  const displayedSites =
-    statusFilters.length === 0 ? sites : filteredSites;
+  const overall = getOverallStatus(sites);
+  const hero = OVERALL_STATUS[overall] || OVERALL_STATUS.operational;
 
   return (
-    <motion.div
-      className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""} transition-colors duration-300 custom-scrollbar`}
-      initial="hidden"
-      animate="visible"
-      variants={pageTransition}
+    <StatusLayout
+      isDarkMode={isDarkMode}
+      onThemeToggle={onThemeToggle}
+      overallStatus={metrics?.status || overall}
+      title="ProDevOpsGuy Status"
+      description="Current status of ProDevOpsGuy Tech platforms and services."
+      showHero
+      heroStatus={overall}
+      heroTitle={hero.label}
+      heroDescription={hero.description}
     >
-      <Head>
-        <title>ProDevOpsGuy - Status Dashboard</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta
-          name="description"
-          content="Real-time status of ProDevOpsGuy Tech platforms and websites"
-        />
-        <meta name="theme-color" content="#3b82f6" />
-        <meta name="color-scheme" content="light dark" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-      </Head>
-
-      <IncidentBanner sites={sites} />
-
-      <Header
-        toggleTheme={onThemeToggle}
-        isDarkMode={isDarkMode}
-        overallStatus={metrics?.status || "operational"}
-      />
-
-      <motion.main
-        className="flex-grow py-4 sm:py-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-colors duration-300"
-        variants={fadeInUp}
-      >
-        <motion.div className="max-w-7xl mx-auto" variants={staggerContainer}>
-          {loading ? (
-            // Modern loading state
-            <ModernLoader message="Initializing status dashboard..." />
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key="content"
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={pageTransition}
+      <div className="status-container-wide space-y-8">
+        {loading ? (
+          <PageLoader message="Checking all services..." />
+        ) : (
+          <>
+            {fetchError && (
+              <div
+                role="alert"
+                className="status-card border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
               >
-                {fetchError && (
-                  <div
-                    role="alert"
-                    className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"
-                  >
-                    {fetchError}
-                  </div>
-                )}
+                {fetchError}
+              </div>
+            )}
 
-                {/* System Status Overview */}
-                <SystemStatus sites={sites} />
+            <PageToolbar
+              lastUpdated={lastUpdated}
+              isRefreshing={refreshing}
+              onRefresh={() => fetchData(true)}
+              source={metrics?.source}
+            />
 
-                {/* System Metrics */}
-                <AnimatePresence>
-                  {metrics && (
-                    <motion.div
-                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6"
-                      variants={fadeInUp}
-                      initial="hidden"
-                      animate="visible"
-                    >
-                      {/* Operational Percentage */}
-                      <div className="metrics-card flex items-center">
-                        <div className="bg-green-100/80 dark:bg-green-900/20 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 backdrop-blur-sm border border-green-200/50 dark:border-green-700/30">
-                          <CheckCircle
-                            className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400"
-                            strokeWidth={2}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-500">
-                            Operational
-                          </p>
-                          <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                            {metrics.operationalPercentage}%
-                          </p>
-                          <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500">
-                            {metrics.totalSites} monitored sites
-                          </p>
-                        </div>
-                      </div>
+            <StatusSummaryBar sites={sites} />
 
-                      {/* Average Response Time */}
-                      <div className="metrics-card flex items-center">
-                        <div className="bg-blue-100/80 dark:bg-blue-900/20 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/30">
-                          <Clock
-                            className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400"
-                            strokeWidth={2}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-500">
-                            Avg Response Time
-                          </p>
-                          <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                            {metrics.averageResponseTime} ms
-                          </p>
-                          <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500">
-                            For operational sites
-                          </p>
-                        </div>
-                      </div>
+            <PageSection
+              id="components"
+              title="Current status by service"
+              description="Real-time health of all monitored components."
+            >
+              <ComponentStatusList sites={sites} />
+            </PageSection>
 
-                      {/* Sites with Issues */}
-                      <div className="metrics-card flex items-center">
-                        <div className="bg-red-100/80 dark:bg-red-900/20 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 backdrop-blur-sm border border-red-200/50 dark:border-red-700/30">
-                          <Server
-                            className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400"
-                            strokeWidth={2}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-500">
-                            Sites with Issues
-                          </p>
-                          <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                            {metrics.sitesWithIssues.length}
-                          </p>
-                          <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-500">
-                            {metrics.sitesWithIssues.length
-                              ? "Requires attention"
-                              : "All systems operational"}
-                          </p>
-                        </div>
-                      </div>
+            <PageSection
+              title="Past incidents"
+              description="Recent incidents and maintenance windows."
+            >
+              <IncidentList limit={3} showViewAll />
+            </PageSection>
 
-                      {/* SLA Gauge */}
-                      <SLAGauge sites={sites} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* 90-Day Uptime Heatmap */}
-                {sites.length > 0 && (
-                  <UptimeHeatmap sites={sites} isDark={isDarkMode} />
-                )}
-
-                {/* Sites Status List */}
-                <motion.div
-                  id="site-status"
-                  className="glass-card p-4 sm:p-6 mb-4 sm:mb-6 scroll-mt-24"
-                  variants={fadeInUp}
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: 0.3 }}
-                >
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
-                    <div className="flex items-center mb-3 sm:mb-0">
-                      <BarChart2
-                        className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-2"
-                        strokeWidth={2}
-                      />
-                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                        Site Status
-                      </h2>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-                      <div className="flex items-center gap-2 w-full sm:w-auto overflow-visible">
-                        <SearchSites
-                          sites={sites}
-                          onResultSelect={handleSearchResultSelect}
-                          className="flex-grow sm:flex-grow-0"
-                        />
-                        <StatusFilter onFilterChange={handleFilterChange} />
-                      </div>
-                      <RefreshButton
-                        onRefresh={() => fetchData(true)}
-                        lastUpdated={lastUpdated}
-                        isRefreshing={refreshing}
-                        className="self-end sm:self-auto mt-2 sm:mt-0"
-                      />
-                      {metrics && metrics.source && (
-                        <div className="flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1.5">
-                          {metrics.source === "static" ? (
-                            <Server className="h-3 w-3 mr-1" />
-                          ) : (
-                            <Activity className="h-3 w-3 mr-1" />
-                          )}
-                          <span>
-                            Source:{" "}
-                            {metrics.source === "static"
-                              ? "Static data"
-                              : "Real-time check"}
-                          </span>
-                        </div>
-                      )}
-                      <div className="hidden lg:flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1.5">
-                        <span>Use the refresh button to update status</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <motion.div
-                    className="grid grid-cols-1 gap-3 sm:gap-5"
-                    variants={staggerContainer}
-                  >
-                    {displayedSites.length > 0 ? (
-                      <AnimatePresence>
-                        {displayedSites.map((site) => (
-                          <SiteStatusCard
-                            key={site.id}
-                            site={site}
-                            id={`site-${site.id}`}
-                            className={
-                              selectedSite?.id === site.id
-                                ? "ring-2 ring-blue-500 ring-offset-2"
-                                : ""
-                            }
-                          />
-                        ))}
-                      </AnimatePresence>
-                    ) : (
-                      <motion.div
-                        className="flex flex-col items-center justify-center py-8 sm:py-12 bg-white dark:bg-black rounded-lg shadow-sm"
-                        variants={fadeInUp}
-                      >
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "linear",
-                          }}
-                        >
-                          <RefreshCw className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 dark:text-gray-500 mb-3 sm:mb-4" />
-                        </motion.div>
-                        <motion.p
-                          className="text-gray-700 dark:text-gray-500 text-center text-base sm:text-lg"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                        >
-                          {statusFilters.length > 0
-                            ? "No sites match the selected filters"
-                            : "No sites found."}
-                        </motion.p>
-                        <motion.p
-                          className="text-gray-600 dark:text-gray-500 text-center text-xs sm:text-sm mt-1"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.3 }}
-                        >
-                          {statusFilters.length > 0
-                            ? "Try adjusting your filters"
-                            : "Try refreshing or check back later"}
-                        </motion.p>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            </AnimatePresence>
-          )}
-        </motion.div>
-      </motion.main>
-
-      <Footer />
-    </motion.div>
+            <PageSection
+              title="Uptime history"
+              description="Daily status for each service over the last 90 days."
+            >
+              <UptimeSection sites={sites} compact />
+            </PageSection>
+          </>
+        )}
+      </div>
+    </StatusLayout>
   );
 }
