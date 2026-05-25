@@ -2,7 +2,7 @@ import Head from "next/head";
 import { motion } from "framer-motion";
 import Header from "./Header";
 import Footer from "./Footer";
-import StatusPulse from "./StatusPulse";
+import StatusRing from "./StatusRing";
 
 export default function StatusLayout({
   children,
@@ -66,8 +66,8 @@ function StatusHeroBanner({ status, title, description }) {
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex flex-col items-center"
         >
-          <div className="mb-4">
-            <StatusPulse status={status} size="large" />
+          <div className="mb-5">
+            <StatusRing status={status} size={100} />
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
             {title}

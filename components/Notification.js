@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,7 +17,14 @@ const Notification = ({
   const [isVisible, setIsVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
 
-  // Handle automatic dismissal after duration
+  const handleDismiss = useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      if (onDismiss) onDismiss();
+    }, 300);
+  }, [onDismiss]);
+
   useEffect(() => {
     if (!duration) return;
 
@@ -26,17 +33,7 @@ const Notification = ({
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration]);
-
-  // Handle dismiss with animation
-  const handleDismiss = () => {
-    setIsExiting(true);
-    // Wait for exit animation to complete
-    setTimeout(() => {
-      setIsVisible(false);
-      if (onDismiss) onDismiss();
-    }, 300);
-  };
+  }, [duration, handleDismiss]);
 
   if (!isVisible) return null;
 

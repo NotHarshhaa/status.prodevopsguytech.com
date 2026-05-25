@@ -2,11 +2,14 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, ExternalLink, Activity, Clock, Gauge } from "lucide-react";
 import StatusLayout from "../../components/StatusLayout";
 import UptimeSection from "../../components/UptimeSection";
 import RealTimeStatusChart from "../../components/RealTimeStatusChart";
 import HistoricalChart from "../../components/HistoricalChart";
+import TerminalPanel, { buildSiteTerminalLines } from "../../components/TerminalPanel";
+import StatusRing from "../../components/StatusRing";
 import { getSiteHistory } from "../../lib/services/statusChecker";
 import {
   COMPONENT_STATUS,
@@ -60,6 +63,11 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
     );
   }, [site]);
 
+  const terminalLines = useMemo(
+    () => buildSiteTerminalLines(site, uptime90),
+    [site, uptime90],
+  );
+
   if (!id) return null;
 
   const statusCfg = site
@@ -85,84 +93,93 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
       <div className="status-container-wide">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm status-link mb-6"
+          className="inline-flex items-center gap-1.5 text-sm status-link mb-6 font-mono"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to status page
+          cd ..
         </Link>
 
         {loading ? (
           <PageLoader message="Loading service details..." />
         ) : error ? (
-          <div className="status-card p-6 text-sm text-red-700 dark:text-red-400">
-            {error}
+          <div className="terminal-panel">
+            <div className="terminal-body">
+              <span className="terminal-error">Error: {error}</span>
+            </div>
           </div>
         ) : site ? (
-          <div className="space-y-8">
-            {/* Service header */}
-            <div className="status-card-static p-5 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <span className={`status-dot ${statusCfg.dot}`} />
-                    <span className={`text-sm font-medium ${statusCfg.text}`}>
-                      {site.statusText || statusCfg.label}
-                    </span>
-                  </div>
-                  <h1 className="text-xl sm:text-2xl font-semibold">
-                    {site.name}
-                  </h1>
-                  <p className="text-sm text-[var(--text-muted)] mt-1">
-                    {site.description}
+          <motion.div
+            className="space-y-8"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {/* Terminal header + status ring */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-start">
+              <TerminalPanel
+                key={site.id + site.status + site.responseTime}
+                title={`${site.id}-diagnostics.sh`}
+                lines={terminalLines}
+              />
+
+              <div className="flex flex-col items-center gap-4 lg:sticky lg:top-24">
+                <StatusRing status={site.status} size={140} />
+                <div className="text-center">
+                  <p className={`text-sm font-bold font-mono ${statusCfg.text}`}>
+                    {site.statusText || statusCfg.label}
                   </p>
-                  <a
-                    href={site.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 status-link mt-3 font-mono text-xs"
-                  >
-                    {site.url}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-                <div className="flex gap-6 sm:text-right">
-                  <div>
-                    <p className="text-2xl font-semibold tabular-nums">
-                      {site.responseTime ?? "—"}
-                      <span className="text-sm font-normal text-[var(--text-muted)]">
-                        ms
-                      </span>
-                    </p>
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
-                      Response time
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-semibold tabular-nums">
-                      {uptime90}%
-                    </p>
-                    <p className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
-                      90-day uptime
-                    </p>
-                  </div>
+                  <p className="text-xs text-[var(--text-muted)] mt-1 font-mono">
+                    {site.name}
+                  </p>
                 </div>
               </div>
-              {site.lastChecked && (
-                <p className="text-xs text-[var(--text-muted)] mt-4 pt-4 border-t border-[var(--border)]">
-                  Last checked {formatRelativeTime(site.lastChecked)}
-                  {site.statusCode ? ` · HTTP ${site.statusCode}` : ""}
-                </p>
-              )}
             </div>
 
-            {/* Uptime bar */}
+            {/* Quick metrics bar */}
+            <div className="terminal-metrics">
+              {[
+                { icon: Gauge, label: "Response", value: site.responseTime != null ? `${site.responseTime}ms` : "—" },
+                { icon: Activity, label: "Uptime 90d", value: `${uptime90}%` },
+                { icon: Clock, label: "Last check", value: site.lastChecked ? formatRelativeTime(site.lastChecked) : "—" },
+                { icon: ExternalLink, label: "HTTP", value: site.statusCode ? `${site.statusCode}` : "—" },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="terminal-metric">
+                  <Icon className="h-4 w-4 mx-auto mb-1 text-[#00d4aa] opacity-60" />
+                  <p className="terminal-metric-value">{value}</p>
+                  <p className="terminal-metric-label">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            {site.description && (
+              <p className="text-sm text-[var(--text-muted)] font-mono px-1">
+                <span className="text-[var(--accent)]"># </span>
+                {site.description}
+              </p>
+            )}
+
+            <a
+              href={site.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 status-btn-secondary font-mono text-xs"
+            >
+              <span className="text-[var(--accent)]">$</span>
+              open {site.url}
+              <ExternalLink className="h-3 w-3" />
+            </a>
+
             <UptimeSection sites={[site]} days={90} />
 
-            {/* Charts */}
             <section className="space-y-4">
-              <h2 className="text-lg font-semibold">Performance</h2>
+              <h2 className="text-lg font-bold font-mono">
+                <span className="text-[var(--accent)]">$ </span>
+                performance --charts
+              </h2>
               <div className="status-card-static p-4 sm:p-5">
-                <h3 className="text-sm font-semibold mb-4">Response time (24h)</h3>
+                <h3 className="text-sm font-semibold mb-4 font-mono text-[var(--text-muted)]">
+                  response_time --range=24h
+                </h3>
                 <RealTimeStatusChart
                   siteId={String(id)}
                   siteName={site.name}
@@ -171,7 +188,9 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
                 />
               </div>
               <div className="status-card-static p-4 sm:p-5">
-                <h3 className="text-sm font-semibold mb-4">Historical trends</h3>
+                <h3 className="text-sm font-semibold mb-4 font-mono text-[var(--text-muted)]">
+                  historical --trends
+                </h3>
                 <HistoricalChart
                   siteHistory={siteHistory || {}}
                   siteId={String(id)}
@@ -180,7 +199,7 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
                 />
               </div>
             </section>
-          </div>
+          </motion.div>
         ) : null}
       </div>
     </StatusLayout>

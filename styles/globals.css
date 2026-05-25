@@ -384,6 +384,120 @@
     @apply outline-2 outline-offset-2;
     outline-color: var(--accent);
   }
+
+  /* Terminal aesthetic */
+  .terminal-panel {
+    @apply rounded-2xl overflow-hidden font-mono text-sm;
+    background: #0d1117;
+    border: 1px solid rgba(0, 212, 170, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .terminal-titlebar {
+    @apply flex items-center gap-3 px-4 py-2.5;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .terminal-dots {
+    @apply flex items-center gap-1.5;
+  }
+
+  .terminal-dot {
+    @apply h-2.5 w-2.5 rounded-full;
+  }
+
+  .terminal-dot-red { background: #ff5f57; }
+  .terminal-dot-yellow { background: #febc2e; }
+  .terminal-dot-green { background: #28c840; }
+
+  .terminal-title {
+    @apply flex-1 text-[11px] text-slate-500 truncate;
+  }
+
+  .terminal-copy-btn {
+    @apply p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors;
+  }
+
+  .terminal-body {
+    @apply p-4 sm:p-5 space-y-1 min-h-[200px] relative;
+    background: linear-gradient(180deg, #0d1117 0%, #0a0e14 100%);
+  }
+
+  .terminal-line {
+    @apply leading-relaxed;
+  }
+
+  .terminal-prompt {
+    color: #00d4aa;
+  }
+
+  .terminal-separator {
+    color: #475569;
+  }
+
+  .terminal-path {
+    color: #818cf8;
+  }
+
+  .terminal-cmd {
+    color: #e2e8f0;
+  }
+
+  .terminal-muted {
+    color: #64748b;
+  }
+
+  .terminal-key {
+    color: #94a3b8;
+  }
+
+  .terminal-value {
+    color: #e2e8f0;
+  }
+
+  .terminal-success {
+    color: #34d399;
+  }
+
+  .terminal-warn {
+    color: #fbbf24;
+  }
+
+  .terminal-error {
+    color: #f87171;
+  }
+
+  .terminal-cursor {
+    @apply inline-block w-2 h-4 ml-0.5 align-middle;
+    background: #00d4aa;
+    animation: terminal-blink 1s step-end infinite;
+  }
+
+  @keyframes terminal-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .terminal-metrics {
+    @apply grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4;
+  }
+
+  .terminal-metric {
+    @apply rounded-xl px-4 py-3 text-center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .terminal-metric-value {
+    @apply text-xl font-bold tabular-nums;
+    color: #00d4aa;
+  }
+
+  .terminal-metric-label {
+    @apply text-[10px] uppercase tracking-wider mt-1;
+    color: #64748b;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

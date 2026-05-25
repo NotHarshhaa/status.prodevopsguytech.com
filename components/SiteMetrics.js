@@ -12,7 +12,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { scaleUp, fadeInUp, pulseAnimation } from "../lib/animations";
 
 const SiteMetrics = ({ site }) => {
-  // Ensure site data exists
+  const [showDetailedView, setShowDetailedView] = useState(false);
+
   if (!site) return null;
 
   const { responseTime, status, statusCode, lastChecked } = site;
@@ -81,8 +82,6 @@ const SiteMetrics = ({ site }) => {
       second: "2-digit",
     });
   };
-
-  const [showDetailedView, setShowDetailedView] = useState(false);
 
   const toggleDetailedView = () => {
     setShowDetailedView(!showDetailedView);

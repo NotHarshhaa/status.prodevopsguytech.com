@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import StatusLayout from "../components/StatusLayout";
 import ComponentStatusList, {
   StatusSummaryBar,
@@ -24,50 +24,11 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
-  const [previousSites, setPreviousSites] = useState([]);
   const [fetchError, setFetchError] = useState(null);
   const notification = useNotification();
+  const sitesRef = useRef([]);
 
-  const fetchData = async (forceRefresh = false) => {
-    try {
-      setFetchError(null);
-      if (!sites.length) setLoading(true);
-      else setRefreshing(true);
-
-      const data = await fetchStatusData({
-        preferStatic: false,
-        refresh: forceRefresh,
-      });
-
-      if (sites.length > 0) setPreviousSites([...sites]);
-
-      const newSites = data.sites || [];
-      setSites(newSites);
-      setMetrics(data.metrics);
-      setLastUpdated(new Date(data.timestamp || Date.now()));
-
-      if (previousSites.length > 0 && newSites.length > 0) {
-        checkForStatusChanges(previousSites, newSites);
-      }
-    } catch (error) {
-      console.error("Failed to fetch status data:", error);
-      setFetchError(
-        "Unable to load latest status. Showing last known data if available.",
-      );
-      notification.error("Failed to refresh status data", { duration: 6000 });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const checkForStatusChanges = (oldSites, newSites) => {
+  const checkForStatusChanges = useCallback((oldSites, newSites) => {
     newSites.forEach((newSite) => {
       const oldSite = oldSites.find((s) => s.id === newSite.id);
       if (oldSite && oldSite.status !== newSite.status) {
@@ -95,7 +56,47 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
         }
       }
     });
-  };
+  }, [notification]);
+
+  const fetchData = useCallback(async (forceRefresh = false) => {
+    try {
+      setFetchError(null);
+      if (!sitesRef.current.length) setLoading(true);
+      else setRefreshing(true);
+
+      const data = await fetchStatusData({
+        preferStatic: false,
+        refresh: forceRefresh,
+      });
+
+      const previousSites = sitesRef.current;
+      const newSites = data.sites || [];
+
+      if (previousSites.length > 0 && newSites.length > 0) {
+        checkForStatusChanges(previousSites, newSites);
+      }
+
+      sitesRef.current = newSites;
+      setSites(newSites);
+      setMetrics(data.metrics);
+      setLastUpdated(new Date(data.timestamp || Date.now()));
+    } catch (error) {
+      console.error("Failed to fetch status data:", error);
+      setFetchError(
+        "Unable to load latest status. Showing last known data if available.",
+      );
+      notification.error("Failed to refresh status data", { duration: 6000 });
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [checkForStatusChanges, notification]);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(() => fetchData(), 60000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   const overall = getOverallStatus(sites);
   const hero = OVERALL_STATUS[overall] || OVERALL_STATUS.operational;

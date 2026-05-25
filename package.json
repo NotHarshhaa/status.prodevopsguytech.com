@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "postinstall": "tailwindcss init -p",
     "check-status": "node scripts/check-status.js",
     "update-status": "node scripts/update-status-data.js",

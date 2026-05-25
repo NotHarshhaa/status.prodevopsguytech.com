@@ -4,35 +4,37 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { toggleDarkMode } from "../lib/utils";
 
+function readDarkModePreference() {
+  if (typeof window === "undefined") return false;
+  const savedPreference = localStorage.getItem("darkMode");
+  const systemPrefersDark = window.matchMedia(
+    "(prefers-color-scheme: dark)",
+  ).matches;
+  return savedPreference === "true" || (!savedPreference && systemPrefersDark);
+}
+
+function applyDarkModeClass(isDark) {
+  document.documentElement.classList.toggle("dark", isDark);
+  document.documentElement.classList.toggle("light", !isDark);
+}
+
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const shouldBeDark = readDarkModePreference();
+    if (typeof window !== "undefined") {
+      applyDarkModeClass(shouldBeDark);
+    }
+    return shouldBeDark;
+  });
 
   useEffect(() => {
-    const savedPreference = localStorage.getItem("darkMode");
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    const shouldBeDark =
-      savedPreference === "true" ||
-      (!savedPreference && systemPrefersDark);
-    setIsDarkMode(shouldBeDark);
-
-    if (shouldBeDark) {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-    }
-
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e) => {
       const savedMode = localStorage.getItem("darkMode");
       if (savedMode === null) {
         setIsDarkMode(e.matches);
-        document.documentElement.classList.toggle("dark", e.matches);
-        document.documentElement.classList.toggle("light", !e.matches);
+        applyDarkModeClass(e.matches);
       }
     };
 
@@ -43,8 +45,7 @@ function MyApp({ Component, pageProps }) {
   const handleThemeToggle = (nextMode) => {
     if (typeof nextMode === "boolean") {
       setIsDarkMode(nextMode);
-      document.documentElement.classList.toggle("dark", nextMode);
-      document.documentElement.classList.toggle("light", !nextMode);
+      applyDarkModeClass(nextMode);
       localStorage.setItem("darkMode", nextMode ? "true" : "false");
     } else {
       setIsDarkMode((prev) => toggleDarkMode(prev));

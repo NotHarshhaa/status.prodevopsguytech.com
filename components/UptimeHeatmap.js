@@ -85,9 +85,7 @@ const UptimeHeatmap = ({ sites = [], isDark = false }) => {
         ...site,
         history: generateSiteHistory(site.id, site.status),
       })),
-    // Stable dependency — only regenerate when site IDs or statuses change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sites.map((s) => `${s.id}:${s.status}`).join(",")]
+    [sites],
   );
 
   const overallUptime = useMemo(() => {

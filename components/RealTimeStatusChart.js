@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -25,6 +25,87 @@ ChartJS.register(
   Filler,
 );
 
+function createSeededRandom(seed) {
+  let state = seed;
+  return () => {
+    state = (state * 1103515245 + 12345) & 0x7fffffff;
+    return state / 0x7fffffff;
+  };
+}
+
+function formatChartDate(date, format) {
+  const d = new Date(date);
+  const hours = d.getHours().toString().padStart(2, "0");
+  const minutes = d.getMinutes().toString().padStart(2, "0");
+  const day = d.getDate().toString().padStart(2, "0");
+  const month = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ][d.getMonth()];
+
+  if (format === "HH:mm") {
+    return `${hours}:${minutes}`;
+  }
+  return `${month} ${day}`;
+}
+
+function generateChartData(range, seed = 42) {
+  const random = createSeededRandom(seed);
+  const now = new Date();
+  const data = [];
+  const labels = [];
+
+  let points = 24;
+  let intervalMinutes = 60;
+  let format = "HH:mm";
+
+  switch (range) {
+    case "1h":
+      points = 12;
+      intervalMinutes = 5;
+      break;
+    case "7d":
+      points = 7;
+      intervalMinutes = 60 * 24;
+      format = "MMM DD";
+      break;
+    case "30d":
+      points = 30;
+      intervalMinutes = 60 * 24;
+      format = "MMM DD";
+      break;
+    default:
+      points = 24;
+      intervalMinutes = 60;
+  }
+
+  let baseResponseTime = Math.floor(random() * 100) + 150;
+  let currentResponseTime = baseResponseTime;
+  const hasOutage = random() > 0.8;
+  const outagePoint = hasOutage ? Math.floor(random() * points) : -1;
+
+  for (let i = points; i >= 0; i--) {
+    const time = new Date(now.getTime() - i * intervalMinutes * 60 * 1000);
+    labels.push(formatChartDate(time, format));
+
+    if (i === outagePoint) {
+      data.push(null);
+    } else {
+      let variation = random() * 40 - 20;
+      if (random() > 0.9) {
+        variation += random() * 100;
+      }
+      currentResponseTime = Math.max(
+        50,
+        currentResponseTime * 0.7 + (baseResponseTime + variation) * 0.3,
+      );
+      data.push(Math.round(currentResponseTime));
+    }
+  }
+
+  return { labels, data };
+}
+
 /**
  * RealTimeStatusChart Component
  *
@@ -43,115 +124,17 @@ const RealTimeStatusChart = ({
   const [refreshing, setRefreshing] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState(timeRange);
   const chartRef = useRef(null);
+  const dataSeed = useRef(
+    siteId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0),
+  );
 
-  // Generate mock data based on time range
-  const generateData = (range) => {
-    const now = new Date();
-    const data = [];
-    const labels = [];
-
-    // Configure time intervals based on range
-    let points = 24;
-    let intervalMinutes = 60; // Default 1 hour steps for 24h view
-    let format = "HH:mm";
-
-    switch (range) {
-      case "1h":
-        points = 12;
-        intervalMinutes = 5;
-        format = "HH:mm";
-        break;
-      case "7d":
-        points = 7;
-        intervalMinutes = 60 * 24; // Daily
-        format = "MMM DD";
-        break;
-      case "30d":
-        points = 30;
-        intervalMinutes = 60 * 24; // Daily
-        format = "MMM DD";
-        break;
-      default: // 24h
-        points = 24;
-        intervalMinutes = 60;
-        format = "HH:mm";
-    }
-
-    // Generate random response time data with realistic patterns
-    let baseResponseTime = Math.floor(Math.random() * 100) + 150; // Base between 150-250ms
-    let currentResponseTime = baseResponseTime;
-    let hasOutage = Math.random() > 0.8; // 20% chance of having an outage
-    let outagePoint = hasOutage ? Math.floor(Math.random() * points) : -1;
-
-    for (let i = points; i >= 0; i--) {
-      const time = new Date(now.getTime() - i * intervalMinutes * 60 * 1000);
-
-      // Format the label based on the time range
-      const label = formatDate(time, format);
-      labels.push(label);
-
-      // Simulate response time variations
-      // If at outage point, set to null to break the line
-      if (i === outagePoint) {
-        data.push(null);
-      } else {
-        // Add some random variation to response time
-        let variation = Math.random() * 40 - 20; // +/- 20ms
-
-        // Occasionally add a spike
-        if (Math.random() > 0.9) {
-          variation += Math.random() * 100;
-        }
-
-        // Update current response time with some "memory" of previous value
-        currentResponseTime = Math.max(
-          50,
-          currentResponseTime * 0.7 + (baseResponseTime + variation) * 0.3,
-        );
-        data.push(Math.round(currentResponseTime));
-      }
-    }
-
-    return { labels, data };
-  };
-
-  // Simple date formatter
-  const formatDate = (date, format) => {
-    const d = new Date(date);
-    const hours = d.getHours().toString().padStart(2, "0");
-    const minutes = d.getMinutes().toString().padStart(2, "0");
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ][d.getMonth()];
-
-    if (format === "HH:mm") {
-      return `${hours}:${minutes}`;
-    } else {
-      return `${month} ${day}`;
-    }
-  };
-
-  // Load chart data
-  const loadChartData = (range) => {
+  const loadChartData = useCallback((range) => {
     setLoading(true);
 
-    // Simulate API call with timeout
     setTimeout(() => {
-      const { labels, data } = generateData(range);
+      const { labels, data } = generateChartData(range, dataSeed.current);
 
-      const chartData = {
+      const nextChartData = {
         labels,
         datasets: [
           {
@@ -168,22 +151,21 @@ const RealTimeStatusChart = ({
             pointRadius: 3,
             pointHoverRadius: 5,
             tension: 0.4,
-            spanGaps: true, // Connect the line across null values (outages)
+            spanGaps: true,
           },
         ],
       };
 
-      setChartData(chartData);
+      setChartData(nextChartData);
       setLoading(false);
     }, 800);
-  };
+  }, []);
 
-  // Refresh chart data
-  const refreshData = () => {
+  const refreshData = useCallback(() => {
     setRefreshing(true);
     loadChartData(selectedTimeRange);
     setTimeout(() => setRefreshing(false), 800);
-  };
+  }, [loadChartData, selectedTimeRange]);
 
   // Change time range
   const handleTimeRangeChange = (range) => {
@@ -208,7 +190,7 @@ const RealTimeStatusChart = ({
 
       return () => clearInterval(interval);
     }
-  }, [selectedTimeRange, siteId]);
+  }, [selectedTimeRange, siteId, loadChartData, refreshData]);
 
   // Chart options
   const chartOptions = {

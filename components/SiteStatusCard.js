@@ -41,8 +41,6 @@ const ICON_MAP = {
   resources: BookOpen,
 };
 
-const getSiteIcon = (siteId) => ICON_MAP[siteId] || Activity;
-
 const getStatusClasses = (status) => {
   switch (status) {
     case "operational":
@@ -104,7 +102,7 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
   } = site || {};
 
   const sc = getStatusClasses(status);
-  const IconComponent = getSiteIcon(siteId);
+  const Icon = ICON_MAP[siteId] || Activity;
 
   return (
     <motion.div
@@ -124,7 +122,7 @@ const SiteStatusCard = ({ site = {}, className = "", id }) => {
           <div
             className={`p-2 rounded-xl bg-white/80 dark:bg-black/30 ${sc.icon} mr-3 flex items-center justify-center shadow-sm border border-gray-200/50 dark:border-gray-800/50 transition-transform duration-150 hover:scale-110`}
           >
-            <IconComponent className="h-5 w-5" strokeWidth={2} />
+            <Icon className="h-5 w-5" strokeWidth={2} />
           </div>
 
           <div>
