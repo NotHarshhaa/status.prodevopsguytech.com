@@ -11,19 +11,39 @@ const path = require("path");
 const axios = require("axios");
 const https = require("https");
 
-// Array of User-Agents to rotate through
+// Browser-like User-Agents only — bot UAs trigger Vercel/Hashnode protection
 const userAgents = [
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0',
-  'Mozilla/5.0 (X11; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/91.0.864.59',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
-  'StatusChecker/1.0 (Health Monitoring Bot)',
-  'HealthMonitor/2.0 (System Status Checker)'
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0',
 ];
+
+const BROWSER_HEADERS = {
+  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Cache-Control': 'no-cache',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Upgrade-Insecure-Requests': '1',
+};
+
+function getBrowserHeaders() {
+  return {
+    ...BROWSER_HEADERS,
+    'User-Agent': getNextUserAgent(),
+  };
+}
+
+function isVercelBotChallenge(response) {
+  return (
+    response?.status === 429 &&
+    (response.headers?.['x-vercel-challenge-token'] ||
+      response.headers?.['X-Vercel-Challenge-Token'])
+  );
+}
 
 let currentUAIndex = 0;
 
@@ -97,32 +117,24 @@ const sitesConfig = [
     name: "DevOps Blog",
     description: "Deep dives into DevOps practices & tutorials",
     url: "https://blog.prodevopsguytech.com",
-    healthEndpoints: [
-      "/",
-      "/health",
-      "/wp-json/wp/v2", // WordPress API
-      "/feed" // RSS feed
-    ],
+    healthEndpoints: ["/"],
     icon: "📰",
+    botProtected: true,
   },
   {
     id: "cloud",
     name: "Cloud Blog",
     description: "Cloud architecture & implementation guides",
     url: "https://cloud.prodevopsguytech.com",
-    healthEndpoints: [
-      "/",
-      "/health",
-      "/wp-json/wp/v2", // WordPress API
-      "/feed" // RSS feed
-    ],
+    healthEndpoints: ["/"],
     icon: "☁️",
+    botProtected: true,
   },
   {
     id: "docker2k8s",
     name: "Docker to Kubernetes",
     description: "Master containerization journey",
-    url: "https://dockertokubernetes.live",
+    url: "https://dockertok8s.prodevopsguytech.com",
     healthEndpoints: [
       "/",
       "/health"
@@ -309,42 +321,40 @@ async function checkSiteStatus(site, forceCheck = false) {
     for (const endpoint of endpoints) {
       try {
         const fullUrl = site.url + endpoint;
-        
-        // Try HEAD request first (lighter)
+        const headers = getBrowserHeaders();
+
         let response;
-        try {
-          response = await statusAxios.head(fullUrl, {
-            timeout: 8000, // Shorter timeout for HEAD
-            headers: {
-              'User-Agent': getNextUserAgent(),
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.5',
-              'Cache-Control': 'no-cache',
-              'Pragma': 'no-cache'
-            }
-          });
-        } catch (headError) {
-          // If HEAD fails, try GET request
+        if (site.botProtected) {
           response = await statusAxios.get(fullUrl, {
-            timeout: 10000, // 10 second timeout for each individual request
-            headers: {
-              'User-Agent': getNextUserAgent(),
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.5',
-              'Accept-Encoding': 'gzip, deflate, br',
-              'Cache-Control': 'no-cache',
-              'Pragma': 'no-cache'
-            }
+            timeout: 8000,
+            headers,
+            maxRedirects: 5,
           });
+        } else {
+          try {
+            response = await statusAxios.head(fullUrl, {
+              timeout: 8000,
+              headers,
+            });
+          } catch {
+            response = await statusAxios.get(fullUrl, {
+              timeout: 10000,
+              headers,
+              maxRedirects: 5,
+            });
+          }
         }
 
-        // Calculate response time
         responseTime = Date.now() - startTime;
-
-        // Get status code
         statusCode = response.status;
 
-        // If we get a 429 and have retries left, wait and retry
+        if (isVercelBotChallenge(response)) {
+          status = "operational";
+          statusText = "Operational";
+          workingEndpoint = endpoint;
+          break;
+        }
+
         if (statusCode === 429 && retryCount < maxRetries) {
           const waitTime = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
           console.log(`${site.name} rate limited on ${endpoint}. Retrying in ${waitTime}ms... (attempt ${retryCount + 1}/${maxRetries})`);
