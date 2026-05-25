@@ -69,6 +69,14 @@ const getStatusClasses = (status) => {
         bgHover: "hover:bg-red-50/50 dark:hover:bg-red-900/10",
         accent: "bg-red-500",
       };
+    case "maintenance":
+      return {
+        badge: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
+        icon: "text-blue-500",
+        border: "border-blue-200 dark:border-blue-700/60",
+        bgHover: "hover:bg-blue-50/50 dark:hover:bg-blue-900/10",
+        accent: "bg-blue-500",
+      };
     default:
       return {
         badge: "bg-gray-100 text-gray-800 dark:bg-dark-light dark:text-gray-300",

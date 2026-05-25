@@ -79,10 +79,10 @@ const Notification = ({
 
   return (
     <motion.div
-      className="fixed z-50 max-w-md"
-      initial={{ opacity: 0, y: -50, x: 20, right: 16, top: 16 }}
-      animate={{ opacity: 1, y: 0, x: 0, right: 16, top: 16 }}
-      exit={{ opacity: 0, y: -20, x: 20 }}
+      className="w-full max-w-md"
+      initial={{ opacity: 0, y: -12, x: 20 }}
+      animate={{ opacity: 1, y: 0, x: 0 }}
+      exit={{ opacity: 0, y: -12, x: 20 }}
       transition={{
         type: "spring",
         stiffness: 500,
@@ -159,27 +159,27 @@ export const NotificationProvider = ({ children }) => {
     );
   };
 
-  // Provide context value to children
   const contextValue = {
     addNotification,
     removeNotification,
   };
 
   return (
-    <>
+    <NotificationContext.Provider value={contextValue}>
       {children}
-      <div className="fixed top-4 right-4 z-50 space-y-3 flex flex-col items-end">
+      <div className="fixed top-4 right-4 z-50 space-y-3 flex flex-col items-end pointer-events-none">
         <AnimatePresence>
           {notifications.map((notification) => (
-            <Notification
-              key={notification.id}
-              {...notification}
-              onDismiss={() => removeNotification(notification.id)}
-            />
+            <div key={notification.id} className="pointer-events-auto">
+              <Notification
+                {...notification}
+                onDismiss={() => removeNotification(notification.id)}
+              />
+            </div>
           ))}
         </AnimatePresence>
       </div>
-    </>
+    </NotificationContext.Provider>
   );
 };
 

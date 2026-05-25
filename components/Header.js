@@ -92,9 +92,21 @@ const Header = ({
       dot: "bg-red-500",
       label: "System Issues Detected",
     },
+    maintenance: {
+      bg: "bg-blue-50 dark:bg-blue-900/20",
+      text: "text-blue-600 dark:text-blue-400",
+      dot: "bg-blue-500",
+      label: "Scheduled Maintenance",
+    },
   };
 
   const badge = statusBadge[overallStatus] || statusBadge.operational;
+  const liveIndicator =
+    overallStatus === "outage"
+      ? "text-red-600 dark:text-red-400"
+      : overallStatus === "degraded"
+        ? "text-yellow-600 dark:text-yellow-400"
+        : "text-green-600 dark:text-green-400";
 
   return (
     <>
@@ -143,7 +155,7 @@ const Header = ({
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
-                    <span className="ml-1 text-[10px] sm:text-xs text-green-600 dark:text-green-400 font-medium">
+                    <span className={`ml-1 text-[10px] sm:text-xs font-medium ${liveIndicator}`}>
                       Live
                     </span>
                   </div>

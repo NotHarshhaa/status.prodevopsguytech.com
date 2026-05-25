@@ -12,7 +12,6 @@ import ModernLoader from "../components/ModernLoader";
 import IncidentBanner from "../components/IncidentBanner";
 import SLAGauge from "../components/SLAGauge";
 import UptimeHeatmap from "../components/UptimeHeatmap";
-import { initializeDarkMode, toggleDarkMode } from "../lib/utils";
 import { fetchStatusData } from "../lib/utils/statusData";
 import {
   CheckCircle,
@@ -28,8 +27,7 @@ import { useNotification } from "../components/Notification";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageTransition, staggerContainer, fadeInUp } from "../lib/animations";
 
-export default function Home() {
-  const [darkMode, setDarkMode] = useState(false);
+export default function Home({ isDarkMode = false, onThemeToggle }) {
   const [sites, setSites] = useState([]);
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,6 +37,7 @@ export default function Home() {
   const [filteredSites, setFilteredSites] = useState([]);
   const [statusFilters, setStatusFilters] = useState([]);
   const [selectedSite, setSelectedSite] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
   const notification = useNotification();
 
   // Handle keyboard navigation
@@ -74,6 +73,7 @@ export default function Home() {
   // Fetch site status data
   const fetchData = async (forceRefresh = false) => {
     try {
+      setFetchError(null);
       if (!sites.length) {
         setLoading(true);
       } else {
@@ -105,6 +105,8 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to fetch status data:", error);
+      setFetchError("Unable to load status data. Showing last known data if available.");
+      notification.error("Failed to refresh status data", { duration: 6000 });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -148,12 +150,11 @@ export default function Home() {
   // Handle search result selection
   const handleSearchResultSelect = (site) => {
     setSelectedSite(site);
-    // Scroll to the selected site card with smooth animation
+    setStatusFilters([]);
     setTimeout(() => {
       const siteElement = document.getElementById(`site-${site.id}`);
       if (siteElement) {
         siteElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        // Highlight the element temporarily
         siteElement.classList.add("ring-2", "ring-blue-500", "ring-offset-2");
         setTimeout(() => {
           siteElement.classList.remove(
@@ -198,39 +199,12 @@ export default function Home() {
     });
   };
 
-  // Handle dark mode toggle
-  const handleToggleDarkMode = (darkModeValue) => {
-    // If a specific value is provided, use it, otherwise toggle
-    if (typeof darkModeValue === "boolean") {
-      const newDarkMode = darkModeValue;
-      setDarkMode(newDarkMode);
-      // Update localStorage to persist the preference
-      localStorage.setItem("darkMode", newDarkMode ? "true" : "false");
-      // Update document class for Tailwind
-      if (newDarkMode) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.classList.remove("light");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.classList.add("light");
-      }
-    } else {
-      const newDarkMode = !darkMode;
-      setDarkMode(newDarkMode);
-      localStorage.setItem("darkMode", newDarkMode ? "true" : "false");
-      if (newDarkMode) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.classList.remove("light");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.classList.add("light");
-      }
-    }
-  };
+  const displayedSites =
+    statusFilters.length === 0 ? sites : filteredSites;
 
   return (
     <motion.div
-      className={`min-h-screen flex flex-col ${darkMode ? "dark" : ""} transition-colors duration-300 custom-scrollbar`}
+      className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""} transition-colors duration-300 custom-scrollbar`}
       initial="hidden"
       animate="visible"
       variants={pageTransition}
@@ -256,8 +230,8 @@ export default function Home() {
       <IncidentBanner sites={sites} />
 
       <Header
-        toggleTheme={handleToggleDarkMode}
-        isDarkMode={darkMode}
+        toggleTheme={onThemeToggle}
+        isDarkMode={isDarkMode}
         overallStatus={metrics?.status || "operational"}
       />
 
@@ -278,6 +252,15 @@ export default function Home() {
                 exit="exit"
                 variants={pageTransition}
               >
+                {fetchError && (
+                  <div
+                    role="alert"
+                    className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"
+                  >
+                    {fetchError}
+                  </div>
+                )}
+
                 {/* System Status Overview */}
                 <SystemStatus sites={sites} />
 
@@ -362,11 +345,14 @@ export default function Home() {
                 </AnimatePresence>
 
                 {/* 90-Day Uptime Heatmap */}
-                {sites.length > 0 && <UptimeHeatmap sites={sites} />}
+                {sites.length > 0 && (
+                  <UptimeHeatmap sites={sites} isDark={isDarkMode} />
+                )}
 
                 {/* Sites Status List */}
                 <motion.div
-                  className="glass-card p-4 sm:p-6 mb-4 sm:mb-6"
+                  id="site-status"
+                  className="glass-card p-4 sm:p-6 mb-4 sm:mb-6 scroll-mt-24"
                   variants={fadeInUp}
                   initial="hidden"
                   animate="visible"
@@ -413,7 +399,7 @@ export default function Home() {
                         </div>
                       )}
                       <div className="hidden lg:flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1.5">
-                        <span>Press Ctrl+R to refresh</span>
+                        <span>Use the refresh button to update status</span>
                       </div>
                     </div>
                   </div>
@@ -422,21 +408,18 @@ export default function Home() {
                     className="grid grid-cols-1 gap-3 sm:gap-5"
                     variants={staggerContainer}
                   >
-                    {sites.length > 0 ? (
+                    {displayedSites.length > 0 ? (
                       <AnimatePresence>
-                        {(statusFilters.length === 0
-                          ? sites
-                          : filteredSites
-                        ).map((site, index) => (
+                        {displayedSites.map((site) => (
                           <SiteStatusCard
                             key={site.id}
                             site={site}
                             id={`site-${site.id}`}
-                            className={`${
-                              index % 2 === 0
-                                ? "transform hover:-translate-y-1"
-                                : "transform hover:translate-y-1"
-                            } ${selectedSite?.id === site.id ? "ring-2 ring-blue-500" : ""}`}
+                            className={
+                              selectedSite?.id === site.id
+                                ? "ring-2 ring-blue-500 ring-offset-2"
+                                : ""
+                            }
                           />
                         ))}
                       </AnimatePresence>

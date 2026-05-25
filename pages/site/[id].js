@@ -8,7 +8,6 @@ import SiteMetrics from "../../components/SiteMetrics";
 import HistoricalChart from "../../components/HistoricalChart";
 import RealTimeStatusChart from "../../components/RealTimeStatusChart";
 import { getSiteHistory } from "../../lib/services/statusChecker";
-import { initializeDarkMode, toggleDarkMode } from "../../lib/utils";
 import { 
   ArrowLeft, 
   Rocket, 
@@ -43,22 +42,15 @@ const iconMap = {
   BarChart3
 };
 
-export default function SiteDetail() {
+export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
   const router = useRouter();
   const { id } = router.query;
-
-  const [darkMode, setDarkMode] = useState(false);
   const [site, setSite] = useState(null);
   const [siteHistory, setSiteHistory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("realtime");
   const [siteId, setSiteId] = useState(null);
-
-  // Initialize dark mode preference
-  useEffect(() => {
-    setDarkMode(initializeDarkMode());
-  }, []);
 
   // Set the site ID when the router query changes
   useEffect(() => {
@@ -77,22 +69,14 @@ export default function SiteDetail() {
         setError(null);
 
         // Fetch site status from API
-        console.log("Fetching site data for ID:", siteId);
         const response = await axios.get(
           `/api/status?siteId=${encodeURIComponent(siteId)}`,
         );
 
         if (response.data && response.data.site) {
           const siteData = response.data.site;
-          console.log("Site data received:", siteData);
-          
-          // Ensure we have all required fields
+
           if (!siteData.name || !siteData.description) {
-            console.error("Missing required fields:", { 
-              name: siteData.name, 
-              description: siteData.description, 
-              icon: siteData.icon 
-            });
             setError("Invalid site data received");
             return;
           }
@@ -121,31 +105,13 @@ export default function SiteDetail() {
     return () => clearInterval(refreshInterval);
   }, [siteId]);
 
-  // Handle dark mode toggle
-  const handleToggleDarkMode = (darkModeValue) => {
-    // If a specific value is provided, use it, otherwise toggle
-    if (typeof darkModeValue === "boolean") {
-      setDarkMode(darkModeValue);
-      // Update localStorage to persist the preference
-      localStorage.setItem("darkMode", darkModeValue ? "true" : "false");
-      // Update document class for Tailwind
-      if (darkModeValue) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    } else {
-      toggleDarkMode(setDarkMode);
-    }
-  };
-
   if (!id) {
     return null; // Don't render until we have an ID
   }
 
   return (
     <motion.div
-      className={`min-h-screen flex flex-col ${darkMode ? "dark" : ""}`}
+      className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -168,7 +134,7 @@ export default function SiteDetail() {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </Head>
 
-      <Header toggleTheme={handleToggleDarkMode} isDarkMode={darkMode} />
+      <Header toggleTheme={onThemeToggle} isDarkMode={isDarkMode} />
 
       <main className="flex-grow py-4 sm:py-8 px-3 sm:px-6 lg:px-8 bg-gray-50 dark:bg-black">
         <div className="max-w-7xl mx-auto">

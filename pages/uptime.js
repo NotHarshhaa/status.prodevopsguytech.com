@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import UptimeHeatmap from "../components/UptimeHeatmap";
 import { fetchStatusData } from "../lib/utils/statusData";
-import { initializeDarkMode } from "../lib/utils";
 import {
   ArrowLeft,
   TrendingUp,
@@ -18,6 +17,16 @@ import {
   XCircle,
 } from "lucide-react";
 import { motion } from "framer-motion";
+
+const getStableUptime = (siteId, period) => {
+  const seed = siteId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const periodOffset = { "24h": 1, "7d": 7, "30d": 30, "90d": 90 }[period] || 1;
+  const rand =
+    ((seed * periodOffset * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const spread = period === "24h" ? 5 : period === "7d" ? 6 : period === "30d" ? 4 : 3;
+  const base = period === "24h" ? 95 : period === "7d" ? 94 : period === "30d" ? 96 : 97;
+  return Math.min(100, base + rand * spread).toFixed(2);
+};
 
 const UptimeBar = ({ percentage, label, color }) => (
   <div className="mb-3">
@@ -43,11 +52,16 @@ const UptimeBar = ({ percentage, label, color }) => (
 );
 
 const SiteUptimeCard = ({ site, index }) => {
-  // Generate simulated uptime percentages
-  const uptime24h = Math.min(100, 95 + Math.random() * 5).toFixed(2);
-  const uptime7d = Math.min(100, 94 + Math.random() * 6).toFixed(2);
-  const uptime30d = Math.min(100, 96 + Math.random() * 4).toFixed(2);
-  const uptime90d = Math.min(100, 97 + Math.random() * 3).toFixed(2);
+  const uptimeValues = useMemo(
+    () => ({
+      "24h": getStableUptime(site.id, "24h"),
+      "7d": getStableUptime(site.id, "7d"),
+      "30d": getStableUptime(site.id, "30d"),
+      "90d": getStableUptime(site.id, "90d"),
+    }),
+    [site.id],
+  );
+  const uptime30d = uptimeValues["30d"];
 
   const statusColor =
     site.status === "operational"
@@ -92,10 +106,10 @@ const SiteUptimeCard = ({ site, index }) => {
 
       <div className="grid grid-cols-4 gap-2 mb-4">
         {[
-          { label: "24h", value: uptime24h },
-          { label: "7d", value: uptime7d },
-          { label: "30d", value: uptime30d },
-          { label: "90d", value: uptime90d },
+          { label: "24h", value: uptimeValues["24h"] },
+          { label: "7d", value: uptimeValues["7d"] },
+          { label: "30d", value: uptimeValues["30d"] },
+          { label: "90d", value: uptimeValues["90d"] },
         ].map(({ label, value }) => (
           <div key={label} className="text-center">
             <div
@@ -140,14 +154,9 @@ const SiteUptimeCard = ({ site, index }) => {
   );
 };
 
-export default function UptimePage() {
-  const [darkMode, setDarkMode] = useState(false);
+export default function UptimePage({ isDarkMode = false, onThemeToggle }) {
   const [sites, setSites] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setDarkMode(initializeDarkMode());
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -162,20 +171,6 @@ export default function UptimePage() {
     };
     fetchData();
   }, []);
-
-  const handleToggleDarkMode = (val) => {
-    if (typeof val === "boolean") {
-      setDarkMode(val);
-      localStorage.setItem("darkMode", val ? "true" : "false");
-      if (val) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.classList.remove("light");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.classList.add("light");
-      }
-    }
-  };
 
   // Calculate aggregate stats
   const overallUptime =
@@ -197,7 +192,7 @@ export default function UptimePage() {
 
   return (
     <motion.div
-      className={`min-h-screen flex flex-col ${darkMode ? "dark" : ""} transition-colors duration-300`}
+      className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""} transition-colors duration-300`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -210,7 +205,7 @@ export default function UptimePage() {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </Head>
 
-      <Header toggleTheme={handleToggleDarkMode} isDarkMode={darkMode} />
+      <Header toggleTheme={onThemeToggle} isDarkMode={isDarkMode} />
 
       <main className="flex-grow py-4 sm:py-8 px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -296,7 +291,7 @@ export default function UptimePage() {
           </div>
 
           {/* Heatmap */}
-          {!loading && <UptimeHeatmap sites={sites} />}
+          {!loading && <UptimeHeatmap sites={sites} isDark={isDarkMode} />}
 
           {/* Per-site uptime */}
           <div className="mb-4">

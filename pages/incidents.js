@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { initializeDarkMode } from "../lib/utils";
 import {
   AlertTriangle,
   CheckCircle,
@@ -329,27 +328,8 @@ const IncidentCard = ({ incident }) => {
   );
 };
 
-export default function IncidentsPage() {
-  const [darkMode, setDarkMode] = useState(false);
+export default function IncidentsPage({ isDarkMode = false, onThemeToggle }) {
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    setDarkMode(initializeDarkMode());
-  }, []);
-
-  const handleToggleDarkMode = (val) => {
-    if (typeof val === "boolean") {
-      setDarkMode(val);
-      localStorage.setItem("darkMode", val ? "true" : "false");
-      if (val) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.classList.remove("light");
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.classList.add("light");
-      }
-    }
-  };
 
   const filteredIncidents = MOCK_INCIDENTS.filter(
     (inc) =>
@@ -368,7 +348,7 @@ export default function IncidentsPage() {
 
   return (
     <motion.div
-      className={`min-h-screen flex flex-col ${darkMode ? "dark" : ""} transition-colors duration-300`}
+      className={`min-h-screen flex flex-col ${isDarkMode ? "dark" : ""} transition-colors duration-300`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -382,8 +362,8 @@ export default function IncidentsPage() {
       </Head>
 
       <Header
-        toggleTheme={handleToggleDarkMode}
-        isDarkMode={darkMode}
+        toggleTheme={onThemeToggle}
+        isDarkMode={isDarkMode}
         overallStatus="operational"
       />
 
