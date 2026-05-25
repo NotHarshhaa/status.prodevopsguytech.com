@@ -60,7 +60,7 @@ export default function IncidentsPage({ isDarkMode = false, onThemeToggle }) {
           description="Resolved incidents from the last 90 days."
         >
           {resolved.length === 0 ? (
-            <div className="status-card p-8 text-center text-sm text-[var(--text-muted)]">
+            <div className="status-card-static p-8 text-center text-sm text-[var(--text-muted)]">
               {search ? "No incidents match your search." : "No past incidents."}
             </div>
           ) : (

@@ -85,7 +85,7 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
       <div className="status-container-wide">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-[#0969da] dark:text-[#58a6ff] hover:underline mb-6"
+          className="inline-flex items-center gap-1.5 text-sm status-link mb-6"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to status page
@@ -100,7 +100,7 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
         ) : site ? (
           <div className="space-y-8">
             {/* Service header */}
-            <div className="status-card p-5 sm:p-6">
+            <div className="status-card-static p-5 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2.5 mb-2">
@@ -119,7 +119,7 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
                     href={site.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-sm text-[#0969da] dark:text-[#58a6ff] hover:underline mt-3"
+                    className="inline-flex items-center gap-1 status-link mt-3 font-mono text-xs"
                   >
                     {site.url}
                     <ExternalLink className="h-3 w-3" />
@@ -161,8 +161,8 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
             {/* Charts */}
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">Performance</h2>
-              <div className="status-card p-4 sm:p-5">
-                <h3 className="text-sm font-medium mb-4">Response time (24h)</h3>
+              <div className="status-card-static p-4 sm:p-5">
+                <h3 className="text-sm font-semibold mb-4">Response time (24h)</h3>
                 <RealTimeStatusChart
                   siteId={String(id)}
                   siteName={site.name}
@@ -170,8 +170,8 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
                   embedded
                 />
               </div>
-              <div className="status-card p-4 sm:p-5">
-                <h3 className="text-sm font-medium mb-4">Historical trends</h3>
+              <div className="status-card-static p-4 sm:p-5">
+                <h3 className="text-sm font-semibold mb-4">Historical trends</h3>
                 <HistoricalChart
                   siteHistory={siteHistory || {}}
                   siteId={String(id)}

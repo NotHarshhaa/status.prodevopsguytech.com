@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Bell, Menu, X } from "lucide-react";
+import { Bell, Menu, X, Activity } from "lucide-react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import SubscribeModal from "./SubscribeModal";
 
@@ -18,12 +18,12 @@ export default function Header({ isDarkMode, onThemeToggle, overallStatus }) {
 
   const statusDot =
     overallStatus === "outage"
-      ? "bg-red-400"
+      ? "bg-red-400 shadow-red-400/60"
       : overallStatus === "degraded"
-        ? "bg-amber-300"
+        ? "bg-amber-300 shadow-amber-300/60"
         : overallStatus === "maintenance"
-          ? "bg-blue-300"
-          : "bg-emerald-300";
+          ? "bg-indigo-300 shadow-indigo-300/60"
+          : "bg-emerald-300 shadow-emerald-300/60";
 
   return (
     <>
@@ -34,20 +34,22 @@ export default function Header({ isDarkMode, onThemeToggle, overallStatus }) {
 
       <header className="status-header-bar sticky top-0 z-40">
         <div className="status-container-wide">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <Link href="/" className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="flex items-center gap-3 min-w-0 group">
               <div className="relative flex-shrink-0">
-                <div className="h-8 w-8 rounded-md bg-[#0969da] dark:bg-[#238636] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">PD</span>
+                <div className="status-logo">
+                  <Activity className="h-4 w-4 text-white relative z-10" strokeWidth={2.5} />
                 </div>
                 <span
-                  className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-[#161b22] ${statusDot}`}
+                  className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-[#0a0e17] shadow-sm ${statusDot}`}
                 />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">ProDevOpsGuy</p>
-                <p className="text-[11px] text-[var(--text-muted)] leading-none hidden sm:block">
-                  System Status
+                <p className="text-sm font-bold truncate group-hover:text-[var(--accent)] transition-colors">
+                  ProDevOpsGuy
+                </p>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)] leading-none hidden sm:block">
+                  Mission Control
                 </p>
               </div>
             </Link>
@@ -72,7 +74,7 @@ export default function Header({ isDarkMode, onThemeToggle, overallStatus }) {
               <button
                 type="button"
                 onClick={() => setSubscribeOpen(true)}
-                className="status-btn-secondary hidden sm:inline-flex"
+                className="status-btn-primary hidden sm:inline-flex text-xs"
               >
                 <Bell className="h-3.5 w-3.5" />
                 Subscribe
@@ -83,7 +85,7 @@ export default function Header({ isDarkMode, onThemeToggle, overallStatus }) {
               />
               <button
                 type="button"
-                className="md:hidden p-2 rounded-md text-[var(--text-muted)] hover:bg-[var(--page-bg)]"
+                className="md:hidden p-2.5 rounded-xl text-[var(--text-muted)] hover:bg-[rgba(0,212,170,0.08)] transition-colors"
                 onClick={() => setMenuOpen(!menuOpen)}
                 aria-label="Toggle menu"
               >
@@ -97,7 +99,7 @@ export default function Header({ isDarkMode, onThemeToggle, overallStatus }) {
           </div>
 
           {menuOpen && (
-            <nav className="md:hidden pb-3 border-t border-[var(--border)] pt-2 space-y-1">
+            <nav className="md:hidden pb-4 border-t border-[var(--border)] pt-3 space-y-1">
               {NAV.map((item) => (
                 <Link
                   key={item.href}

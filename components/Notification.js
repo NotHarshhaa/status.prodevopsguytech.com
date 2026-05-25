@@ -45,32 +45,32 @@ const Notification = ({
     switch (type) {
       case "success":
         return {
-          bg: "bg-green-50 dark:bg-green-900/20",
-          border: "border-green-300 dark:border-green-800",
-          text: "text-green-800 dark:text-green-100",
-          iconBg: "bg-green-100 dark:bg-green-800",
+          bg: "bg-emerald-50/90 dark:bg-emerald-950/60 backdrop-blur-xl",
+          border: "border-emerald-300/60 dark:border-emerald-700/60",
+          text: "text-emerald-800 dark:text-emerald-100",
+          iconBg: "bg-emerald-100 dark:bg-emerald-900",
         };
       case "error":
         return {
-          bg: "bg-red-50 dark:bg-red-900/20",
-          border: "border-red-300 dark:border-red-800",
+          bg: "bg-red-50/90 dark:bg-red-950/60 backdrop-blur-xl",
+          border: "border-red-300/60 dark:border-red-700/60",
           text: "text-red-800 dark:text-red-100",
-          iconBg: "bg-red-100 dark:bg-red-800",
+          iconBg: "bg-red-100 dark:bg-red-900",
         };
       case "warning":
         return {
-          bg: "bg-yellow-50 dark:bg-yellow-900/20",
-          border: "border-yellow-300 dark:border-yellow-800",
-          text: "text-yellow-800 dark:text-yellow-100",
-          iconBg: "bg-yellow-100 dark:bg-yellow-800",
+          bg: "bg-amber-50/90 dark:bg-amber-950/60 backdrop-blur-xl",
+          border: "border-amber-300/60 dark:border-amber-700/60",
+          text: "text-amber-800 dark:text-amber-100",
+          iconBg: "bg-amber-100 dark:bg-amber-900",
         };
       case "info":
       default:
         return {
-          bg: "bg-blue-50 dark:bg-blue-900/20",
-          border: "border-blue-300 dark:border-blue-800",
-          text: "text-blue-800 dark:text-blue-100",
-          iconBg: "bg-blue-100 dark:bg-blue-800",
+          bg: "bg-indigo-50/90 dark:bg-indigo-950/60 backdrop-blur-xl",
+          border: "border-indigo-300/60 dark:border-indigo-700/60",
+          text: "text-indigo-800 dark:text-indigo-100",
+          iconBg: "bg-indigo-100 dark:bg-indigo-900",
         };
     }
   };
@@ -90,7 +90,7 @@ const Notification = ({
       }}
     >
       <motion.div
-        className={`${typeStyles.bg} ${typeStyles.border} border rounded-lg shadow-lg p-4 flex items-start`}
+        className={`${typeStyles.bg} ${typeStyles.border} border rounded-2xl shadow-card-hover p-4 flex items-start`}
         role="alert"
         initial={{ scale: 0.9 }}
         animate={{ scale: 1 }}

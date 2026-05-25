@@ -120,7 +120,7 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
             {fetchError && (
               <div
                 role="alert"
-                className="status-card border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
+                className="status-card-static border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
               >
                 {fetchError}
               </div>
