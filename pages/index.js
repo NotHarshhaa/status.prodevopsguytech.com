@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import StatusLayout from "../components/StatusLayout";
 import ComponentStatusList, {
   StatusSummaryBar,
 } from "../components/ComponentStatusList";
 import UptimeSection from "../components/UptimeSection";
 import IncidentList from "../components/IncidentList";
+import IncidentBanner from "../components/IncidentBanner";
 import PageToolbar, { PageLoader, PageSection } from "../components/PageToolbar";
 import { fetchStatusData } from "../lib/utils/statusData";
 import {
@@ -15,16 +16,21 @@ import {
   CheckCircle,
   AlertTriangle,
   XCircle,
+  Filter,
 } from "lucide-react";
 import { useNotification } from "../components/Notification";
 
 export default function Home({ isDarkMode = false, onThemeToggle }) {
   const [sites, setSites] = useState([]);
+  const [historical, setHistorical] = useState(null);
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const notification = useNotification();
   const sitesRef = useRef([]);
 
@@ -78,6 +84,7 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
 
       sitesRef.current = newSites;
       setSites(newSites);
+      setHistorical(data.historical || null);
       setMetrics(data.metrics);
       setLastUpdated(new Date(data.timestamp || Date.now()));
     } catch (error) {
@@ -107,6 +114,35 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
   const overall = getOverallStatus(sites);
   const hero = OVERALL_STATUS[overall] || OVERALL_STATUS.operational;
 
+  // Filtered sites based on search and status tabs
+  const filteredSites = useMemo(() => {
+    let result = sites;
+
+    if (statusFilter !== "all") {
+      result = result.filter((s) => s.status === statusFilter);
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (s) =>
+          s.name?.toLowerCase().includes(q) ||
+          s.description?.toLowerCase().includes(q) ||
+          s.id?.toLowerCase().includes(q),
+      );
+    }
+
+    return result;
+  }, [sites, statusFilter, searchQuery]);
+
+  const counts = useMemo(() => {
+    const total = sites.length;
+    const operational = sites.filter((s) => s.status === "operational").length;
+    const degraded = sites.filter((s) => s.status === "degraded").length;
+    const outage = sites.filter((s) => s.status === "outage").length;
+    return { total, operational, degraded, outage };
+  }, [sites]);
+
   return (
     <StatusLayout
       isDarkMode={isDarkMode}
@@ -119,7 +155,10 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
       heroTitle={hero.label}
       heroDescription={hero.description}
     >
-      <div className="status-container-wide space-y-8">
+      <div className="status-container-wide space-y-6">
+        {/* Active Incident Alert Banner */}
+        <IncidentBanner sites={sites} />
+
         {loading ? (
           <PageLoader message="Checking all services..." />
         ) : (
@@ -138,16 +177,55 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
               isRefreshing={refreshing}
               onRefresh={() => fetchData(true)}
               source={metrics?.source}
+              search={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchPlaceholder="Filter services by name..."
             />
+
+            {/* Filter pills */}
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+              <span className="text-[var(--text-muted)] flex items-center gap-1.5 mr-1 font-mono text-[11px]">
+                <Filter className="h-3.5 w-3.5" />
+                Filter:
+              </span>
+              {[
+                { id: "all", label: "All", count: counts.total },
+                { id: "operational", label: "Operational", count: counts.operational, color: "text-emerald-600 dark:text-emerald-400" },
+                { id: "degraded", label: "Degraded", count: counts.degraded, color: "text-amber-600 dark:text-amber-400" },
+                { id: "outage", label: "Outages", count: counts.outage, color: "text-red-600 dark:text-red-400" },
+              ].map(({ id, label, count, color }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setStatusFilter(id)}
+                  className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
+                    statusFilter === id
+                      ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-sm"
+                      : "bg-[var(--card-bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  <span className={statusFilter === id ? "text-white" : color}>{label}</span>
+                  <span
+                    className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                      statusFilter === id
+                        ? "bg-white/20 text-white"
+                        : "bg-[var(--page-bg)] text-[var(--text-muted)]"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              ))}
+            </div>
 
             <StatusSummaryBar sites={sites} />
 
             <PageSection
               id="components"
               title="Current status by service"
-              description="Real-time health of all monitored components."
+              description={`Real-time health of monitored components (${filteredSites.length} showing).`}
             >
-              <ComponentStatusList sites={sites} />
+              <ComponentStatusList sites={filteredSites} />
             </PageSection>
 
             <PageSection
@@ -161,7 +239,11 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
               title="Uptime history"
               description="Daily status for each service over the last 90 days."
             >
-              <UptimeSection sites={sites} compact />
+              <UptimeSection
+                sites={sites}
+                historical={historical}
+                compact
+              />
             </PageSection>
           </>
         )}

@@ -131,6 +131,17 @@ export function buildSiteTerminalLines(site, uptime90) {
     { type: "keyval", key: "endpoint", value: site.url, delay: 50 },
     { type: "keyval", key: "status", value: statusLabel, valueClass: `terminal-${statusType}`, delay: 50 },
     { type: "keyval", key: "response_time", value: site.responseTime != null ? `${site.responseTime}ms` : "—", delay: 50 },
+    ...(site.ssl?.hasSSL ? [
+      {
+        type: "keyval",
+        key: "ssl_certificate",
+        value: site.ssl.valid
+          ? `Valid (${site.ssl.daysRemaining}d remaining - ${site.ssl.issuer})`
+          : `Invalid (${site.ssl.error || "Expired"})`,
+        valueClass: site.ssl.valid ? (site.ssl.isExpiringSoon ? "terminal-warn" : "terminal-success") : "terminal-error",
+        delay: 50,
+      }
+    ] : []),
     { type: "keyval", key: "uptime_90d", value: `${uptime90}%`, delay: 50 },
     { type: "keyval", key: "last_checked", value: site.lastChecked ? new Date(site.lastChecked).toISOString() : "—", delay: 50 },
     {

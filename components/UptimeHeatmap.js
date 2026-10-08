@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { CalendarDays, TrendingUp } from "lucide-react";
+import { generateUptimeHistory } from "../lib/statusTheme";
 
 const DAYS_TO_SHOW = 90;
 
@@ -13,8 +14,8 @@ const STATUS_COLORS = {
   default: { light: "#e5e7eb", dark: "#374151" },
 };
 
-const getStatusTooltip = (status, date) => {
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
+const getStatusTooltip = (day) => {
+  const formattedDate = new Date(day.date).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -25,46 +26,16 @@ const getStatusTooltip = (status, date) => {
     outage: "Outage",
     maintenance: "Maintenance",
   };
-  return `${formattedDate}: ${labels[status] || "No Data"}`;
-};
-
-// Generate simulated history — stable per siteId using a seeded rand
-const generateSiteHistory = (siteId, currentStatus) => {
-  const history = [];
-  const now = new Date();
-  // Simple deterministic-ish sequence per site so re-renders are stable
-  const seed = siteId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-
-  for (let i = DAYS_TO_SHOW - 1; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    date.setHours(0, 0, 0, 0);
-
-    const rand = ((seed * (i + 1) * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
-    let status;
-    if (i < 3 && currentStatus !== "operational") {
-      status = currentStatus;
-    } else if (rand > 0.97) {
-      status = "outage";
-    } else if (rand > 0.93) {
-      status = "degraded";
-    } else if (rand > 0.91) {
-      status = "maintenance";
-    } else {
-      status = "operational";
-    }
-
-    history.push({ date: date.toISOString(), status });
-  }
-  return history;
+  const statusStr = labels[day.status] || "No Data";
+  return `${formattedDate}: ${statusStr}${day.uptime != null ? ` (${day.uptime}% uptime)` : ""}${day.avgResponseTime ? ` [${day.avgResponseTime}ms avg]` : ""}`;
 };
 
 // Pure CSS square — NO framer-motion, NO JS hover listener
-const HeatSquare = ({ status, tooltip, isDark }) => {
-  const colors = STATUS_COLORS[status] || STATUS_COLORS.default;
+const HeatSquare = ({ day, isDark }) => {
+  const colors = STATUS_COLORS[day.status] || STATUS_COLORS.default;
   return (
     <div
-      title={tooltip}
+      title={getStatusTooltip(day)}
       style={{
         backgroundColor: isDark ? colors.dark : colors.light,
         flex: "1 1 0",
@@ -78,14 +49,19 @@ const HeatSquare = ({ status, tooltip, isDark }) => {
   );
 };
 
-const UptimeHeatmap = ({ sites = [], isDark = false }) => {
+const UptimeHeatmap = ({ sites = [], historical = null, isDark = false }) => {
   const siteHistories = useMemo(
     () =>
       sites.map((site) => ({
         ...site,
-        history: generateSiteHistory(site.id, site.status),
+        history: generateUptimeHistory(
+          site.id,
+          site.status,
+          DAYS_TO_SHOW,
+          historical?.daily?.[site.id],
+        ),
       })),
-    [sites],
+    [sites, historical],
   );
 
   const overallUptime = useMemo(() => {
@@ -168,8 +144,7 @@ const UptimeHeatmap = ({ sites = [], isDark = false }) => {
                     {site.history.map((day, di) => (
                       <HeatSquare
                         key={di}
-                        status={day.status}
-                        tooltip={getStatusTooltip(day.status, day.date)}
+                        day={day}
                         isDark={isDark}
                       />
                     ))}

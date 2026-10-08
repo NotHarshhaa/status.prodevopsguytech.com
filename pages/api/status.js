@@ -1,10 +1,10 @@
-// API route for fetching site status data in real-time
-// Uses the statusChecker service to check website availability
-
+import fs from "fs";
+import path from "path";
 import {
   checkSiteStatus,
   checkAllSites,
   calculateSystemHealth,
+  getSiteHistory,
 } from "../../lib/services/statusChecker";
 import sitesConfig from "../../lib/sitesConfig";
 
@@ -12,6 +12,17 @@ import sitesConfig from "../../lib/sitesConfig";
 let cachedResults = null;
 let lastChecked = null;
 const CACHE_DURATION = 30000; // 30 seconds
+
+function getStaticHistoricalData() {
+  try {
+    const dataFilePath = path.join(process.cwd(), "public", "status-data.json");
+    if (fs.existsSync(dataFilePath)) {
+      const parsed = JSON.parse(fs.readFileSync(dataFilePath, "utf8"));
+      return parsed.historical || null;
+    }
+  } catch (e) {}
+  return null;
+}
 
 export default async function handler(req, res) {
   // Check if we need to refresh the cache
@@ -24,6 +35,7 @@ export default async function handler(req, res) {
 
   // Force refresh if requested
   const forceRefresh = refresh === "true";
+  const staticHistorical = getStaticHistoricalData();
 
   try {
     // For individual site checks
@@ -35,25 +47,26 @@ export default async function handler(req, res) {
       }
 
       // Check if we can use cached data for this site
+      let siteData = null;
       if (!forceRefresh && cachedResults && !shouldRefreshCache) {
         const cachedSite = cachedResults.find((s) => s.id === siteId);
         if (cachedSite) {
-          return res.status(200).json({ site: cachedSite });
+          siteData = cachedSite;
         }
       }
 
-      // If not in cache or forcing refresh, check the site status in real-time
-      const siteStatus = await checkSiteStatus(siteConfig);
+      if (!siteData) {
+        const siteStatus = await checkSiteStatus(siteConfig);
+        siteData = {
+          ...siteConfig,
+          ...siteStatus,
+          id: siteConfig.id,
+          icon: siteConfig.iconName || "Monitor",
+        };
+      }
 
-      // Make sure the ID is preserved in the response
-      const siteData = {
-        ...siteConfig,
-        ...siteStatus,
-        id: siteConfig.id, // Ensure ID is set correctly
-        icon: siteConfig.icon.displayName || siteConfig.icon.name || 'Monitor', // Convert React component to string identifier
-      };
-
-      return res.status(200).json({ site: siteData });
+      const history = getSiteHistory(siteConfig.id, staticHistorical, siteData);
+      return res.status(200).json({ site: siteData, history });
     }
 
     // For all sites
@@ -65,6 +78,7 @@ export default async function handler(req, res) {
       cachedResults = statusResults.map((site) => ({
         ...site,
         id: site.id || sitesConfig.find((s) => s.url === site.url)?.id,
+        icon: sitesConfig.find((s) => s.id === site.id)?.iconName || "Monitor",
       }));
 
       lastChecked = new Date();
@@ -73,12 +87,13 @@ export default async function handler(req, res) {
     // Calculate overall system health metrics
     const healthMetrics = calculateSystemHealth(cachedResults);
 
-    // Return all sites with health metrics
+    // Return all sites with health metrics and historical data
     return res.status(200).json({
       timestamp: new Date(),
       overall: healthMetrics.status,
       metrics: healthMetrics,
       sites: cachedResults,
+      historical: staticHistorical,
       lastChecked,
     });
   } catch (error) {

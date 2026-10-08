@@ -1,16 +1,22 @@
 {
-  "timestamp": "2026-05-25T06:27:06.694Z",
+  "timestamp": "2026-10-08T16:13:43.105Z",
   "overall": "outage",
   "metrics": {
     "status": "outage",
-    "operationalPercentage": 80,
-    "averageResponseTime": 376,
+    "operationalPercentage": 75,
+    "averageResponseTime": 834,
     "sitesWithIssues": [
+      {
+        "id": "docker2k8s",
+        "name": "Docker to Kubernetes",
+        "status": "degraded",
+        "statusText": "Slow Response"
+      },
       {
         "id": "devopslab",
         "name": "DevOps Engineering Lab",
-        "status": "degraded",
-        "statusText": "Client Error"
+        "status": "outage",
+        "statusText": "All Endpoints Failed"
       },
       {
         "id": "toolguides",
@@ -19,15 +25,41 @@
         "statusText": "All Endpoints Failed"
       },
       {
-        "id": "cheatsheet",
-        "name": "DevOps Cheatsheet",
-        "status": "degraded",
-        "statusText": "Client Error"
+        "id": "awesomeui",
+        "name": "Awesome DevOps",
+        "status": "outage",
+        "statusText": "All Endpoints Failed"
       }
     ],
-    "totalSites": 15
+    "totalSites": 16
   },
   "sites": [
+    {
+      "id": "main",
+      "name": "ProDevOpsGuyTech Community",
+      "url": "https://www.prodevopsguytech.com",
+      "icon": "🚀",
+      "description": "A passionate community built for DevOps and Cloud enthusiasts, learners, and professionals",
+      "status": "operational",
+      "statusText": "Operational",
+      "statusCode": 200,
+      "responseTime": 313,
+      "error": null,
+      "workingEndpoint": "/",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 87,
+        "validFrom": "2026-10-06T10:07:54.000Z",
+        "validTo": "2027-01-04T10:07:53.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "www.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:31.470Z",
+      "fromCache": false
+    },
     {
       "id": "projects",
       "name": "Real-Time Projects Hub",
@@ -37,10 +69,21 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 83,
+      "responseTime": 132,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:03.336Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 31,
+        "validFrom": "2026-08-11T08:40:40.000Z",
+        "validTo": "2026-11-09T08:40:39.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "projects.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:31.367Z",
       "fromCache": false
     },
     {
@@ -52,10 +95,21 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 381,
+      "responseTime": 2128,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:03.574Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 86,
+        "validFrom": "2026-10-04T19:09:54.000Z",
+        "validTo": "2027-01-02T19:09:53.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "docs.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:33.454Z",
       "fromCache": false
     },
     {
@@ -67,10 +121,21 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 78,
+      "responseTime": 186,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:03.428Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 28,
+        "validFrom": "2026-08-08T07:40:53.000Z",
+        "validTo": "2026-11-06T07:40:52.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "repos.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:31.637Z",
       "fromCache": false
     },
     {
@@ -82,10 +147,21 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 328,
+      "responseTime": 1052,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:03.736Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 57,
+        "validFrom": "2026-09-06T00:48:05.000Z",
+        "validTo": "2026-12-05T00:48:04.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "jobs.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:32.564Z",
       "fromCache": false
     },
     {
@@ -96,11 +172,22 @@
       "description": "Deep dives into DevOps practices & tutorials",
       "status": "operational",
       "statusText": "Operational",
-      "statusCode": 429,
-      "responseTime": 77,
+      "statusCode": 200,
+      "responseTime": 766,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:03.502Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 87,
+        "validFrom": "2026-10-05T23:27:55.000Z",
+        "validTo": "2027-01-03T23:27:54.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "blog.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:32.450Z",
       "fromCache": false
     },
     {
@@ -111,11 +198,22 @@
       "description": "Cloud architecture & implementation guides",
       "status": "operational",
       "statusText": "Operational",
-      "statusCode": 429,
-      "responseTime": 75,
+      "statusCode": 200,
+      "responseTime": 753,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:03.899Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 85,
+        "validFrom": "2026-10-04T09:15:30.000Z",
+        "validTo": "2027-01-02T09:15:29.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "cloud.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:32.765Z",
       "fromCache": false
     },
     {
@@ -124,13 +222,24 @@
       "url": "https://dockertok8s.prodevopsguytech.com",
       "icon": "🐳",
       "description": "Master containerization journey",
-      "status": "operational",
-      "statusText": "Operational",
+      "status": "degraded",
+      "statusText": "Slow Response",
       "statusCode": 200,
-      "responseTime": 2724,
+      "responseTime": 10678,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:06.693Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 67,
+        "validFrom": "2026-09-16T04:43:43.000Z",
+        "validTo": "2026-12-15T04:43:42.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "dockertok8s.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:43.102Z",
       "fromCache": false
     },
     {
@@ -139,13 +248,18 @@
       "url": "https://www.devops-engineering.site",
       "icon": "🔬",
       "description": "Hands-on CI/CD & automation",
-      "status": "degraded",
-      "statusText": "Client Error",
-      "statusCode": 404,
-      "responseTime": 497,
+      "status": "outage",
+      "statusText": "All Endpoints Failed",
+      "statusCode": null,
+      "responseTime": null,
       "error": null,
       "workingEndpoint": null,
-      "lastChecked": "2026-05-25T06:27:04.261Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": false,
+        "error": "getaddrinfo ENOTFOUND www.devops-engineering.site"
+      },
+      "lastChecked": "2026-10-08T16:13:32.043Z",
       "fromCache": false
     },
     {
@@ -160,7 +274,12 @@
       "responseTime": null,
       "error": null,
       "workingEndpoint": null,
-      "lastChecked": "2026-05-25T06:27:05.159Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": false,
+        "error": "getaddrinfo ENOTFOUND www.devopsguides.site"
+      },
+      "lastChecked": "2026-10-08T16:13:31.994Z",
       "fromCache": false
     },
     {
@@ -169,13 +288,24 @@
       "url": "https://cheatsheet.prodevopsguytech.com",
       "icon": "📑",
       "description": "Comprehensive tools & practices",
-      "status": "degraded",
-      "statusText": "Client Error",
-      "statusCode": 402,
-      "responseTime": 507,
+      "status": "operational",
+      "statusText": "Operational",
+      "statusCode": 200,
+      "responseTime": 365,
       "error": null,
-      "workingEndpoint": null,
-      "lastChecked": "2026-05-25T06:27:04.448Z",
+      "workingEndpoint": "/",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 73,
+        "validFrom": "2026-09-21T22:25:16.000Z",
+        "validTo": "2026-12-20T22:25:15.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "cheatsheet.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:32.745Z",
       "fromCache": false
     },
     {
@@ -187,10 +317,21 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 302,
+      "responseTime": 1613,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:04.314Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 50,
+        "validFrom": "2026-08-29T19:48:09.000Z",
+        "validTo": "2026-11-27T19:48:08.000Z",
+        "issuer": "Google Trust Services",
+        "subject": "*.vercel.app"
+      },
+      "lastChecked": "2026-10-08T16:13:33.960Z",
       "fromCache": false
     },
     {
@@ -202,10 +343,21 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 93,
+      "responseTime": 435,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:04.449Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 73,
+        "validFrom": "2026-09-21T23:04:02.000Z",
+        "validTo": "2026-12-20T23:04:01.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "interviews.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:32.748Z",
       "fromCache": false
     },
     {
@@ -217,10 +369,21 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 139,
+      "responseTime": 756,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:04.447Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 86,
+        "validFrom": "2026-10-05T06:27:11.000Z",
+        "validTo": "2027-01-03T06:27:10.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "tools.prodevopsguytech.com"
+      },
+      "lastChecked": "2026-10-08T16:13:33.313Z",
       "fromCache": false
     },
     {
@@ -229,13 +392,18 @@
       "url": "https://awesomedevopsui.site",
       "icon": "💻",
       "description": "A showcase of powerful, user-friendly UIs for managing DevOps workflows and monitoring systems",
-      "status": "operational",
-      "statusText": "Operational",
-      "statusCode": 200,
-      "responseTime": 73,
+      "status": "outage",
+      "statusText": "All Endpoints Failed",
+      "statusCode": null,
+      "responseTime": null,
       "error": null,
-      "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:04.564Z",
+      "workingEndpoint": null,
+      "ssl": {
+        "hasSSL": true,
+        "valid": false,
+        "error": "getaddrinfo ENOTFOUND awesomedevopsui.site"
+      },
+      "lastChecked": "2026-10-08T16:13:32.693Z",
       "fromCache": false
     },
     {
@@ -247,198 +415,215 @@
       "status": "operational",
       "statusText": "Operational",
       "statusCode": 200,
-      "responseTime": 158,
+      "responseTime": 1510,
       "error": null,
       "workingEndpoint": "/",
-      "lastChecked": "2026-05-25T06:27:04.798Z",
+      "ssl": {
+        "hasSSL": true,
+        "valid": true,
+        "isExpired": false,
+        "isExpiringSoon": false,
+        "daysRemaining": 46,
+        "validFrom": "2026-08-26T16:07:29.000Z",
+        "validTo": "2026-11-24T16:07:28.000Z",
+        "issuer": "Let's Encrypt",
+        "subject": "devopsresourceshub.site"
+      },
+      "lastChecked": "2026-10-08T16:13:34.160Z",
       "fromCache": false
     }
   ],
-  "lastChecked": "2026-05-25T06:27:06.694Z",
+  "lastChecked": "2026-10-08T16:13:43.105Z",
   "historical": {
     "hourly": {
       "projects": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 83
+          "responseTime": 132
         }
       },
       "docs": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 381
+          "responseTime": 2128
         }
       },
       "repos": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 78
+          "responseTime": 186
         }
       },
       "jobs": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 328
+          "responseTime": 1052
         }
       },
       "blog": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 77
+          "responseTime": 766
         }
       },
       "cloud": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 75
+          "responseTime": 753
         }
       },
       "docker2k8s": {
-        "2026-05-25T06": {
-          "status": "operational",
-          "responseTime": 2724
+        "2026-10-08T16": {
+          "status": "degraded",
+          "responseTime": 10678
         }
       },
       "devopslab": {
-        "2026-05-25T06": {
-          "status": "degraded",
-          "responseTime": 497
+        "2026-10-08T16": {
+          "status": "outage",
+          "responseTime": null
         }
       },
       "toolguides": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "outage",
           "responseTime": null
         }
       },
       "cheatsheet": {
-        "2026-05-25T06": {
-          "status": "degraded",
-          "responseTime": 507
+        "2026-10-08T16": {
+          "status": "operational",
+          "responseTime": 365
         }
       },
       "monitoring": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 302
+          "responseTime": 1613
         }
       },
       "interviews": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 93
+          "responseTime": 435
         }
       },
       "devopstools": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 139
+          "responseTime": 756
         }
       },
       "awesomeui": {
-        "2026-05-25T06": {
-          "status": "operational",
-          "responseTime": 73
+        "2026-10-08T16": {
+          "status": "outage",
+          "responseTime": null
         }
       },
       "resources": {
-        "2026-05-25T06": {
+        "2026-10-08T16": {
           "status": "operational",
-          "responseTime": 158
+          "responseTime": 1510
+        }
+      },
+      "main": {
+        "2026-10-08T16": {
+          "status": "operational",
+          "responseTime": 313
         }
       }
     },
     "daily": {
       "projects": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 83,
+          "totalResponseTime": 132,
           "uptime": 100,
-          "avgResponseTime": 83
+          "avgResponseTime": 132
         }
       },
       "docs": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 381,
+          "totalResponseTime": 2128,
           "uptime": 100,
-          "avgResponseTime": 381
+          "avgResponseTime": 2128
         }
       },
       "repos": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 78,
+          "totalResponseTime": 186,
           "uptime": 100,
-          "avgResponseTime": 78
+          "avgResponseTime": 186
         }
       },
       "jobs": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 328,
+          "totalResponseTime": 1052,
           "uptime": 100,
-          "avgResponseTime": 328
+          "avgResponseTime": 1052
         }
       },
       "blog": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 77,
+          "totalResponseTime": 766,
           "uptime": 100,
-          "avgResponseTime": 77
+          "avgResponseTime": 766
         }
       },
       "cloud": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 75,
+          "totalResponseTime": 753,
           "uptime": 100,
-          "avgResponseTime": 75
+          "avgResponseTime": 753
         }
       },
       "docker2k8s": {
-        "2026-05-25": {
-          "checks": 1,
-          "operational": 1,
-          "degraded": 0,
-          "outage": 0,
-          "totalResponseTime": 2724,
-          "uptime": 100,
-          "avgResponseTime": 2724
-        }
-      },
-      "devopslab": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 0,
           "degraded": 1,
           "outage": 0,
-          "totalResponseTime": 497,
+          "totalResponseTime": 10678,
           "uptime": 0,
-          "avgResponseTime": 497
+          "avgResponseTime": 10678
+        }
+      },
+      "devopslab": {
+        "2026-10-08": {
+          "checks": 1,
+          "operational": 0,
+          "degraded": 0,
+          "outage": 1,
+          "totalResponseTime": 0,
+          "uptime": 0,
+          "avgResponseTime": 0
         }
       },
       "toolguides": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 0,
           "degraded": 0,
@@ -449,69 +634,80 @@
         }
       },
       "cheatsheet": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
-          "operational": 0,
-          "degraded": 1,
+          "operational": 1,
+          "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 507,
-          "uptime": 0,
-          "avgResponseTime": 507
+          "totalResponseTime": 365,
+          "uptime": 100,
+          "avgResponseTime": 365
         }
       },
       "monitoring": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 302,
+          "totalResponseTime": 1613,
           "uptime": 100,
-          "avgResponseTime": 302
+          "avgResponseTime": 1613
         }
       },
       "interviews": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 93,
+          "totalResponseTime": 435,
           "uptime": 100,
-          "avgResponseTime": 93
+          "avgResponseTime": 435
         }
       },
       "devopstools": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 139,
+          "totalResponseTime": 756,
           "uptime": 100,
-          "avgResponseTime": 139
+          "avgResponseTime": 756
         }
       },
       "awesomeui": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
-          "operational": 1,
+          "operational": 0,
           "degraded": 0,
-          "outage": 0,
-          "totalResponseTime": 73,
-          "uptime": 100,
-          "avgResponseTime": 73
+          "outage": 1,
+          "totalResponseTime": 0,
+          "uptime": 0,
+          "avgResponseTime": 0
         }
       },
       "resources": {
-        "2026-05-25": {
+        "2026-10-08": {
           "checks": 1,
           "operational": 1,
           "degraded": 0,
           "outage": 0,
-          "totalResponseTime": 158,
+          "totalResponseTime": 1510,
           "uptime": 100,
-          "avgResponseTime": 158
+          "avgResponseTime": 1510
+        }
+      },
+      "main": {
+        "2026-10-08": {
+          "checks": 1,
+          "operational": 1,
+          "degraded": 0,
+          "outage": 0,
+          "totalResponseTime": 313,
+          "uptime": 100,
+          "avgResponseTime": 313
         }
       }
     }

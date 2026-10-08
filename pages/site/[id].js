@@ -10,7 +10,6 @@ import RealTimeStatusChart from "../../components/RealTimeStatusChart";
 import HistoricalChart from "../../components/HistoricalChart";
 import TerminalPanel, { buildSiteTerminalLines } from "../../components/TerminalPanel";
 import StatusRing from "../../components/StatusRing";
-import { getSiteHistory } from "../../lib/services/statusChecker";
 import {
   COMPONENT_STATUS,
   generateUptimeHistory,
@@ -18,6 +17,7 @@ import {
   formatRelativeTime,
 } from "../../lib/statusTheme";
 import { PageLoader } from "../../components/PageToolbar";
+import { ShieldCheck, Copy, Check } from "lucide-react";
 
 export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
   const router = useRouter();
@@ -26,6 +26,7 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
   const [siteHistory, setSiteHistory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [badgeCopied, setBadgeCopied] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -39,7 +40,7 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
         );
         if (res.data?.site) {
           setSite(res.data.site);
-          setSiteHistory(getSiteHistory(id));
+          setSiteHistory(res.data.history || null);
         } else {
           setError("Service not found.");
         }
@@ -142,6 +143,9 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
                 { icon: Activity, label: "Uptime 90d", value: `${uptime90}%` },
                 { icon: Clock, label: "Last check", value: site.lastChecked ? formatRelativeTime(site.lastChecked) : "—" },
                 { icon: ExternalLink, label: "HTTP", value: site.statusCode ? `${site.statusCode}` : "—" },
+                ...(site.ssl?.hasSSL
+                  ? [{ icon: ShieldCheck, label: "SSL Expiry", value: site.ssl.valid ? `${site.ssl.daysRemaining}d` : "Expired" }]
+                  : []),
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="terminal-metric">
                   <Icon className="h-4 w-4 mx-auto mb-1 text-[#00d4aa] opacity-60" />
@@ -158,16 +162,45 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
               </p>
             )}
 
-            <a
-              href={site.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 status-btn-secondary font-mono text-xs"
-            >
-              <span className="text-[var(--accent)]">$</span>
-              open {site.url}
-              <ExternalLink className="h-3 w-3" />
-            </a>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href={site.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 status-btn-secondary font-mono text-xs"
+              >
+                <span className="text-[var(--accent)]">$</span>
+                open {site.url}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+
+              {/* Badge Preview and Copy */}
+              <button
+                type="button"
+                onClick={async () => {
+                  const badgeSnippet = `[![Status](https://status.prodevopsguytech.com/api/badge/${site.id}.svg)](https://status.prodevopsguytech.com/site/${site.id})`;
+                  try {
+                    await navigator.clipboard.writeText(badgeSnippet);
+                    setBadgeCopied(true);
+                    setTimeout(() => setBadgeCopied(false), 2500);
+                  } catch (e) {}
+                }}
+                className="inline-flex items-center gap-1.5 status-btn-secondary font-mono text-xs"
+                title="Copy markdown badge for GitHub README"
+              >
+                {badgeCopied ? (
+                  <>
+                    <Check className="h-3 w-3 text-emerald-400" />
+                    badge copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3" />
+                    copy badge markdown
+                  </>
+                )}
+              </button>
+            </div>
 
             <UptimeSection sites={[site]} days={90} />
 

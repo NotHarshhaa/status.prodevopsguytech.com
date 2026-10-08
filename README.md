@@ -7,17 +7,20 @@ A modern, responsive status dashboard for monitoring the health and uptime of we
 ## Features
 
 - 🚦 Real-time service status monitoring with fallback to static data
-- 📊 Uptime statistics and historical data tracking
-- 🔔 Incident reporting and history
-- ⏱️ Response time monitoring and visualization
-- 📈 Historical performance graphs and trends
-- 🤖 Automated status checks via GitHub Actions (runs 4x daily)
-- 💾 Static data generation for improved reliability
-- 🔄 Automatic and manual refresh capabilities
-- 🌓 Dark/light mode support
-- 📱 Fully responsive design for all devices
-- 🔍 Detailed site-specific status information
-- 🚨 Status change notifications and alerts
+- 📊 **90-Day Real Uptime History & SLA Telemetry** (no simulated data)
+- 🔒 **SSL/TLS Certificate Health & Expiration Monitoring** (< 14 days warning)
+- 🛡️ **Dynamic Embeddable SVG Badges** for GitHub READMEs (`/api/badge/[id].svg`)
+- 📡 **RSS 2.0 Incident & Status Feed** (`/api/feed`)
+- 📣 **Multi-Channel Outage Alerts** via Telegram, Discord, and Slack webhooks
+- 🔎 **Interactive Search & Status Filtering** by operational state
+- 📈 **SLA Arc Gauge & Contribution-Style Heatmap**
+- 🔔 Incident reporting and history tracking
+- ⏱️ Response time monitoring and latency profiling
+- 🤖 Automated status checks via GitHub Actions with 90-day retention
+- 🔄 Dual-mode: real-time live checks + static CDN fallback
+- 🌓 Dark/light mode with persistence
+- 📱 Fully responsive design for mobile, tablet, and desktop
+- 🔍 Detailed site-specific diagnostic terminal panel (`/site/[id]`)
 
 ## Getting Started
 

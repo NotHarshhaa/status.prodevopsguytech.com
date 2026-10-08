@@ -15,7 +15,12 @@ const DAY_COLORS = {
   default: "bg-slate-200 dark:bg-slate-700",
 };
 
-export default function UptimeSection({ sites = [], days = 90, compact = false }) {
+export default function UptimeSection({
+  sites = [],
+  historical = null,
+  days = 90,
+  compact = false,
+}) {
   if (!sites.length) return null;
 
   return (
@@ -41,17 +46,24 @@ export default function UptimeSection({ sites = [], days = 90, compact = false }
       </div>
       <div className={`${compact ? "px-4 sm:px-5" : "px-5"} py-1 divide-y divide-[var(--border)]`}>
         {sites.map((site, i) => (
-          <UptimeRow key={site.id} site={site} days={days} compact={compact} index={i} />
+          <UptimeRow
+            key={site.id}
+            site={site}
+            days={days}
+            compact={compact}
+            index={i}
+            siteDailyData={historical?.daily?.[site.id]}
+          />
         ))}
       </div>
     </section>
   );
 }
 
-function UptimeRow({ site, days, compact, index }) {
+function UptimeRow({ site, days, compact, index, siteDailyData }) {
   const history = useMemo(
-    () => generateUptimeHistory(site.id, site.status, days),
-    [site.id, site.status, days],
+    () => generateUptimeHistory(site.id, site.status, days, siteDailyData),
+    [site.id, site.status, days, siteDailyData],
   );
   const uptime = getUptimePercent(history);
   const cfg = COMPONENT_STATUS[site.status] || COMPONENT_STATUS.unknown;
@@ -93,11 +105,12 @@ function UptimeRow({ site, days, compact, index }) {
           });
           const statusLabel =
             COMPONENT_STATUS[day.status]?.label || day.status;
+          const detailText = `${dateLabel}: ${statusLabel} (${day.uptime}% uptime${day.checks ? `, ${day.checks} check${day.checks > 1 ? 's' : ''}` : ''}${day.avgResponseTime ? `, ${day.avgResponseTime}ms` : ''})`;
           return (
             <div
               key={i}
               className={`uptime-day ${color}`}
-              title={`${dateLabel}: ${statusLabel}`}
+              title={detailText}
             />
           );
         })}

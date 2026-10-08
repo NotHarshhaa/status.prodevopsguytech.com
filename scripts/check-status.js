@@ -66,6 +66,14 @@ const statusAxios = axios.create({
 // Define the list of sites to monitor with alternative health check endpoints
 const sitesConfig = [
   {
+    id: "main",
+    name: "ProDevOpsGuyTech Community",
+    description: "A passionate community built for DevOps and Cloud enthusiasts, learners, and professionals",
+    url: "https://www.prodevopsguytech.com",
+    healthEndpoints: ["/", "/health"],
+    icon: "🚀",
+  },
+  {
     id: "projects",
     name: "Real-Time Projects Hub",
     description: "Hands-on DevOps projects from beginner to advanced",
@@ -411,7 +419,23 @@ async function checkSiteStatus(site, forceCheck = false) {
     statusText = "All Endpoints Failed";
   }
 
-  console.log(`Checked ${site.name}: ${status} (${responseTime}ms)${retryCount > 0 ? ` after ${retryCount} retries` : ''}${workingEndpoint ? ` via ${workingEndpoint}` : ''}`);
+  // Check SSL certificate
+  let sslInfo = null;
+  try {
+    const { checkSSLCertificate } = require("../lib/services/sslChecker");
+    sslInfo = await checkSSLCertificate(site.url, 4000);
+    if (sslInfo && sslInfo.hasSSL) {
+      if (sslInfo.isExpired) {
+        status = "outage";
+        statusText = "SSL Certificate Expired";
+      } else if (sslInfo.isExpiringSoon && status === "operational") {
+        status = "degraded";
+        statusText = `SSL Expiring (${sslInfo.daysRemaining}d)`;
+      }
+    }
+  } catch (sslErr) {}
+
+  console.log(`Checked ${site.name}: ${status} (${responseTime}ms)${retryCount > 0 ? ` after ${retryCount} retries` : ''}${workingEndpoint ? ` via ${workingEndpoint}` : ''}${sslInfo?.daysRemaining != null ? ` [SSL: ${sslInfo.daysRemaining}d]` : ''}`);
 
   // Create result object
   const result = {
@@ -426,6 +450,7 @@ async function checkSiteStatus(site, forceCheck = false) {
     responseTime,
     error,
     workingEndpoint,
+    ssl: sslInfo,
     lastChecked: new Date().toISOString(),
     fromCache: false
   };
@@ -591,16 +616,16 @@ function updateHistoricalData(existingData, currentSiteStatuses) {
     );
   });
 
-  // Clean up old data (keep only the last 7 days of data)
+  // Clean up old data (keep 90 days of daily data and 48 hours of hourly data)
   const cleanupHistoricalData = () => {
-    // For daily data, keep last 7 days
+    // For daily data, keep last 90 days for SLA tracking
     const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - 7);
+    cutoffDate.setDate(cutoffDate.getDate() - 90);
     const cutoffDailyKey = cutoffDate.toISOString().split("T")[0];
 
-    // For hourly data, keep last 24 hours (reduce from 48 to save space)
+    // For hourly data, keep last 48 hours
     const cutoffHour = new Date();
-    cutoffHour.setHours(cutoffHour.getHours() - 24);
+    cutoffHour.setHours(cutoffHour.getHours() - 48);
     const cutoffHourKey = cutoffHour.toISOString().split(":")[0];
 
     // Clean up each site's data with logging for visibility
@@ -638,6 +663,101 @@ function updateHistoricalData(existingData, currentSiteStatuses) {
   return historical;
 }
 
+/**
+ * Dispatches webhook alerts on status changes (Telegram, Discord, Slack)
+ */
+async function dispatchWebhookAlerts(existingData, currentSiteStatuses) {
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+  const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+  const discordWebhook = process.env.DISCORD_WEBHOOK_URL;
+  const slackWebhook = process.env.SLACK_WEBHOOK_URL;
+
+  if (!telegramToken && !discordWebhook && !slackWebhook) {
+    return;
+  }
+
+  const prevSitesMap = new Map((existingData?.sites || []).map((s) => [s.id, s]));
+  const changes = [];
+
+  for (const site of currentSiteStatuses) {
+    const prev = prevSitesMap.get(site.id);
+    if (prev && prev.status !== site.status) {
+      changes.push({
+        site,
+        prevStatus: prev.status,
+        currentStatus: site.status,
+      });
+    }
+  }
+
+  if (changes.length === 0) return;
+  console.log(`Detected ${changes.length} status change(s). Sending webhook alerts...`);
+
+  for (const { site, prevStatus, currentStatus } of changes) {
+    const emoji =
+      currentStatus === "operational"
+        ? "✅"
+        : currentStatus === "degraded"
+          ? "⚠️"
+          : "🚨";
+    const textMsg = `${emoji} *ProDevOpsGuy Status Alert*\n*${site.name}* transitioned from *${prevStatus}* to *${currentStatus}*\nLatency: ${site.responseTime || 0}ms\nURL: ${site.url}`;
+
+    // Telegram
+    if (telegramToken && telegramChatId) {
+      try {
+        await axios.post(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+          chat_id: telegramChatId,
+          text: textMsg,
+          parse_mode: "Markdown",
+        });
+        console.log(`Telegram alert sent for ${site.name}`);
+      } catch (err) {
+        console.warn(`Telegram alert failed: ${err.message}`);
+      }
+    }
+
+    // Discord
+    if (discordWebhook) {
+      try {
+        const color =
+          currentStatus === "operational"
+            ? 0x10b981
+            : currentStatus === "degraded"
+              ? 0xf59e0b
+              : 0xef4444;
+        await axios.post(discordWebhook, {
+          embeds: [
+            {
+              title: `${emoji} Service Status Change: ${site.name}`,
+              description: `Status changed from **${prevStatus}** to **${currentStatus}**\n${site.statusText ? `Detail: ${site.statusText}` : ""}`,
+              color,
+              fields: [
+                { name: "Service", value: site.name, inline: true },
+                { name: "Latency", value: `${site.responseTime || 0}ms`, inline: true },
+                { name: "URL", value: site.url, inline: false },
+              ],
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        });
+        console.log(`Discord alert sent for ${site.name}`);
+      } catch (err) {
+        console.warn(`Discord alert failed: ${err.message}`);
+      }
+    }
+
+    // Slack
+    if (slackWebhook) {
+      try {
+        await axios.post(slackWebhook, { text: textMsg });
+        console.log(`Slack alert sent for ${site.name}`);
+      } catch (err) {
+        console.warn(`Slack alert failed: ${err.message}`);
+      }
+    }
+  }
+}
+
 async function main() {
   try {
     // Check the status of all sites (force check to bypass cache for scheduled runs)
@@ -662,6 +782,9 @@ async function main() {
         err.message,
       );
     }
+
+    // Dispatch webhook notifications if status changed
+    await dispatchWebhookAlerts(existingData, siteStatuses);
 
     // Update historical data
     const historical = updateHistoricalData(existingData, siteStatuses);

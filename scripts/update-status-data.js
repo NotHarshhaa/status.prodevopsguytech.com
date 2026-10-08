@@ -49,18 +49,18 @@ function saveStatusData(data) {
       existingData = JSON.parse(fileContent);
     }
 
-    // Clean up historical data to keep only last 7 days
+    // Clean up historical data to keep last 90 days daily and 48 hours hourly
     const cleanupHistoricalData = (historical) => {
       if (!historical) return { hourly: {}, daily: {} };
 
-      // For daily data, keep last 7 days
+      // For daily data, keep last 90 days
       const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - 7);
+      cutoffDate.setDate(cutoffDate.getDate() - 90);
       const cutoffDailyKey = cutoffDate.toISOString().split("T")[0];
 
-      // For hourly data, keep last 24 hours
+      // For hourly data, keep last 48 hours
       const cutoffHour = new Date();
-      cutoffHour.setHours(cutoffHour.getHours() - 24);
+      cutoffHour.setHours(cutoffHour.getHours() - 48);
       const cutoffHourKey = cutoffHour.toISOString().split(":")[0];
 
       // Clean up daily data
