@@ -150,28 +150,6 @@ const sitesConfig = [
     icon: "🐳",
   },
   {
-    id: "devopslab",
-    name: "DevOps Engineering Lab",
-    description: "Hands-on CI/CD & automation",
-    url: "https://www.devops-engineering.site",
-    healthEndpoints: [
-      "/",
-      "/health"
-    ],
-    icon: "🔬",
-  },
-  {
-    id: "toolguides",
-    name: "DevOps Tool Guides",
-    description: "Setup & installation guides",
-    url: "https://www.devopsguides.site",
-    healthEndpoints: [
-      "/",
-      "/health"
-    ],
-    icon: "🛠️",
-  },
-  {
     id: "cheatsheet",
     name: "DevOps Cheatsheet",
     description: "Comprehensive tools & practices",
@@ -218,30 +196,6 @@ const sitesConfig = [
       "/health"
     ],
     icon: "🛠️",
-  },
-  {
-    id: "awesomeui",
-    name: "Awesome DevOps",
-    description:
-      "A showcase of powerful, user-friendly UIs for managing DevOps workflows and monitoring systems",
-    url: "https://awesomedevopsui.site",
-    healthEndpoints: [
-      "/",
-      "/health"
-    ],
-    icon: "💻",
-  },
-  {
-    id: "resources",
-    name: "Home of Best DevOps Resources",
-    description:
-      "All-in-one portal for curated DevOps learning materials, articles, and best practices",
-    url: "https://devopsresourceshub.site",
-    healthEndpoints: [
-      "/",
-      "/health"
-    ],
-    icon: "📚",
   },
 ];
 

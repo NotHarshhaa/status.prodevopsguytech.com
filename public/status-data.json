@@ -1,9 +1,9 @@
 {
   "timestamp": "2026-10-08T16:13:43.105Z",
-  "overall": "outage",
+  "overall": "degraded",
   "metrics": {
-    "status": "outage",
-    "operationalPercentage": 75,
+    "status": "degraded",
+    "operationalPercentage": 92,
     "averageResponseTime": 834,
     "sitesWithIssues": [
       {
@@ -11,27 +11,9 @@
         "name": "Docker to Kubernetes",
         "status": "degraded",
         "statusText": "Slow Response"
-      },
-      {
-        "id": "devopslab",
-        "name": "DevOps Engineering Lab",
-        "status": "outage",
-        "statusText": "All Endpoints Failed"
-      },
-      {
-        "id": "toolguides",
-        "name": "DevOps Tool Guides",
-        "status": "outage",
-        "statusText": "All Endpoints Failed"
-      },
-      {
-        "id": "awesomeui",
-        "name": "Awesome DevOps",
-        "status": "outage",
-        "statusText": "All Endpoints Failed"
       }
     ],
-    "totalSites": 16
+    "totalSites": 12
   },
   "sites": [
     {
@@ -243,46 +225,6 @@
       "fromCache": false
     },
     {
-      "id": "devopslab",
-      "name": "DevOps Engineering Lab",
-      "url": "https://www.devops-engineering.site",
-      "icon": "🔬",
-      "description": "Hands-on CI/CD & automation",
-      "status": "outage",
-      "statusText": "All Endpoints Failed",
-      "statusCode": null,
-      "responseTime": null,
-      "error": null,
-      "workingEndpoint": null,
-      "ssl": {
-        "hasSSL": true,
-        "valid": false,
-        "error": "getaddrinfo ENOTFOUND www.devops-engineering.site"
-      },
-      "lastChecked": "2026-10-08T16:13:32.043Z",
-      "fromCache": false
-    },
-    {
-      "id": "toolguides",
-      "name": "DevOps Tool Guides",
-      "url": "https://www.devopsguides.site",
-      "icon": "🛠️",
-      "description": "Setup & installation guides",
-      "status": "outage",
-      "statusText": "All Endpoints Failed",
-      "statusCode": null,
-      "responseTime": null,
-      "error": null,
-      "workingEndpoint": null,
-      "ssl": {
-        "hasSSL": true,
-        "valid": false,
-        "error": "getaddrinfo ENOTFOUND www.devopsguides.site"
-      },
-      "lastChecked": "2026-10-08T16:13:31.994Z",
-      "fromCache": false
-    },
-    {
       "id": "cheatsheet",
       "name": "DevOps Cheatsheet",
       "url": "https://cheatsheet.prodevopsguytech.com",
@@ -385,52 +327,6 @@
       },
       "lastChecked": "2026-10-08T16:13:33.313Z",
       "fromCache": false
-    },
-    {
-      "id": "awesomeui",
-      "name": "Awesome DevOps",
-      "url": "https://awesomedevopsui.site",
-      "icon": "💻",
-      "description": "A showcase of powerful, user-friendly UIs for managing DevOps workflows and monitoring systems",
-      "status": "outage",
-      "statusText": "All Endpoints Failed",
-      "statusCode": null,
-      "responseTime": null,
-      "error": null,
-      "workingEndpoint": null,
-      "ssl": {
-        "hasSSL": true,
-        "valid": false,
-        "error": "getaddrinfo ENOTFOUND awesomedevopsui.site"
-      },
-      "lastChecked": "2026-10-08T16:13:32.693Z",
-      "fromCache": false
-    },
-    {
-      "id": "resources",
-      "name": "Home of Best DevOps Resources",
-      "url": "https://devopsresourceshub.site",
-      "icon": "📚",
-      "description": "All-in-one portal for curated DevOps learning materials, articles, and best practices",
-      "status": "operational",
-      "statusText": "Operational",
-      "statusCode": 200,
-      "responseTime": 1510,
-      "error": null,
-      "workingEndpoint": "/",
-      "ssl": {
-        "hasSSL": true,
-        "valid": true,
-        "isExpired": false,
-        "isExpiringSoon": false,
-        "daysRemaining": 46,
-        "validFrom": "2026-08-26T16:07:29.000Z",
-        "validTo": "2026-11-24T16:07:28.000Z",
-        "issuer": "Let's Encrypt",
-        "subject": "devopsresourceshub.site"
-      },
-      "lastChecked": "2026-10-08T16:13:34.160Z",
-      "fromCache": false
     }
   ],
   "lastChecked": "2026-10-08T16:13:43.105Z",
@@ -478,18 +374,6 @@
           "responseTime": 10678
         }
       },
-      "devopslab": {
-        "2026-10-08T16": {
-          "status": "outage",
-          "responseTime": null
-        }
-      },
-      "toolguides": {
-        "2026-10-08T16": {
-          "status": "outage",
-          "responseTime": null
-        }
-      },
       "cheatsheet": {
         "2026-10-08T16": {
           "status": "operational",
@@ -512,18 +396,6 @@
         "2026-10-08T16": {
           "status": "operational",
           "responseTime": 756
-        }
-      },
-      "awesomeui": {
-        "2026-10-08T16": {
-          "status": "outage",
-          "responseTime": null
-        }
-      },
-      "resources": {
-        "2026-10-08T16": {
-          "status": "operational",
-          "responseTime": 1510
         }
       },
       "main": {
@@ -611,28 +483,6 @@
           "avgResponseTime": 10678
         }
       },
-      "devopslab": {
-        "2026-10-08": {
-          "checks": 1,
-          "operational": 0,
-          "degraded": 0,
-          "outage": 1,
-          "totalResponseTime": 0,
-          "uptime": 0,
-          "avgResponseTime": 0
-        }
-      },
-      "toolguides": {
-        "2026-10-08": {
-          "checks": 1,
-          "operational": 0,
-          "degraded": 0,
-          "outage": 1,
-          "totalResponseTime": 0,
-          "uptime": 0,
-          "avgResponseTime": 0
-        }
-      },
       "cheatsheet": {
         "2026-10-08": {
           "checks": 1,
@@ -675,28 +525,6 @@
           "totalResponseTime": 756,
           "uptime": 100,
           "avgResponseTime": 756
-        }
-      },
-      "awesomeui": {
-        "2026-10-08": {
-          "checks": 1,
-          "operational": 0,
-          "degraded": 0,
-          "outage": 1,
-          "totalResponseTime": 0,
-          "uptime": 0,
-          "avgResponseTime": 0
-        }
-      },
-      "resources": {
-        "2026-10-08": {
-          "checks": 1,
-          "operational": 1,
-          "degraded": 0,
-          "outage": 0,
-          "totalResponseTime": 1510,
-          "uptime": 100,
-          "avgResponseTime": 1510
         }
       },
       "main": {

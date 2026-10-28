@@ -31,14 +31,10 @@ const ICON_MAP = {
   blog: Newspaper,
   cloud: Cloud,
   docker2k8s: Container,
-  devopslab: FlaskConical,
-  toolguides: Wrench,
   cheatsheet: FileText,
   monitoring: BarChart3,
   interviews: FileText,
   devopstools: Wrench,
-  awesomeui: Monitor,
-  resources: BookOpen,
 };
 
 const getStatusClasses = (status) => {
