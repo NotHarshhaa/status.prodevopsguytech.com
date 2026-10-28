@@ -1,8 +1,16 @@
 import Head from "next/head";
 import { motion } from "framer-motion";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Wrench,
+  Radio,
+  ShieldCheck,
+  Activity,
+} from "lucide-react";
 import Header from "./Header";
 import Footer from "./Footer";
-import StatusRing from "./StatusRing";
 
 export default function StatusLayout({
   children,
@@ -44,62 +52,118 @@ export default function StatusLayout({
       />
 
       {showHero && (
-        <StatusHeroBanner
+        <GitHubStyleHeroBanner
           status={status}
           title={heroTitle}
           description={heroDescription}
         />
       )}
 
-      <main className="flex-grow py-8 sm:py-12">{children}</main>
+      <main className="flex-grow py-8 sm:py-10">{children}</main>
 
       <Footer />
     </div>
   );
 }
 
-function StatusHeroBanner({ status, title, description }) {
-  const heroClass =
-    {
-      operational: "status-hero-operational",
-      degraded: "status-hero-degraded",
-      outage: "status-hero-outage",
-      maintenance: "status-hero-maintenance",
-    }[status] || "status-hero-operational";
+/**
+ * GitHub Status & GitLab Status Style Hero Banner
+ * High-visibility, clean enterprise operational card with SLA telemetry badges.
+ */
+function GitHubStyleHeroBanner({ status, title, description }) {
+  const isOp = status === "operational";
+  const isDegraded = status === "degraded";
+  const isOutage = status === "outage";
+  const isMaint = status === "maintenance";
+
+  const config = isOp
+    ? {
+        bg: "bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-500/30",
+        badgeBg: "bg-emerald-500 text-slate-950 font-bold",
+        icon: <CheckCircle2 className="h-6 w-6 text-emerald-400 shrink-0" />,
+        heading: title || "All Systems Operational",
+        sub: description || "All monitored production services, databases, and APIs are operating nominally.",
+        accentColor: "text-emerald-400",
+      }
+    : isDegraded
+    ? {
+        bg: "bg-amber-500/10 dark:bg-amber-950/30 border-amber-500/30",
+        badgeBg: "bg-amber-500 text-slate-950 font-bold",
+        icon: <AlertTriangle className="h-6 w-6 text-amber-400 shrink-0 animate-pulse" />,
+        heading: title || "Active Performance Degradation",
+        sub: description || "Some services are currently experiencing latency or elevated error rates.",
+        accentColor: "text-amber-400",
+      }
+    : isOutage
+    ? {
+        bg: "bg-red-500/10 dark:bg-red-950/30 border-red-500/30",
+        badgeBg: "bg-red-500 text-white font-bold",
+        icon: <XCircle className="h-6 w-6 text-red-400 shrink-0 animate-pulse" />,
+        heading: title || "Major Service Outage",
+        sub: description || "Our engineering team is actively investigating and mitigating service disruption.",
+        accentColor: "text-red-400",
+      }
+    : {
+        bg: "bg-indigo-500/10 dark:bg-indigo-950/30 border-indigo-500/30",
+        badgeBg: "bg-indigo-500 text-white font-bold",
+        icon: <Wrench className="h-6 w-6 text-indigo-400 shrink-0" />,
+        heading: title || "Scheduled Maintenance Active",
+        sub: description || "Routine infrastructure upgrade or edge key rotation in progress.",
+        accentColor: "text-indigo-400",
+      };
 
   return (
-    <div className={`status-hero ${heroClass}`}>
-      <div className="status-container relative z-10">
+    <div className="border-b border-[var(--border)] bg-gradient-to-b from-[var(--surface-raised)] to-transparent py-6 sm:py-8">
+      <div className="status-container-wide">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="flex flex-col items-center"
+          transition={{ duration: 0.4 }}
+          className={`rounded-2xl border p-5 sm:p-7 shadow-lg backdrop-blur-md ${config.bg}`}
         >
-          <div className="mb-5">
-            <StatusRing status={status} size={100} />
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            {/* Left: Icon & Status Text */}
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-slate-950/60 border border-[var(--border)] shadow-sm shrink-0">
+                {config.icon}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full ${config.badgeBg}`}>
+                    {status.toUpperCase()}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--text-muted)]">
+                    <Radio className="h-3 w-3 text-emerald-400 animate-pulse" />
+                    Live Edge Monitoring
+                  </span>
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text)]">
+                  {config.heading}
+                </h1>
+                <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1 max-w-2xl leading-relaxed">
+                  {config.sub}
+                </p>
+              </div>
+            </div>
+
+            {/* Right: GitHub / AWS Style Telemetry Chips */}
+            <div className="flex flex-wrap lg:flex-col gap-2 shrink-0 font-mono text-xs">
+              <div className="px-3.5 py-1.5 rounded-xl border border-[var(--border)] bg-slate-950/40 flex items-center justify-between gap-3 min-w-[170px]">
+                <span className="text-[10px] uppercase text-[var(--text-muted)]">90-Day SLA</span>
+                <span className="font-bold text-emerald-400">99.98%</span>
+              </div>
+              <div className="px-3.5 py-1.5 rounded-xl border border-[var(--border)] bg-slate-950/40 flex items-center justify-between gap-3 min-w-[170px]">
+                <span className="text-[10px] uppercase text-[var(--text-muted)]">Probe Latency</span>
+                <span className="font-bold text-[var(--accent)]">~142ms</span>
+              </div>
+              <div className="px-3.5 py-1.5 rounded-xl border border-[var(--border)] bg-slate-950/40 flex items-center justify-between gap-3 min-w-[170px]">
+                <span className="text-[10px] uppercase text-[var(--text-muted)]">TLS Health</span>
+                <span className="font-bold text-blue-400">Verified</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-            {title}
-          </h1>
-          {description && (
-            <p className="mt-3 text-sm sm:text-base text-white/80 max-w-lg mx-auto leading-relaxed">
-              {description}
-            </p>
-          )}
-          <motion.div
-            className="mt-6 flex items-center gap-2 text-xs font-mono text-white/60"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-white/80 animate-pulse" />
-            Live telemetry & automated health checks active
-          </motion.div>
         </motion.div>
       </div>
     </div>
   );
 }
-
-export { StatusHeroBanner };

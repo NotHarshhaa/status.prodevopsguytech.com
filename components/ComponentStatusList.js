@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -6,12 +6,13 @@ import {
   ChevronRight,
   ChevronDown,
   ShieldCheck,
-  ShieldAlert,
-  Clock,
-  Server,
   Zap,
-  Radio,
+  Server,
   Terminal,
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
 } from "lucide-react";
 import StatusPulse from "./StatusPulse";
 import LatencySparkline from "./LatencySparkline";
@@ -20,18 +21,38 @@ import {
   groupSites,
   getOverallStatus,
   OVERALL_STATUS,
+  generateUptimeHistory,
+  getUptimePercent,
 } from "../lib/statusTheme";
 import { modernStagger, modernFadeIn } from "../lib/animations";
 
-export default function ComponentStatusList({ sites = [] }) {
-  const groups = groupSites(sites).map((group) => ({
-    ...group,
-    sites: [...group.sites].sort((a, b) => {
+const DAY_COLORS = {
+  operational: "bg-emerald-500 hover:bg-emerald-400",
+  degraded: "bg-amber-400 hover:bg-amber-300",
+  outage: "bg-red-500 hover:bg-red-400",
+  maintenance: "bg-indigo-500 hover:bg-indigo-400",
+  default: "bg-slate-300 dark:bg-slate-700",
+};
+
+export default function ComponentStatusList({
+  sites = [],
+  historical = null,
+}) {
+  const groups = groupSites(sites).map((group) => {
+    const sortedSites = [...group.sites].sort((a, b) => {
       const rank = (s) =>
         s.status === "operational" ? 1 : s.status === "degraded" ? 0 : -1;
       return rank(a) - rank(b);
-    }),
-  }));
+    });
+
+    const hasIssue = sortedSites.some((s) => s.status !== "operational");
+    return {
+      ...group,
+      sites: sortedSites,
+      hasIssue,
+      groupStatus: hasIssue ? "degraded" : "operational",
+    };
+  });
 
   if (!sites.length) {
     return (
@@ -43,7 +64,7 @@ export default function ComponentStatusList({ sites = [] }) {
 
   return (
     <motion.div
-      className="space-y-5"
+      className="space-y-6"
       variants={modernStagger}
       initial="hidden"
       animate="visible"
@@ -52,17 +73,54 @@ export default function ComponentStatusList({ sites = [] }) {
         <motion.section
           key={group.id}
           variants={modernFadeIn}
-          className="status-card-static overflow-hidden"
+          className="status-card-static overflow-hidden border border-[var(--border)] shadow-sm"
         >
-          <div className="status-group-header">
-            <h2 className="text-base font-bold">{group.name}</h2>
-            <p className="text-xs text-[var(--text-muted)] mt-1">
-              {group.description}
-            </p>
+          {/* GitHub / Statuspage Group Header with Rollup Status */}
+          <div className="px-5 py-3.5 bg-[var(--surface-raised)] border-b border-[var(--border)] flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold tracking-tight text-[var(--text)]">
+                  {group.name}
+                </h2>
+                <span className="text-[11px] font-mono text-[var(--text-muted)]">
+                  ({group.sites.length} services)
+                </span>
+              </div>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5 hidden sm:block">
+                {group.description}
+              </p>
+            </div>
+
+            {/* Group Status Rollup Badge */}
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium border ${
+                group.groupStatus === "operational"
+                  ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                  : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+              }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  group.groupStatus === "operational"
+                    ? "bg-emerald-500"
+                    : "bg-amber-500 animate-pulse"
+                }`}
+              />
+              {group.groupStatus === "operational"
+                ? "Operational"
+                : "Degraded Performance"}
+            </span>
           </div>
-          <div className="px-5">
+
+          {/* Component Rows */}
+          <div className="divide-y divide-[var(--border)]">
             {group.sites.map((site, i) => (
-              <ComponentRow key={site.id} site={site} index={i} />
+              <GitHubStyleComponentRow
+                key={site.id}
+                site={site}
+                index={i}
+                historical={historical}
+              />
             ))}
           </div>
         </motion.section>
@@ -71,10 +129,26 @@ export default function ComponentStatusList({ sites = [] }) {
   );
 }
 
-function ComponentRow({ site, index }) {
+/**
+ * GitHub & Atlassian Statuspage Style Component Row
+ * Features: Name, Status Badge, Continuous 90-Day Tick Bars, and Expandable Diagnostics.
+ */
+function GitHubStyleComponentRow({ site, index, historical }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const cfg = COMPONENT_STATUS[site.status] || COMPONENT_STATUS.unknown;
   const hasIssue = site.status !== "operational";
+
+  // Generate 90-day availability history
+  const history = useMemo(() => {
+    return generateUptimeHistory(
+      site.id,
+      site.status,
+      90,
+      historical?.daily?.[site.id]
+    );
+  }, [site.id, site.status, historical]);
+
+  const uptime = getUptimePercent(history);
 
   const timing = site.timing || {
     dns: 12,
@@ -89,53 +163,47 @@ function ComponentRow({ site, index }) {
   return (
     <motion.div
       id={`site-${site.id}`}
-      className={`scroll-mt-28 border-b border-[var(--border)] last:border-b-0 transition-colors ${
+      className={`px-5 py-4 transition-colors ${
         hasIssue
-          ? "bg-amber-50/60 dark:bg-amber-950/20 -mx-5 px-5 rounded-xl my-1 border-transparent"
-          : "hover:bg-slate-50/50 dark:hover:bg-slate-900/30"
+          ? "bg-amber-50/40 dark:bg-amber-950/20"
+          : "hover:bg-slate-50/40 dark:hover:bg-slate-900/30"
       }`}
-      initial={{ opacity: 0, x: -10 }}
+      initial={{ opacity: 0, x: -6 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.02 }}
     >
-      {/* Main Row */}
-      <div className="flex items-center justify-between py-3.5 gap-3">
-        {/* Left: Indicator & Name */}
-        <div className="min-w-0 flex-1 flex items-center gap-3">
+      {/* Top Header: Name, Sparkline & Status Badge */}
+      <div className="flex items-center justify-between gap-3 mb-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
           <StatusPulse status={site.status} size="small" />
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <Link
-                href={`/site/${site.id}`}
-                className="text-sm font-semibold hover:text-[var(--accent)] transition-colors truncate block group"
-              >
-                {site.name}
-                <ChevronRight className="inline h-3.5 w-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all ml-0.5" />
-              </Link>
-            </div>
-            {site.description && (
-              <p className="text-xs text-[var(--text-muted)] truncate hidden md:block mt-0.5">
-                {site.description}
-              </p>
-            )}
+            <Link
+              href={`/site/${site.id}`}
+              className="text-sm font-semibold hover:text-[var(--accent)] transition-colors truncate block group"
+            >
+              {site.name}
+              <ChevronRight className="inline h-3.5 w-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all ml-0.5" />
+            </Link>
           </div>
         </div>
 
-        {/* Center: Interactive Sparkline (Desktop/Tablet) */}
-        <div className="hidden sm:flex items-center gap-3 shrink-0 px-2">
-          <LatencySparkline
-            data={site.latencyHistory}
-            status={site.status}
-            width={100}
-            height={24}
-            showLabels={true}
-          />
-        </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          {/* Micro Latency Sparkline */}
+          <div className="hidden md:inline-flex items-center gap-2 mr-1">
+            <span className="text-[11px] font-mono text-[var(--text-muted)]">
+              {site.responseTime != null ? `${site.responseTime}ms` : "—"}
+            </span>
+            <LatencySparkline
+              data={site.latencyHistory}
+              status={site.status}
+              width={75}
+              height={18}
+            />
+          </div>
 
-        {/* Right: Badge & Expand Drawer Toggle */}
-        <div className="flex items-center gap-2.5 flex-shrink-0">
+          {/* Status Badge */}
           <span
-            className={`status-badge border ${cfg.text} ${
+            className={`status-badge border text-[11px] font-mono ${cfg.text} ${
               hasIssue
                 ? "bg-amber-50 border-amber-200 dark:bg-amber-950/40 dark:border-amber-800"
                 : "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800"
@@ -149,21 +217,20 @@ function ComponentRow({ site, index }) {
             href={site.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[rgba(0,212,170,0.08)] transition-all"
+            className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
             aria-label={`Visit ${site.name}`}
-            title={`Visit ${site.url}`}
           >
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
 
-          {/* Expand Diagnostics Drawer */}
+          {/* Accordion Toggle */}
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] transition-transform ${
-              isExpanded ? "rotate-180 bg-slate-200/50 dark:bg-slate-800" : "hover:bg-slate-100 dark:hover:bg-slate-800/60"
+            className={`p-1 rounded text-[var(--text-muted)] hover:text-[var(--text)] transition-transform ${
+              isExpanded ? "rotate-180 bg-slate-200/50 dark:bg-slate-800" : ""
             }`}
-            title={isExpanded ? "Collapse diagnostics" : "Expand telemetry & diagnostics"}
+            title="Toggle diagnostics"
             aria-label="Toggle diagnostics"
           >
             <ChevronDown className="h-4 w-4" />
@@ -171,7 +238,53 @@ function ComponentRow({ site, index }) {
         </div>
       </div>
 
-      {/* Expandable Inline Diagnostics Drawer */}
+      {/* GitHub Status Iconic 90-Day Continuous Availability Bar */}
+      <div className="mt-2">
+        <div className="flex gap-[2px] rounded overflow-hidden h-7 sm:h-8 p-0.5 bg-slate-100 dark:bg-slate-900/60 border border-[var(--border)]">
+          {history.map((day, i) => {
+            const color = DAY_COLORS[day.status] || DAY_COLORS.default;
+            const dateLabel = new Date(day.date).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+            const statusLabel =
+              COMPONENT_STATUS[day.status]?.label || day.status;
+            const tooltip = `${dateLabel}: ${statusLabel} (${day.uptime}% uptime${
+              day.avgResponseTime ? `, ${day.avgResponseTime}ms` : ""
+            })`;
+
+            return (
+              <div
+                key={i}
+                className={`flex-1 transition-all rounded-[1px] cursor-pointer ${color}`}
+                title={tooltip}
+              />
+            );
+          })}
+        </div>
+
+        {/* 90-day legend row */}
+        <div className="flex items-center justify-between text-[11px] font-mono text-[var(--text-muted)] mt-1.5 px-0.5">
+          <span>90 days ago</span>
+          <span className="flex items-center gap-1.5">
+            <span>Today</span>
+            <span>•</span>
+            <span
+              className={`font-bold ${
+                uptime >= 99.9
+                  ? "text-emerald-500"
+                  : uptime >= 99
+                  ? "text-amber-500"
+                  : "text-red-500"
+              }`}
+            >
+              {uptime}% uptime
+            </span>
+          </span>
+        </div>
+      </div>
+
+      {/* Expandable Diagnostic Console & Waterfall */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -179,12 +292,11 @@ function ComponentRow({ site, index }) {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden border-t border-[var(--border)] pt-3 pb-4 mb-2 space-y-3"
+            className="overflow-hidden border-t border-[var(--border)] pt-4 mt-3 space-y-3"
           >
-            {/* Grid of Diagnostics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {/* Synthetic Latency Waterfall */}
-              <div className="p-3 rounded-xl bg-slate-900/40 dark:bg-slate-950/60 border border-[var(--border)]">
+              {/* Synthetic Network Waterfall */}
+              <div className="p-3 rounded-xl bg-slate-900/50 dark:bg-slate-950/80 border border-[var(--border)]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
                     <Zap className="h-3 w-3 text-amber-400" />
@@ -194,7 +306,7 @@ function ComponentRow({ site, index }) {
                     {site.responseTime != null ? `${site.responseTime}ms` : "N/A"}
                   </span>
                 </div>
-                <div className="space-y-1.5 font-mono text-[11px]">
+                <div className="space-y-1 font-mono text-[11px]">
                   <div className="flex justify-between text-[var(--text-muted)]">
                     <span>DNS Lookup:</span>
                     <span className="text-slate-300">{timing.dns}ms</span>
@@ -214,8 +326,8 @@ function ComponentRow({ site, index }) {
                 </div>
               </div>
 
-              {/* SSL Certificate Telemetry */}
-              <div className="p-3 rounded-xl bg-slate-900/40 dark:bg-slate-950/60 border border-[var(--border)]">
+              {/* TLS/SSL Certificate Details */}
+              <div className="p-3 rounded-xl bg-slate-900/50 dark:bg-slate-950/80 border border-[var(--border)]">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
                     <ShieldCheck className="h-3 w-3 text-emerald-400" />
@@ -233,43 +345,43 @@ function ComponentRow({ site, index }) {
                       : "Verified"}
                   </span>
                 </div>
-                <div className="space-y-1.5 font-mono text-[11px] text-[var(--text-muted)]">
+                <div className="space-y-1 font-mono text-[11px] text-[var(--text-muted)]">
                   <div className="truncate">
                     <span>Issuer: </span>
                     <span className="text-slate-300">{ssl?.issuer || "Let's Encrypt"}</span>
                   </div>
                   <div className="truncate">
-                    <span>Subject: </span>
+                    <span>Domain: </span>
                     <span className="text-slate-300">{ssl?.subject || site.url.replace(/^https?:\/\//, "")}</span>
                   </div>
                   <div>
                     <span>Protocol: </span>
-                    <span className="text-slate-300">TLS 1.3 / HTTP 2</span>
+                    <span className="text-slate-300">TLS 1.3 / HTTP/2</span>
                   </div>
                 </div>
               </div>
 
-              {/* Target Endpoint & HTTP Specs */}
-              <div className="p-3 rounded-xl bg-slate-900/40 dark:bg-slate-950/60 border border-[var(--border)] flex flex-col justify-between">
+              {/* Endpoint & Console Quick Actions */}
+              <div className="p-3 rounded-xl bg-slate-900/50 dark:bg-slate-950/80 border border-[var(--border)] flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
                       <Server className="h-3 w-3 text-blue-400" />
-                      Probe Target
+                      Probe Specs
                     </span>
                     <span className="text-xs font-mono font-bold text-emerald-400">
                       HTTP {site.statusCode || 200}
                     </span>
                   </div>
                   <p className="font-mono text-[11px] text-[var(--text-muted)] truncate">
-                    Endpoint: <span className="text-slate-300">{site.workingEndpoint || "/"}</span>
+                    Target Route: <span className="text-slate-300">{site.workingEndpoint || "/"}</span>
                   </p>
                   <p className="font-mono text-[11px] text-[var(--text-muted)] truncate mt-1">
-                    Route: <span className="text-slate-300">{site.url}</span>
+                    Origin: <span className="text-slate-300">{site.url}</span>
                   </p>
                 </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800/60 mt-2">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800 mt-2">
                   <Link
                     href={`/site/${site.id}`}
                     className="text-xs text-[var(--accent)] hover:underline inline-flex items-center gap-1 font-mono"
@@ -297,73 +409,43 @@ export function StatusSummaryBar({ sites = [] }) {
     : 100;
 
   return (
-    <motion.div
-      className="space-y-5 mb-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="status-metric-card sm:col-span-1">
-          <div className="flex items-center gap-3">
-            <StatusPulse status={overall} size="medium" />
-            <div>
-              <p className="text-sm font-bold">{cfg.label}</p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                {cfg.description}
-              </p>
-            </div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="status-metric-card sm:col-span-1">
+        <div className="flex items-center gap-3">
+          <StatusPulse status={overall} size="medium" />
+          <div>
+            <p className="text-sm font-bold">{cfg.label}</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+              {cfg.description}
+            </p>
           </div>
-        </div>
-
-        <div className="status-metric-card text-center">
-          <p className="status-section-title">Operational</p>
-          <p className="text-3xl font-bold tabular-nums mt-1 text-emerald-600 dark:text-emerald-400">
-            {operational}
-            <span className="text-lg text-[var(--text-muted)] font-normal">
-              /{sites.length}
-            </span>
-          </p>
-        </div>
-
-        <div className="status-metric-card text-center">
-          <p className="status-section-title">Health Score</p>
-          <p
-            className={`text-3xl font-bold tabular-nums mt-1 ${
-              uptimePct === 100
-                ? "text-emerald-600 dark:text-emerald-400"
-                : uptimePct >= 90
-                ? "text-amber-600 dark:text-amber-400"
-                : "text-red-600 dark:text-red-400"
-            }`}
-          >
-            {uptimePct}%
-          </p>
         </div>
       </div>
 
-      {issues.length > 0 && (
-        <div className="status-card-static overflow-hidden border-amber-300/50 dark:border-amber-700/50">
-          <div className="px-5 py-4 border-b border-[var(--border)] bg-gradient-to-r from-amber-50/80 to-transparent dark:from-amber-950/40 dark:to-transparent">
-            <div className="flex items-center gap-2">
-              <StatusPulse status="degraded" size="small" />
-              <div>
-                <p className="text-sm font-bold">
-                  {issues.length} service{issues.length !== 1 ? "s" : ""} need attention
-                </p>
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                  Includes slow responses and HTTP errors — not just full outages.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="px-5">
-            {issues.map((site, i) => (
-              <ComponentRow key={site.id} site={site} index={i} />
-            ))}
-          </div>
-        </div>
-      )}
-    </motion.div>
+      <div className="status-metric-card text-center">
+        <p className="status-section-title">Operational</p>
+        <p className="text-3xl font-bold tabular-nums mt-1 text-emerald-600 dark:text-emerald-400 font-mono">
+          {operational}
+          <span className="text-lg text-[var(--text-muted)] font-normal">
+            /{sites.length}
+          </span>
+        </p>
+      </div>
+
+      <div className="status-metric-card text-center">
+        <p className="status-section-title">Health Score</p>
+        <p
+          className={`text-3xl font-bold tabular-nums mt-1 font-mono ${
+            uptimePct === 100
+              ? "text-emerald-600 dark:text-emerald-400"
+              : uptimePct >= 90
+              ? "text-amber-600 dark:text-amber-400"
+              : "text-red-600 dark:text-red-400"
+          }`}
+        >
+          {uptimePct}%
+        </p>
+      </div>
+    </div>
   );
 }

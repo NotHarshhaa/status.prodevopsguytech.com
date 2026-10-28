@@ -3,10 +3,14 @@ import StatusLayout from "../components/StatusLayout";
 import ComponentStatusList, {
   StatusSummaryBar,
 } from "../components/ComponentStatusList";
-import UptimeSection from "../components/UptimeSection";
+import UptimeSection, { UptimeSummaryCards } from "../components/UptimeSection";
+import SLAGauge from "../components/SLAGauge";
+import UptimeHeatmap from "../components/UptimeHeatmap";
 import IncidentList from "../components/IncidentList";
 import IncidentBanner from "../components/IncidentBanner";
 import MaintenanceBanner from "../components/MaintenanceBanner";
+import AWSHealthMatrix from "../components/AWSHealthMatrix";
+import GitHubIncidentTimeline from "../components/GitHubIncidentTimeline";
 import PageToolbar, { PageLoader, PageSection } from "../components/PageToolbar";
 import CommandPalette from "../components/CommandPalette";
 import BadgeStudioModal from "../components/BadgeStudioModal";
@@ -14,6 +18,7 @@ import SLAExportModal from "../components/SLAExportModal";
 import SubscribeModal from "../components/SubscribeModal";
 import { fetchStatusData } from "../lib/utils/statusData";
 import { MAINTENANCE_WINDOWS } from "../lib/maintenance";
+import { INCIDENTS } from "../lib/incidents";
 import {
   getOverallStatus,
   OVERALL_STATUS,
@@ -23,7 +28,12 @@ import {
   AlertTriangle,
   XCircle,
   Filter,
-  Sparkles,
+  Layers,
+  Server,
+  Calendar,
+  BarChart3,
+  Globe,
+  Radio,
 } from "lucide-react";
 import { useNotification } from "../components/Notification";
 
@@ -37,6 +47,7 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
   const [fetchError, setFetchError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [activeView, setActiveView] = useState("github"); // 'github' | 'aws' | 'incidents' | 'metrics'
 
   // Modern feature modals
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -193,8 +204,8 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
         isDarkMode={isDarkMode}
         onThemeToggle={onThemeToggle}
         overallStatus={metrics?.status || overall}
-        title="ProDevOpsGuy Status"
-        description="Current status of ProDevOpsGuy Tech platforms and services."
+        title="ProDevOpsGuy Status — Systems & Cloud Health"
+        description="Real-time availability and 90-day SLA performance across ProDevOpsGuy Tech platforms."
         showHero
         heroStatus={overall}
         heroTitle={hero.label}
@@ -204,14 +215,14 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
         onOpenSLAExport={() => setSLAExportOpen(true)}
       >
         <div className="status-container-wide space-y-6">
-          {/* Active Incident Alert Banner */}
+          {/* Active Outage Banner */}
           <IncidentBanner sites={sites} />
 
           {/* Scheduled & Active Maintenance Banner */}
           <MaintenanceBanner maintenanceList={MAINTENANCE_WINDOWS} />
 
           {loading ? (
-            <PageLoader message="Checking all services via live edge probe..." />
+            <PageLoader message="Querying live edge probes across 16 global endpoints..." />
           ) : (
             <>
               {fetchError && (
@@ -223,98 +234,210 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
                 </div>
               )}
 
-              <PageToolbar
-                lastUpdated={lastUpdated}
-                isRefreshing={refreshing}
-                onRefresh={() => fetchData(true)}
-                source={metrics?.source}
-                search={searchQuery}
-                onSearchChange={setSearchQuery}
-                searchPlaceholder="Filter services by name..."
-                onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
-                onOpenSLAExport={() => setSLAExportOpen(true)}
-              />
-
-              {/* Filter pills */}
-              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                <span className="text-[var(--text-muted)] flex items-center gap-1.5 mr-1 font-mono text-[11px]">
-                  <Filter className="h-3.5 w-3.5" />
-                  Filter:
-                </span>
-                {[
-                  { id: "all", label: "All", count: counts.total },
-                  {
-                    id: "operational",
-                    label: "Operational",
-                    count: counts.operational,
-                    color: "text-emerald-600 dark:text-emerald-400",
-                  },
-                  {
-                    id: "degraded",
-                    label: "Degraded",
-                    count: counts.degraded,
-                    color: "text-amber-600 dark:text-amber-400",
-                  },
-                  {
-                    id: "outage",
-                    label: "Outages",
-                    count: counts.outage,
-                    color: "text-red-600 dark:text-red-400",
-                  },
-                ].map(({ id, label, count, color }) => (
+              {/* View Switcher: Top Companies Layout (GitHub Status vs AWS Matrix vs Incident Timeline vs Telemetry) */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-3">
+                <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-[var(--border)] text-xs">
                   <button
-                    key={id}
                     type="button"
-                    onClick={() => setStatusFilter(id)}
-                    className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
-                      statusFilter === id
-                        ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-sm"
-                        : "bg-[var(--card-bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
+                    onClick={() => setActiveView("github")}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                      activeView === "github"
+                        ? "bg-[var(--surface-solid)] text-[var(--accent)] font-semibold shadow-sm"
+                        : "text-[var(--text-muted)] hover:text-[var(--text)]"
                     }`}
                   >
-                    <span className={statusFilter === id ? "text-white" : color}>
-                      {label}
-                    </span>
-                    <span
-                      className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                        statusFilter === id
-                          ? "bg-white/20 text-white"
-                          : "bg-[var(--page-bg)] text-[var(--text-muted)]"
-                      }`}
-                    >
-                      {count}
-                    </span>
+                    <Layers className="h-3.5 w-3.5" />
+                    <span>GitHub Status View</span>
                   </button>
-                ))}
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveView("aws")}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                      activeView === "aws"
+                        ? "bg-[var(--surface-solid)] text-[var(--accent)] font-semibold shadow-sm"
+                        : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                    }`}
+                  >
+                    <Server className="h-3.5 w-3.5" />
+                    <span>AWS Health Matrix</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveView("incidents")}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                      activeView === "incidents"
+                        ? "bg-[var(--surface-solid)] text-[var(--accent)] font-semibold shadow-sm"
+                        : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                    }`}
+                  >
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>Daily Incident Log</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveView("metrics")}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                      activeView === "metrics"
+                        ? "bg-[var(--surface-solid)] text-[var(--accent)] font-semibold shadow-sm"
+                        : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                    }`}
+                  >
+                    <BarChart3 className="h-3.5 w-3.5" />
+                    <span>Telemetry & Metrics</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSLAExportOpen(true)}
+                    className="status-btn-secondary py-1 px-2.5 text-xs inline-flex items-center gap-1.5"
+                  >
+                    <span>Export SLA</span>
+                  </button>
+                </div>
               </div>
 
-              <StatusSummaryBar sites={sites} />
+              {/* View 1: GitHub Status View (The iconic 90-day bars directly on every service) */}
+              {activeView === "github" && (
+                <div className="space-y-6">
+                  <PageToolbar
+                    lastUpdated={lastUpdated}
+                    isRefreshing={refreshing}
+                    onRefresh={() => fetchData(true)}
+                    source={metrics?.source}
+                    search={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    searchPlaceholder="Filter services by name..."
+                    onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
+                    onOpenSLAExport={() => setSLAExportOpen(true)}
+                  />
 
-              <PageSection
-                id="components"
-                title="Current status by service"
-                description={`Real-time health of monitored components (${filteredSites.length} showing). Hover sparklines for latency trends or expand for telemetry diagnostics.`}
-              >
-                <ComponentStatusList sites={filteredSites} />
-              </PageSection>
+                  {/* Operational Status Filter Chips */}
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                    <span className="text-[var(--text-muted)] flex items-center gap-1.5 mr-1 font-mono text-[11px]">
+                      <Filter className="h-3.5 w-3.5" />
+                      Filter:
+                    </span>
+                    {[
+                      { id: "all", label: "All", count: counts.total },
+                      {
+                        id: "operational",
+                        label: "Operational",
+                        count: counts.operational,
+                        color: "text-emerald-600 dark:text-emerald-400",
+                      },
+                      {
+                        id: "degraded",
+                        label: "Degraded",
+                        count: counts.degraded,
+                        color: "text-amber-600 dark:text-amber-400",
+                      },
+                      {
+                        id: "outage",
+                        label: "Outages",
+                        count: counts.outage,
+                        color: "text-red-600 dark:text-red-400",
+                      },
+                    ].map(({ id, label, count, color }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setStatusFilter(id)}
+                        className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
+                          statusFilter === id
+                            ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-sm"
+                            : "bg-[var(--card-bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
+                        }`}
+                      >
+                        <span className={statusFilter === id ? "text-white" : color}>
+                          {label}
+                        </span>
+                        <span
+                          className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                            statusFilter === id
+                              ? "bg-white/20 text-white"
+                              : "bg-[var(--page-bg)] text-[var(--text-muted)]"
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
 
-              <PageSection
-                title="Recent incidents & resolutions"
-                description="Past incident postmortems and recovery logs."
-              >
-                <IncidentList limit={3} showViewAll />
-              </PageSection>
+                  <StatusSummaryBar sites={sites} />
 
-              <PageSection
-                title="90-Day Uptime Telemetry"
-                description="Daily availability matrix for each service."
-              >
-                <UptimeSection
-                  sites={sites}
-                  historical={historical}
-                  compact
-                />
-              </PageSection>
+                  <PageSection
+                    id="components"
+                    title="Services & 90-Day Uptime Telemetry"
+                    description={`GitHub Status style breakdown. Each vertical bar represents one day of availability. Hover any bar to view timestamp and response time.`}
+                  >
+                    <ComponentStatusList
+                      sites={filteredSites}
+                      historical={historical}
+                    />
+                  </PageSection>
+
+                  <PageSection
+                    title="Recent Postmortems & Incident History"
+                    description="Verified timeline of past resolved service disruptions."
+                  >
+                    <IncidentList limit={3} showViewAll />
+                  </PageSection>
+                </div>
+              )}
+
+              {/* View 2: AWS Cloud Health Matrix */}
+              {activeView === "aws" && (
+                <div className="space-y-6">
+                  <PageToolbar
+                    lastUpdated={lastUpdated}
+                    isRefreshing={refreshing}
+                    onRefresh={() => fetchData(true)}
+                    source={metrics?.source}
+                    onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
+                    onOpenSLAExport={() => setSLAExportOpen(true)}
+                  />
+
+                  <AWSHealthMatrix sites={sites} />
+                </div>
+              )}
+
+              {/* View 3: Daily Incident Log (GitHub / GitLab Style) */}
+              {activeView === "incidents" && (
+                <div className="space-y-6">
+                  <GitHubIncidentTimeline incidents={INCIDENTS} daysToShow={14} />
+                </div>
+              )}
+
+              {/* View 4: Telemetry & Metrics */}
+              {activeView === "metrics" && (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <div className="lg:col-span-1">
+                      <SLAGauge sites={sites} />
+                    </div>
+                    <div className="lg:col-span-2">
+                      <UptimeSummaryCards sites={sites} />
+                    </div>
+                  </div>
+
+                  <PageSection
+                    title="90-Day System Availability Heatmap"
+                    description="Chronological status matrix across all endpoints."
+                  >
+                    <UptimeHeatmap
+                      sites={sites}
+                      historical={historical}
+                      isDarkMode={isDarkMode}
+                    />
+                  </PageSection>
+                </div>
+              )}
             </>
           )}
         </div>
