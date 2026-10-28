@@ -2,7 +2,7 @@ import "../styles/globals.css";
 import { NotificationProvider } from "../components/Notification";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { toggleDarkMode } from "../lib/utils";
+import { toggleDarkMode, applyDarkModeClass } from "../lib/utils";
 
 function readDarkModePreference() {
   if (typeof window === "undefined") return false;
@@ -11,12 +11,6 @@ function readDarkModePreference() {
     "(prefers-color-scheme: dark)"
   ).matches;
   return savedPreference === "true" || (!savedPreference && systemPrefersDark);
-}
-
-function applyDarkModeClass(isDark) {
-  if (typeof document === "undefined") return;
-  document.documentElement.classList.toggle("dark", isDark);
-  document.documentElement.classList.toggle("light", !isDark);
 }
 
 function MyApp({ Component, pageProps }) {
@@ -50,9 +44,7 @@ function MyApp({ Component, pageProps }) {
       localStorage.setItem("darkMode", nextMode ? "true" : "false");
     } else {
       setIsDarkMode((prev) => {
-        const next = toggleDarkMode(prev);
-        applyDarkModeClass(next);
-        return next;
+        return toggleDarkMode(prev);
       });
     }
   };

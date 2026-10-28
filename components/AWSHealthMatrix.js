@@ -108,7 +108,7 @@ export default function AWSHealthMatrix({ sites = [] }) {
       </div>
 
       {/* Matrix Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto status-scrollbar rounded-xl">
         <table className="w-full text-left text-xs font-mono">
           <thead className="bg-slate-100/70 dark:bg-slate-900/80 border-b border-[var(--border)] text-[var(--text-muted)] uppercase tracking-wider text-[10px]">
             <tr>

@@ -11,11 +11,13 @@ import { fetchStatusData } from "../lib/utils/statusData";
 import { getOverallStatus, OVERALL_STATUS } from "../lib/statusTheme";
 import { Download, FileSpreadsheet } from "lucide-react";
 
-export default function UptimePage({ isDarkMode = false, onThemeToggle }) {
-  const [sites, setSites] = useState([]);
-  const [historical, setHistorical] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(null);
+export default function UptimePage({ isDarkMode = false, onThemeToggle, initialData = null }) {
+  const [sites, setSites] = useState(initialData?.sites || []);
+  const [historical, setHistorical] = useState(initialData?.historical || null);
+  const [loading, setLoading] = useState(!initialData?.sites?.length);
+  const [lastUpdated, setLastUpdated] = useState(
+    initialData?.timestamp ? new Date(initialData.timestamp) : null
+  );
   const [refreshing, setRefreshing] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [badgeStudioOpen, setBadgeStudioOpen] = useState(false);
@@ -150,4 +152,30 @@ export default function UptimePage({ isDarkMode = false, onThemeToggle }) {
       </StatusLayout>
     </>
   );
+}
+
+export async function getStaticProps() {
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const dataFilePath = path.join(process.cwd(), "public", "status-data.json");
+    if (fs.existsSync(dataFilePath)) {
+      const initialData = JSON.parse(fs.readFileSync(dataFilePath, "utf8"));
+      return {
+        props: {
+          initialData,
+        },
+        revalidate: 60,
+      };
+    }
+  } catch (e) {
+    console.error("Failed to load initial status data:", e);
+  }
+
+  return {
+    props: {
+      initialData: null,
+    },
+    revalidate: 60,
+  };
 }

@@ -38,7 +38,10 @@ export default function StatusLayout({
         <title>{title}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content={description} />
-        <meta name="color-scheme" content="light dark" />
+        <meta
+          name="color-scheme"
+          content={isDarkMode ? "dark" : "light"}
+        />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </Head>
 
@@ -119,7 +122,7 @@ function GitHubStyleHeroBanner({ status, title, description }) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className={`rounded-2xl border p-5 sm:p-7 shadow-sm backdrop-blur-md ${config.bg}`}
+          className={`rounded-2xl border p-5 sm:p-7 shadow-sm ${config.bg}`}
         >
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
             {/* Left: Icon & Status Text */}

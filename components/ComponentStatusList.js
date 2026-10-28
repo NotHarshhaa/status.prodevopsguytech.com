@@ -24,7 +24,6 @@ import {
   generateUptimeHistory,
   getUptimePercent,
 } from "../lib/statusTheme";
-import { modernStagger, modernFadeIn } from "../lib/animations";
 
 const DAY_COLORS = {
   operational: "bg-emerald-500 hover:bg-emerald-400",
@@ -63,16 +62,10 @@ export default function ComponentStatusList({
   }
 
   return (
-    <motion.div
-      className="space-y-6"
-      variants={modernStagger}
-      initial="hidden"
-      animate="visible"
-    >
+    <div className="space-y-6">
       {groups.map((group) => (
-        <motion.section
+        <section
           key={group.id}
-          variants={modernFadeIn}
           className="status-card-static overflow-hidden border border-[var(--border)] shadow-sm"
         >
           {/* GitHub / Statuspage Group Header with Rollup Status */}
@@ -123,9 +116,9 @@ export default function ComponentStatusList({
               />
             ))}
           </div>
-        </motion.section>
+        </section>
       ))}
-    </motion.div>
+    </div>
   );
 }
 
@@ -138,14 +131,32 @@ function GitHubStyleComponentRow({ site, index, historical }) {
   const cfg = COMPONENT_STATUS[site.status] || COMPONENT_STATUS.unknown;
   const hasIssue = site.status !== "operational";
 
-  // Generate 90-day availability history
+  // Generate 90-day availability history with precomputed tooltips
   const history = useMemo(() => {
-    return generateUptimeHistory(
+    const raw = generateUptimeHistory(
       site.id,
       site.status,
       90,
       historical?.daily?.[site.id]
     );
+
+    return raw.map((day) => {
+      const dateLabel = new Date(day.date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      const statusLabel =
+        COMPONENT_STATUS[day.status]?.label || day.status;
+      const tooltip = `${dateLabel}: ${statusLabel} (${day.uptime}% uptime${
+        day.avgResponseTime ? `, ${day.avgResponseTime}ms` : ""
+      })`;
+
+      return {
+        ...day,
+        tooltip,
+        colorClass: DAY_COLORS[day.status] || DAY_COLORS.default,
+      };
+    });
   }, [site.id, site.status, historical]);
 
   const uptime = getUptimePercent(history);
@@ -161,16 +172,13 @@ function GitHubStyleComponentRow({ site, index, historical }) {
   const ssl = site.ssl || null;
 
   return (
-    <motion.div
+    <div
       id={`site-${site.id}`}
       className={`px-5 py-4 transition-colors ${
         hasIssue
           ? "bg-amber-50/40 dark:bg-amber-950/20"
           : "hover:bg-slate-50/40 dark:hover:bg-slate-900/30"
       }`}
-      initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.02 }}
     >
       {/* Top Header: Name, Sparkline & Status Badge */}
       <div className="flex items-center justify-between gap-3 mb-2.5">
@@ -241,26 +249,13 @@ function GitHubStyleComponentRow({ site, index, historical }) {
       {/* GitHub Status Iconic 90-Day Continuous Availability Bar */}
       <div className="mt-2">
         <div className="flex gap-[2px] rounded overflow-hidden h-7 sm:h-8 p-0.5 bg-slate-100 dark:bg-slate-900/60 border border-[var(--border)]">
-          {history.map((day, i) => {
-            const color = DAY_COLORS[day.status] || DAY_COLORS.default;
-            const dateLabel = new Date(day.date).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            });
-            const statusLabel =
-              COMPONENT_STATUS[day.status]?.label || day.status;
-            const tooltip = `${dateLabel}: ${statusLabel} (${day.uptime}% uptime${
-              day.avgResponseTime ? `, ${day.avgResponseTime}ms` : ""
-            })`;
-
-            return (
-              <div
-                key={i}
-                className={`flex-1 transition-all rounded-[1px] cursor-pointer ${color}`}
-                title={tooltip}
-              />
-            );
-          })}
+          {history.map((day, i) => (
+            <div
+              key={i}
+              className={`flex-1 rounded-[1px] cursor-pointer hover:opacity-80 ${day.colorClass}`}
+              title={day.tooltip}
+            />
+          ))}
         </div>
 
         {/* 90-day legend row */}
@@ -395,7 +390,7 @@ function GitHubStyleComponentRow({ site, index, historical }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
 

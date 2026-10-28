@@ -1,144 +1,91 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
 
 /**
- * StatusPulse - A visual indicator that shows real-time status updates
- *
- * This component creates a pulsing indicator with dynamic animation based on status
+ * StatusPulse - A lightweight, 60fps GPU-composited visual status indicator.
+ * Uses pure CSS animations to avoid JavaScript intervals and Framer Motion re-render lag.
  */
-const StatusPulse = ({ status = "operational", size = "medium", className = "", showLabel = false }) => {
-  const [isAnimating, setIsAnimating] = useState(true);
-
-  // Status configurations
+const StatusPulse = ({
+  status = "operational",
+  size = "medium",
+  className = "",
+  showLabel = false,
+}) => {
   const statusConfig = {
     operational: {
-      color: "bg-green-500",
-      pulseColor: "bg-green-400/30",
-      shadowColor: "shadow-green-500/50",
+      color: "bg-emerald-500",
+      pingColor: "bg-emerald-400",
       label: "Operational",
-      pulseInterval: 2,
-      glowColor: "shadow-green-500/75",
+      shouldPing: false,
     },
     degraded: {
-      color: "bg-yellow-500",
-      pulseColor: "bg-yellow-400/30",
-      shadowColor: "shadow-yellow-500/50",
+      color: "bg-amber-500",
+      pingColor: "bg-amber-400",
       label: "Degraded",
-      pulseInterval: 1.2,
-      glowColor: "shadow-yellow-500/75",
+      shouldPing: true,
     },
     outage: {
       color: "bg-red-500",
-      pulseColor: "bg-red-400/30",
-      shadowColor: "shadow-red-500/50",
+      pingColor: "bg-red-400",
       label: "Outage",
-      pulseInterval: 0.8,
-      glowColor: "shadow-red-500/75",
+      shouldPing: true,
     },
     maintenance: {
-      color: "bg-blue-500",
-      pulseColor: "bg-blue-400/30",
-      shadowColor: "shadow-blue-500/50",
+      color: "bg-indigo-500",
+      pingColor: "bg-indigo-400",
       label: "Maintenance",
-      pulseInterval: 1.5,
-      glowColor: "shadow-blue-500/75",
+      shouldPing: false,
     },
     unknown: {
-      color: "bg-gray-500",
-      pulseColor: "bg-gray-400/30",
-      shadowColor: "shadow-gray-500/50",
+      color: "bg-slate-400 dark:bg-slate-500",
+      pingColor: "bg-slate-400",
       label: "Unknown",
-      pulseInterval: 3,
-      glowColor: "shadow-gray-500/75",
+      shouldPing: false,
     },
   };
 
-  // Size configurations
   const sizeConfig = {
     small: {
       dot: "h-2 w-2",
-      pulse: "h-2 w-2",
-      pulseMax: "h-6 w-6",
+      ping: "h-2 w-2",
       labelText: "text-xs",
       spacing: "gap-1.5",
     },
     medium: {
-      dot: "h-3 w-3",
-      pulse: "h-3 w-3",
-      pulseMax: "h-9 w-9",
+      dot: "h-2.5 w-2.5",
+      ping: "h-2.5 w-2.5",
       labelText: "text-sm",
       spacing: "gap-2",
     },
     large: {
-      dot: "h-4 w-4",
-      pulse: "h-4 w-4",
-      pulseMax: "h-12 w-12",
+      dot: "h-3.5 w-3.5",
+      ping: "h-3.5 w-3.5",
       labelText: "text-base",
       spacing: "gap-2.5",
     },
   };
 
-  // Get configuration based on current status and size
   const config = statusConfig[status] || statusConfig.unknown;
   const sizeClass = sizeConfig[size] || sizeConfig.medium;
 
-  // Effect to restart animation periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(false);
-      setTimeout(() => setIsAnimating(true), 10);
-    }, config.pulseInterval * 3000);
-
-    return () => clearInterval(interval);
-  }, [config.pulseInterval]);
-
   return (
-    <div className={`flex items-center ${sizeClass.spacing} ${className}`}>
-      <div className="relative">
-        {/* Static Dot */}
-        <motion.div
-          className={`${config.color} ${sizeClass.dot} rounded-full ${config.shadowColor} shadow-lg z-10 relative ring-2 ring-white/20 dark:ring-black/20 backdrop-blur-sm`}
-          initial={{ scale: 0.8 }}
-          animate={{ scale: [0.8, 1, 0.8] }}
-          transition={{
-            duration: config.pulseInterval,
-            repeat: Infinity,
-            repeatType: "loop",
-          }}
-          whileHover={{ scale: 1.2 }}
+    <span className={`inline-flex items-center ${sizeClass.spacing} ${className}`}>
+      <span className="relative flex shrink-0 items-center justify-center">
+        {config.shouldPing && (
+          <span
+            className={`absolute inline-flex ${sizeClass.ping} rounded-full ${config.pingColor} opacity-75 animate-ping`}
+          />
+        )}
+        <span
+          className={`relative inline-flex rounded-full ${sizeClass.dot} ${config.color} ring-2 ring-white/60 dark:ring-slate-900/60 shadow-xs`}
         />
+      </span>
 
-        {/* Pulse Animation */}
-        <AnimatePresence>
-          {isAnimating && (
-            <motion.div
-              className={`${config.pulseColor} ${sizeClass.pulse} rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}
-              initial={{ width: sizeClass.dot, height: sizeClass.dot, opacity: 0.8 }}
-              animate={{ width: sizeClass.pulseMax, height: sizeClass.pulseMax, opacity: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                duration: config.pulseInterval,
-                repeat: 2,
-                repeatType: "loop",
-                ease: "easeOut",
-              }}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Optional Label */}
       {showLabel && (
-        <motion.span
-          className={`${sizeClass.labelText} text-gray-700 dark:text-gray-300 font-medium`}
-          initial={{ opacity: 0, x: -5 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <span className={`${sizeClass.labelText} text-[var(--text)] font-medium`}>
           {config.label}
-        </motion.span>
+        </span>
       )}
-    </div>
+    </span>
   );
 };
 

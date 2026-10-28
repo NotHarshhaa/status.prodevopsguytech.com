@@ -42,30 +42,30 @@ const Notification = ({
     switch (type) {
       case "success":
         return {
-          bg: "bg-emerald-50/90 dark:bg-emerald-950/60 backdrop-blur-xl",
-          border: "border-emerald-300/60 dark:border-emerald-700/60",
+          bg: "bg-white dark:bg-slate-900",
+          border: "border-emerald-300 dark:border-emerald-700/60",
           text: "text-emerald-800 dark:text-emerald-100",
           iconBg: "bg-emerald-100 dark:bg-emerald-900",
         };
       case "error":
         return {
-          bg: "bg-red-50/90 dark:bg-red-950/60 backdrop-blur-xl",
-          border: "border-red-300/60 dark:border-red-700/60",
+          bg: "bg-white dark:bg-slate-900",
+          border: "border-red-300 dark:border-red-700/60",
           text: "text-red-800 dark:text-red-100",
           iconBg: "bg-red-100 dark:bg-red-900",
         };
       case "warning":
         return {
-          bg: "bg-amber-50/90 dark:bg-amber-950/60 backdrop-blur-xl",
-          border: "border-amber-300/60 dark:border-amber-700/60",
+          bg: "bg-white dark:bg-slate-900",
+          border: "border-amber-300 dark:border-amber-700/60",
           text: "text-amber-800 dark:text-amber-100",
           iconBg: "bg-amber-100 dark:bg-amber-900",
         };
       case "info":
       default:
         return {
-          bg: "bg-indigo-50/90 dark:bg-indigo-950/60 backdrop-blur-xl",
-          border: "border-indigo-300/60 dark:border-indigo-700/60",
+          bg: "bg-white dark:bg-slate-900",
+          border: "border-indigo-300 dark:border-indigo-700/60",
           text: "text-indigo-800 dark:text-indigo-100",
           iconBg: "bg-indigo-100 dark:bg-indigo-900",
         };

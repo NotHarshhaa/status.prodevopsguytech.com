@@ -5,13 +5,13 @@
 @tailwind utilities;
 
 :root {
-  --page-bg: #f0f4f8;
-  --page-bg-mesh: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 212, 170, 0.12), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(99, 102, 241, 0.08), transparent),
-    radial-gradient(ellipse 50% 30% at 0% 100%, rgba(0, 212, 170, 0.06), transparent);
-  --surface: rgba(255, 255, 255, 0.72);
+  color-scheme: light;
+  --page-bg: #f8fafc;
+  --page-bg-mesh: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 212, 170, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(99, 102, 241, 0.05), transparent);
+  --surface: #ffffff;
   --surface-solid: #ffffff;
-  --surface-raised: rgba(255, 255, 255, 0.88);
+  --surface-raised: #f8fafc;
   --border: rgba(15, 23, 42, 0.08);
   --border-glow: rgba(0, 212, 170, 0.25);
   --text: #0f172a;
@@ -23,20 +23,20 @@
   --hero-degraded: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
   --hero-outage: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
   --hero-maintenance: linear-gradient(135deg, #2563eb 0%, #6366f1 50%, #818cf8 100%);
-  --grid-color: rgba(15, 23, 42, 0.04);
-  --header-blur: rgba(255, 255, 255, 0.75);
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.06);
-  --shadow-card-hover: 0 4px 8px rgba(15, 23, 42, 0.06), 0 12px 32px rgba(15, 23, 42, 0.1);
+  --grid-color: rgba(15, 23, 42, 0.03);
+  --header-blur: rgba(255, 255, 255, 0.85);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 2px 6px rgba(15, 23, 42, 0.02);
+  --shadow-card-hover: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 .dark {
+  color-scheme: dark;
   --page-bg: #0a0e17;
-  --page-bg-mesh: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 212, 170, 0.15), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(99, 102, 241, 0.12), transparent),
-    radial-gradient(ellipse 50% 30% at 0% 100%, rgba(0, 212, 170, 0.08), transparent);
-  --surface: rgba(15, 23, 42, 0.65);
-  --surface-solid: #111827;
-  --surface-raised: rgba(30, 41, 59, 0.75);
+  --page-bg-mesh: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 212, 170, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(99, 102, 241, 0.08), transparent);
+  --surface: #0f172a;
+  --surface-solid: #0f172a;
+  --surface-raised: #1e293b;
   --border: rgba(148, 163, 184, 0.12);
   --border-glow: rgba(0, 212, 170, 0.2);
   --text: #f1f5f9;
@@ -48,16 +48,56 @@
   --hero-degraded: linear-gradient(135deg, #b45309 0%, #d97706 40%, #f59e0b 100%);
   --hero-outage: linear-gradient(135deg, #b91c1c 0%, #dc2626 40%, #ef4444 100%);
   --hero-maintenance: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 40%, #6366f1 100%);
-  --grid-color: rgba(148, 163, 184, 0.06);
-  --header-blur: rgba(10, 14, 23, 0.8);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.25);
-  --shadow-card-hover: 0 4px 8px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 212, 170, 0.08);
+  --grid-color: rgba(148, 163, 184, 0.04);
+  --header-blur: rgba(10, 14, 23, 0.85);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Universal Custom Scrollbars - eliminates dark Windows native scrollbars in light mode */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .dark * {
+    scrollbar-color: #334155 transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: #334155;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background-color: #475569;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
   body {
@@ -75,35 +115,11 @@
 @layer components {
   .status-page {
     @apply min-h-screen flex flex-col relative;
-    background: var(--page-bg);
+    background-color: var(--page-bg);
+    background-image: var(--page-bg-mesh);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: var(--text);
-  }
-
-  .status-page::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: var(--page-bg-mesh);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .status-page::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 70%);
-  }
-
-  .status-page > * {
-    position: relative;
-    z-index: 1;
   }
 
   .status-container {
@@ -117,17 +133,16 @@
   .status-header-bar {
     background: var(--header-blur);
     border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .status-card {
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    @apply rounded-2xl transition-all duration-300;
+    @apply rounded-2xl;
+    transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
   }
 
   .status-card:hover {
@@ -139,8 +154,6 @@
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     @apply rounded-2xl;
   }
 
@@ -148,9 +161,8 @@
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    @apply rounded-2xl p-5 relative overflow-hidden transition-all duration-300;
+    @apply rounded-2xl p-5 relative overflow-hidden;
+    transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
   }
 
   .status-metric-card::before {
@@ -302,8 +314,9 @@
   }
 
   .uptime-day {
-    @apply flex-1 min-w-0 rounded-[3px] transition-all duration-150;
+    @apply flex-1 min-w-0 rounded-[3px];
     height: 32px;
+    transition: transform 150ms ease, filter 150ms ease;
   }
 
   .uptime-day:hover {
@@ -497,6 +510,48 @@
   .terminal-metric-label {
     @apply text-[10px] uppercase tracking-wider mt-1;
     color: #64748b;
+  }
+
+  /* Dedicated smooth scrollbar for overflow tables */
+  .status-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .dark .status-scrollbar {
+    scrollbar-color: #334155 transparent;
+  }
+
+  .status-scrollbar::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+
+  .status-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.03);
+    border-radius: 9999px;
+  }
+
+  .dark .status-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 9999px;
+  }
+
+  .status-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 9999px;
+  }
+
+  .status-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+  }
+
+  .dark .status-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #334155;
+  }
+
+  .dark .status-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #475569;
   }
 }
 

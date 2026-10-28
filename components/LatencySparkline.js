@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useId } from "react";
 
 /**
  * LatencySparkline
@@ -14,6 +14,8 @@ export default function LatencySparkline({
   className = "",
   showLabels = false,
 }) {
+  const uniqueId = useId();
+  const gradId = `sparkline-grad-${uniqueId.replace(/:/g, "")}`;
   const [hoverIndex, setHoverIndex] = useState(null);
 
   // Normalize data points
@@ -86,14 +88,14 @@ export default function LatencySparkline({
           viewBox={`0 0 ${width} ${height}`}
         >
           <defs>
-            <linearGradient id={`sparkline-grad-${status}`} x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={strokeColor} stopOpacity="0.28" />
               <stop offset="100%" stopColor={strokeColor} stopOpacity="0.0" />
             </linearGradient>
           </defs>
 
           {/* Area Fill */}
-          <path d={areaD} fill={`url(#sparkline-grad-${status})`} />
+          <path d={areaD} fill={`url(#${gradId})`} />
 
           {/* Stroke Line */}
           <path
@@ -135,7 +137,7 @@ export default function LatencySparkline({
         {/* Hover Tooltip */}
         {activePoint && (
           <div
-            className="absolute bottom-full mb-1 z-30 pointer-events-none -translate-x-1/2 px-2 py-0.5 rounded bg-slate-900/90 text-white text-[10px] font-mono whitespace-nowrap shadow-md border border-slate-700 backdrop-blur-sm"
+            className="absolute bottom-full mb-1 z-30 pointer-events-none -translate-x-1/2 px-2 py-0.5 rounded bg-slate-900 text-white text-[10px] font-mono whitespace-nowrap shadow-md border border-slate-700"
             style={{ left: `${activePoint.x}px` }}
           >
             {activePoint.val}ms
