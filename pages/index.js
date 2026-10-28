@@ -6,8 +6,14 @@ import ComponentStatusList, {
 import UptimeSection from "../components/UptimeSection";
 import IncidentList from "../components/IncidentList";
 import IncidentBanner from "../components/IncidentBanner";
+import MaintenanceBanner from "../components/MaintenanceBanner";
 import PageToolbar, { PageLoader, PageSection } from "../components/PageToolbar";
+import CommandPalette from "../components/CommandPalette";
+import BadgeStudioModal from "../components/BadgeStudioModal";
+import SLAExportModal from "../components/SLAExportModal";
+import SubscribeModal from "../components/SubscribeModal";
 import { fetchStatusData } from "../lib/utils/statusData";
+import { MAINTENANCE_WINDOWS } from "../lib/maintenance";
 import {
   getOverallStatus,
   OVERALL_STATUS,
@@ -17,6 +23,7 @@ import {
   AlertTriangle,
   XCircle,
   Filter,
+  Sparkles,
 } from "lucide-react";
 import { useNotification } from "../components/Notification";
 
@@ -30,6 +37,12 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
   const [fetchError, setFetchError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Modern feature modals
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [badgeStudioOpen, setBadgeStudioOpen] = useState(false);
+  const [slaExportOpen, setSLAExportOpen] = useState(false);
+  const [subscribeOpen, setSubscribeOpen] = useState(false);
 
   const notification = useNotification();
   const sitesRef = useRef([]);
@@ -107,8 +120,6 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
 
   useEffect(() => {
     fetchDataRef.current();
-    const interval = setInterval(() => fetchDataRef.current(), 60000);
-    return () => clearInterval(interval);
   }, []);
 
   const overall = getOverallStatus(sites);
@@ -144,110 +155,170 @@ export default function Home({ isDarkMode = false, onThemeToggle }) {
   }, [sites]);
 
   return (
-    <StatusLayout
-      isDarkMode={isDarkMode}
-      onThemeToggle={onThemeToggle}
-      overallStatus={metrics?.status || overall}
-      title="ProDevOpsGuy Status"
-      description="Current status of ProDevOpsGuy Tech platforms and services."
-      showHero
-      heroStatus={overall}
-      heroTitle={hero.label}
-      heroDescription={hero.description}
-    >
-      <div className="status-container-wide space-y-6">
-        {/* Active Incident Alert Banner */}
-        <IncidentBanner sites={sites} />
+    <>
+      {/* Command Palette Modal */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        sites={sites}
+        onRefresh={() => fetchData(true)}
+        onThemeToggle={onThemeToggle}
+        isDarkMode={isDarkMode}
+        onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
+        onOpenSLAExport={() => setSLAExportOpen(true)}
+        onOpenSubscribe={() => setSubscribeOpen(true)}
+      />
 
-        {loading ? (
-          <PageLoader message="Checking all services..." />
-        ) : (
-          <>
-            {fetchError && (
-              <div
-                role="alert"
-                className="status-card-static border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
-              >
-                {fetchError}
-              </div>
-            )}
+      {/* Badge Studio Modal */}
+      <BadgeStudioModal
+        isOpen={badgeStudioOpen}
+        onClose={() => setBadgeStudioOpen(false)}
+        sites={sites}
+      />
 
-            <PageToolbar
-              lastUpdated={lastUpdated}
-              isRefreshing={refreshing}
-              onRefresh={() => fetchData(true)}
-              source={metrics?.source}
-              search={searchQuery}
-              onSearchChange={setSearchQuery}
-              searchPlaceholder="Filter services by name..."
-            />
+      {/* SLA Export Modal */}
+      <SLAExportModal
+        isOpen={slaExportOpen}
+        onClose={() => setSLAExportOpen(false)}
+        sites={sites}
+      />
 
-            {/* Filter pills */}
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span className="text-[var(--text-muted)] flex items-center gap-1.5 mr-1 font-mono text-[11px]">
-                <Filter className="h-3.5 w-3.5" />
-                Filter:
-              </span>
-              {[
-                { id: "all", label: "All", count: counts.total },
-                { id: "operational", label: "Operational", count: counts.operational, color: "text-emerald-600 dark:text-emerald-400" },
-                { id: "degraded", label: "Degraded", count: counts.degraded, color: "text-amber-600 dark:text-amber-400" },
-                { id: "outage", label: "Outages", count: counts.outage, color: "text-red-600 dark:text-red-400" },
-              ].map(({ id, label, count, color }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setStatusFilter(id)}
-                  className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
-                    statusFilter === id
-                      ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-sm"
-                      : "bg-[var(--card-bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
-                  }`}
+      {/* Notification Webhook Subscription Modal */}
+      <SubscribeModal
+        isOpen={subscribeOpen}
+        onClose={() => setSubscribeOpen(false)}
+      />
+
+      <StatusLayout
+        isDarkMode={isDarkMode}
+        onThemeToggle={onThemeToggle}
+        overallStatus={metrics?.status || overall}
+        title="ProDevOpsGuy Status"
+        description="Current status of ProDevOpsGuy Tech platforms and services."
+        showHero
+        heroStatus={overall}
+        heroTitle={hero.label}
+        heroDescription={hero.description}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+        onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
+        onOpenSLAExport={() => setSLAExportOpen(true)}
+      >
+        <div className="status-container-wide space-y-6">
+          {/* Active Incident Alert Banner */}
+          <IncidentBanner sites={sites} />
+
+          {/* Scheduled & Active Maintenance Banner */}
+          <MaintenanceBanner maintenanceList={MAINTENANCE_WINDOWS} />
+
+          {loading ? (
+            <PageLoader message="Checking all services via live edge probe..." />
+          ) : (
+            <>
+              {fetchError && (
+                <div
+                  role="alert"
+                  className="status-card-static border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
                 >
-                  <span className={statusFilter === id ? "text-white" : color}>{label}</span>
-                  <span
-                    className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                  {fetchError}
+                </div>
+              )}
+
+              <PageToolbar
+                lastUpdated={lastUpdated}
+                isRefreshing={refreshing}
+                onRefresh={() => fetchData(true)}
+                source={metrics?.source}
+                search={searchQuery}
+                onSearchChange={setSearchQuery}
+                searchPlaceholder="Filter services by name..."
+                onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
+                onOpenSLAExport={() => setSLAExportOpen(true)}
+              />
+
+              {/* Filter pills */}
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                <span className="text-[var(--text-muted)] flex items-center gap-1.5 mr-1 font-mono text-[11px]">
+                  <Filter className="h-3.5 w-3.5" />
+                  Filter:
+                </span>
+                {[
+                  { id: "all", label: "All", count: counts.total },
+                  {
+                    id: "operational",
+                    label: "Operational",
+                    count: counts.operational,
+                    color: "text-emerald-600 dark:text-emerald-400",
+                  },
+                  {
+                    id: "degraded",
+                    label: "Degraded",
+                    count: counts.degraded,
+                    color: "text-amber-600 dark:text-amber-400",
+                  },
+                  {
+                    id: "outage",
+                    label: "Outages",
+                    count: counts.outage,
+                    color: "text-red-600 dark:text-red-400",
+                  },
+                ].map(({ id, label, count, color }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setStatusFilter(id)}
+                    className={`px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
                       statusFilter === id
-                        ? "bg-white/20 text-white"
-                        : "bg-[var(--page-bg)] text-[var(--text-muted)]"
+                        ? "bg-[var(--accent)] text-white border-[var(--accent)] shadow-sm"
+                        : "bg-[var(--card-bg)] border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)]"
                     }`}
                   >
-                    {count}
-                  </span>
-                </button>
-              ))}
-            </div>
+                    <span className={statusFilter === id ? "text-white" : color}>
+                      {label}
+                    </span>
+                    <span
+                      className={`px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                        statusFilter === id
+                          ? "bg-white/20 text-white"
+                          : "bg-[var(--page-bg)] text-[var(--text-muted)]"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                ))}
+              </div>
 
-            <StatusSummaryBar sites={sites} />
+              <StatusSummaryBar sites={sites} />
 
-            <PageSection
-              id="components"
-              title="Current status by service"
-              description={`Real-time health of monitored components (${filteredSites.length} showing).`}
-            >
-              <ComponentStatusList sites={filteredSites} />
-            </PageSection>
+              <PageSection
+                id="components"
+                title="Current status by service"
+                description={`Real-time health of monitored components (${filteredSites.length} showing). Hover sparklines for latency trends or expand for telemetry diagnostics.`}
+              >
+                <ComponentStatusList sites={filteredSites} />
+              </PageSection>
 
-            <PageSection
-              title="Past incidents"
-              description="Recent incidents and maintenance windows."
-            >
-              <IncidentList limit={3} showViewAll />
-            </PageSection>
+              <PageSection
+                title="Recent incidents & resolutions"
+                description="Past incident postmortems and recovery logs."
+              >
+                <IncidentList limit={3} showViewAll />
+              </PageSection>
 
-            <PageSection
-              title="Uptime history"
-              description="Daily status for each service over the last 90 days."
-            >
-              <UptimeSection
-                sites={sites}
-                historical={historical}
-                compact
-              />
-            </PageSection>
-          </>
-        )}
-      </div>
-    </StatusLayout>
+              <PageSection
+                title="90-Day Uptime Telemetry"
+                description="Daily availability matrix for each service."
+              >
+                <UptimeSection
+                  sites={sites}
+                  historical={historical}
+                  compact
+                />
+              </PageSection>
+            </>
+          )}
+        </div>
+      </StatusLayout>
+    </>
   );
 }

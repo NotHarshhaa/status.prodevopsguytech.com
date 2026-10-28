@@ -15,11 +15,17 @@ export default function StatusLayout({
   heroStatus,
   heroTitle,
   heroDescription,
+  onOpenCommandPalette,
+  onOpenBadgeStudio,
+  onOpenSLAExport,
 }) {
   const status = heroStatus || overallStatus;
 
   return (
-    <div className={`status-page ${isDarkMode ? "dark" : ""}`}>
+    <div
+      className={`status-page ${isDarkMode ? "dark" : ""}`}
+      suppressHydrationWarning
+    >
       <Head>
         <title>{title}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -32,6 +38,9 @@ export default function StatusLayout({
         isDarkMode={isDarkMode}
         onThemeToggle={onThemeToggle}
         overallStatus={overallStatus}
+        onOpenCommandPalette={onOpenCommandPalette}
+        onOpenBadgeStudio={onOpenBadgeStudio}
+        onOpenSLAExport={onOpenSLAExport}
       />
 
       {showHero && (
@@ -50,12 +59,13 @@ export default function StatusLayout({
 }
 
 function StatusHeroBanner({ status, title, description }) {
-  const heroClass = {
-    operational: "status-hero-operational",
-    degraded: "status-hero-degraded",
-    outage: "status-hero-outage",
-    maintenance: "status-hero-maintenance",
-  }[status] || "status-hero-operational";
+  const heroClass =
+    {
+      operational: "status-hero-operational",
+      degraded: "status-hero-degraded",
+      outage: "status-hero-outage",
+      maintenance: "status-hero-maintenance",
+    }[status] || "status-hero-operational";
 
   return (
     <div className={`status-hero ${heroClass}`}>
@@ -84,7 +94,7 @@ function StatusHeroBanner({ status, title, description }) {
             transition={{ delay: 0.3 }}
           >
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-white/80 animate-pulse" />
-            Live monitoring active
+            Live telemetry & automated health checks active
           </motion.div>
         </motion.div>
       </div>

@@ -3,13 +3,17 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Activity, Clock, Gauge } from "lucide-react";
+import { ArrowLeft, ExternalLink, Activity, Clock, Gauge, ShieldCheck, Copy, Check, Zap } from "lucide-react";
 import StatusLayout from "../../components/StatusLayout";
 import UptimeSection from "../../components/UptimeSection";
 import RealTimeStatusChart from "../../components/RealTimeStatusChart";
 import HistoricalChart from "../../components/HistoricalChart";
 import TerminalPanel, { buildSiteTerminalLines } from "../../components/TerminalPanel";
 import StatusRing from "../../components/StatusRing";
+import CommandPalette from "../../components/CommandPalette";
+import BadgeStudioModal from "../../components/BadgeStudioModal";
+import SLAExportModal from "../../components/SLAExportModal";
+import LatencySparkline from "../../components/LatencySparkline";
 import {
   COMPONENT_STATUS,
   generateUptimeHistory,
@@ -17,7 +21,6 @@ import {
   formatRelativeTime,
 } from "../../lib/statusTheme";
 import { PageLoader } from "../../components/PageToolbar";
-import { ShieldCheck, Copy, Check } from "lucide-react";
 
 export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
   const router = useRouter();
@@ -27,6 +30,9 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [badgeCopied, setBadgeCopied] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [badgeStudioOpen, setBadgeStudioOpen] = useState(false);
+  const [slaExportOpen, setSLAExportOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -76,21 +82,47 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
     : null;
 
   return (
-    <StatusLayout
-      isDarkMode={isDarkMode}
-      onThemeToggle={onThemeToggle}
-      overallStatus={site?.status || "operational"}
-      title={
-        site
-          ? `${site.name} — ProDevOpsGuy Status`
-          : "Service Status — ProDevOpsGuy"
-      }
-      description={
-        site
-          ? `Status and uptime for ${site.name}`
-          : "Loading service status"
-      }
-    >
+    <>
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        sites={site ? [site] : []}
+        onThemeToggle={onThemeToggle}
+        isDarkMode={isDarkMode}
+        onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
+        onOpenSLAExport={() => setSLAExportOpen(true)}
+      />
+
+      <BadgeStudioModal
+        isOpen={badgeStudioOpen}
+        onClose={() => setBadgeStudioOpen(false)}
+        sites={site ? [site] : []}
+      />
+
+      <SLAExportModal
+        isOpen={slaExportOpen}
+        onClose={() => setSLAExportOpen(false)}
+        sites={site ? [site] : []}
+      />
+
+      <StatusLayout
+        isDarkMode={isDarkMode}
+        onThemeToggle={onThemeToggle}
+        overallStatus={site?.status || "operational"}
+        title={
+          site
+            ? `${site.name} — ProDevOpsGuy Status`
+            : "Service Status — ProDevOpsGuy"
+        }
+        description={
+          site
+            ? `Status and uptime for ${site.name}`
+            : "Loading service status"
+        }
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+        onOpenBadgeStudio={() => setBadgeStudioOpen(true)}
+        onOpenSLAExport={() => setSLAExportOpen(true)}
+      >
       <div className="status-container-wide">
         <Link
           href="/"
@@ -236,5 +268,6 @@ export default function SiteDetail({ isDarkMode = false, onThemeToggle }) {
         ) : null}
       </div>
     </StatusLayout>
+    </>
   );
 }

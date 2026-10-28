@@ -8,27 +8,28 @@ function readDarkModePreference() {
   if (typeof window === "undefined") return false;
   const savedPreference = localStorage.getItem("darkMode");
   const systemPrefersDark = window.matchMedia(
-    "(prefers-color-scheme: dark)",
+    "(prefers-color-scheme: dark)"
   ).matches;
   return savedPreference === "true" || (!savedPreference && systemPrefersDark);
 }
 
 function applyDarkModeClass(isDark) {
+  if (typeof document === "undefined") return;
   document.documentElement.classList.toggle("dark", isDark);
   document.documentElement.classList.toggle("light", !isDark);
 }
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const shouldBeDark = readDarkModePreference();
-    if (typeof window !== "undefined") {
-      applyDarkModeClass(shouldBeDark);
-    }
-    return shouldBeDark;
-  });
+  // Initialize to false on both server and client to avoid SSR hydration mismatch
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Sync with user's saved preference after hydration
   useEffect(() => {
+    const shouldBeDark = readDarkModePreference();
+    setIsDarkMode(shouldBeDark);
+    applyDarkModeClass(shouldBeDark);
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e) => {
       const savedMode = localStorage.getItem("darkMode");
@@ -48,7 +49,11 @@ function MyApp({ Component, pageProps }) {
       applyDarkModeClass(nextMode);
       localStorage.setItem("darkMode", nextMode ? "true" : "false");
     } else {
-      setIsDarkMode((prev) => toggleDarkMode(prev));
+      setIsDarkMode((prev) => {
+        const next = toggleDarkMode(prev);
+        applyDarkModeClass(next);
+        return next;
+      });
     }
   };
 
