@@ -78,38 +78,38 @@ function GitHubStyleHeroBanner({ status, title, description }) {
 
   const config = isOp
     ? {
-        bg: "bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-500/30",
-        badgeBg: "bg-emerald-500 text-slate-950 font-bold",
-        icon: <CheckCircle2 className="h-6 w-6 text-emerald-400 shrink-0" />,
+        bg: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-500/30",
+        badgeBg: "bg-emerald-600 text-white dark:bg-emerald-500 dark:text-slate-950 font-bold",
+        icon: <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400 shrink-0" />,
         heading: title || "All Systems Operational",
         sub: description || "All monitored production services, databases, and APIs are operating nominally.",
-        accentColor: "text-emerald-400",
+        accentColor: "text-emerald-600 dark:text-emerald-400",
       }
     : isDegraded
     ? {
-        bg: "bg-amber-500/10 dark:bg-amber-950/30 border-amber-500/30",
-        badgeBg: "bg-amber-500 text-slate-950 font-bold",
-        icon: <AlertTriangle className="h-6 w-6 text-amber-400 shrink-0 animate-pulse" />,
+        bg: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-500/30",
+        badgeBg: "bg-amber-500 text-white dark:bg-amber-500 dark:text-slate-950 font-bold",
+        icon: <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400 shrink-0 animate-pulse" />,
         heading: title || "Active Performance Degradation",
         sub: description || "Some services are currently experiencing latency or elevated error rates.",
-        accentColor: "text-amber-400",
+        accentColor: "text-amber-600 dark:text-amber-400",
       }
     : isOutage
     ? {
-        bg: "bg-red-500/10 dark:bg-red-950/30 border-red-500/30",
-        badgeBg: "bg-red-500 text-white font-bold",
-        icon: <XCircle className="h-6 w-6 text-red-400 shrink-0 animate-pulse" />,
+        bg: "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-500/30",
+        badgeBg: "bg-red-600 text-white font-bold",
+        icon: <XCircle className="h-6 w-6 text-red-600 dark:text-red-400 shrink-0 animate-pulse" />,
         heading: title || "Major Service Outage",
         sub: description || "Our engineering team is actively investigating and mitigating service disruption.",
-        accentColor: "text-red-400",
+        accentColor: "text-red-600 dark:text-red-400",
       }
     : {
-        bg: "bg-indigo-500/10 dark:bg-indigo-950/30 border-indigo-500/30",
-        badgeBg: "bg-indigo-500 text-white font-bold",
-        icon: <Wrench className="h-6 w-6 text-indigo-400 shrink-0" />,
+        bg: "bg-indigo-50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-500/30",
+        badgeBg: "bg-indigo-600 text-white font-bold",
+        icon: <Wrench className="h-6 w-6 text-indigo-600 dark:text-indigo-400 shrink-0" />,
         heading: title || "Scheduled Maintenance Active",
         sub: description || "Routine infrastructure upgrade or edge key rotation in progress.",
-        accentColor: "text-indigo-400",
+        accentColor: "text-indigo-600 dark:text-indigo-400",
       };
 
   return (
@@ -119,12 +119,12 @@ function GitHubStyleHeroBanner({ status, title, description }) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className={`rounded-2xl border p-5 sm:p-7 shadow-lg backdrop-blur-md ${config.bg}`}
+          className={`rounded-2xl border p-5 sm:p-7 shadow-sm backdrop-blur-md ${config.bg}`}
         >
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
             {/* Left: Icon & Status Text */}
             <div className="flex items-start gap-4">
-              <div className="p-3 rounded-2xl bg-slate-950/60 border border-[var(--border)] shadow-sm shrink-0">
+              <div className="p-3 rounded-2xl bg-white dark:bg-slate-950/60 border border-slate-200/80 dark:border-[var(--border)] shadow-xs shrink-0">
                 {config.icon}
               </div>
               <div>
@@ -133,7 +133,7 @@ function GitHubStyleHeroBanner({ status, title, description }) {
                     {status.toUpperCase()}
                   </span>
                   <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--text-muted)]">
-                    <Radio className="h-3 w-3 text-emerald-400 animate-pulse" />
+                    <Radio className="h-3 w-3 text-emerald-500 animate-pulse" />
                     Live Edge Monitoring
                   </span>
                 </div>
@@ -148,17 +148,17 @@ function GitHubStyleHeroBanner({ status, title, description }) {
 
             {/* Right: GitHub / AWS Style Telemetry Chips */}
             <div className="flex flex-wrap lg:flex-col gap-2 shrink-0 font-mono text-xs">
-              <div className="px-3.5 py-1.5 rounded-xl border border-[var(--border)] bg-slate-950/40 flex items-center justify-between gap-3 min-w-[170px]">
-                <span className="text-[10px] uppercase text-[var(--text-muted)]">90-Day SLA</span>
-                <span className="font-bold text-emerald-400">99.98%</span>
+              <div className="px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-[var(--border)] bg-white/90 dark:bg-slate-950/60 shadow-xs flex items-center justify-between gap-3 min-w-[170px]">
+                <span className="text-[10px] uppercase font-semibold text-slate-500 dark:text-[var(--text-muted)]">90-Day SLA</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">99.98%</span>
               </div>
-              <div className="px-3.5 py-1.5 rounded-xl border border-[var(--border)] bg-slate-950/40 flex items-center justify-between gap-3 min-w-[170px]">
-                <span className="text-[10px] uppercase text-[var(--text-muted)]">Probe Latency</span>
-                <span className="font-bold text-[var(--accent)]">~142ms</span>
+              <div className="px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-[var(--border)] bg-white/90 dark:bg-slate-950/60 shadow-xs flex items-center justify-between gap-3 min-w-[170px]">
+                <span className="text-[10px] uppercase font-semibold text-slate-500 dark:text-[var(--text-muted)]">Probe Latency</span>
+                <span className="font-bold text-teal-600 dark:text-[var(--accent)]">~142ms</span>
               </div>
-              <div className="px-3.5 py-1.5 rounded-xl border border-[var(--border)] bg-slate-950/40 flex items-center justify-between gap-3 min-w-[170px]">
-                <span className="text-[10px] uppercase text-[var(--text-muted)]">TLS Health</span>
-                <span className="font-bold text-blue-400">Verified</span>
+              <div className="px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-[var(--border)] bg-white/90 dark:bg-slate-950/60 shadow-xs flex items-center justify-between gap-3 min-w-[170px]">
+                <span className="text-[10px] uppercase font-semibold text-slate-500 dark:text-[var(--text-muted)]">TLS Health</span>
+                <span className="font-bold text-blue-600 dark:text-blue-400">Verified</span>
               </div>
             </div>
           </div>

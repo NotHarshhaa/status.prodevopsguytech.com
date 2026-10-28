@@ -296,48 +296,48 @@ function GitHubStyleComponentRow({ site, index, historical }) {
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* Synthetic Network Waterfall */}
-              <div className="p-3 rounded-xl bg-slate-900/50 dark:bg-slate-950/80 border border-[var(--border)]">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-[var(--border)]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
-                    <Zap className="h-3 w-3 text-amber-400" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-[var(--text-muted)] flex items-center gap-1.5">
+                    <Zap className="h-3 w-3 text-amber-500 dark:text-amber-400" />
                     Network Waterfall
                   </span>
-                  <span className="text-xs font-mono font-bold text-[var(--accent)]">
+                  <span className="text-xs font-mono font-bold text-teal-600 dark:text-[var(--accent)]">
                     {site.responseTime != null ? `${site.responseTime}ms` : "N/A"}
                   </span>
                 </div>
                 <div className="space-y-1 font-mono text-[11px]">
-                  <div className="flex justify-between text-[var(--text-muted)]">
+                  <div className="flex justify-between text-slate-500 dark:text-[var(--text-muted)]">
                     <span>DNS Lookup:</span>
-                    <span className="text-slate-300">{timing.dns}ms</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-medium">{timing.dns}ms</span>
                   </div>
-                  <div className="flex justify-between text-[var(--text-muted)]">
+                  <div className="flex justify-between text-slate-500 dark:text-[var(--text-muted)]">
                     <span>TCP Connect:</span>
-                    <span className="text-slate-300">{timing.tcp}ms</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-medium">{timing.tcp}ms</span>
                   </div>
-                  <div className="flex justify-between text-[var(--text-muted)]">
+                  <div className="flex justify-between text-slate-500 dark:text-[var(--text-muted)]">
                     <span>TLS Handshake:</span>
-                    <span className="text-slate-300">{timing.tls}ms</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-medium">{timing.tls}ms</span>
                   </div>
-                  <div className="flex justify-between text-[var(--text-muted)]">
+                  <div className="flex justify-between text-slate-500 dark:text-[var(--text-muted)]">
                     <span>TTFB (Server Process):</span>
-                    <span className="text-slate-300">{timing.ttfb}ms</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-medium">{timing.ttfb}ms</span>
                   </div>
                 </div>
               </div>
 
               {/* TLS/SSL Certificate Details */}
-              <div className="p-3 rounded-xl bg-slate-900/50 dark:bg-slate-950/80 border border-[var(--border)]">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-[var(--border)]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
-                    <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-[var(--text-muted)] flex items-center gap-1.5">
+                    <ShieldCheck className="h-3 w-3 text-emerald-500 dark:text-emerald-400" />
                     TLS Certificate
                   </span>
                   <span
                     className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
                       ssl?.isExpiringSoon
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                        : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                        ? "bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30"
+                        : "bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
                     }`}
                   >
                     {ssl?.daysRemaining != null
@@ -345,46 +345,46 @@ function GitHubStyleComponentRow({ site, index, historical }) {
                       : "Verified"}
                   </span>
                 </div>
-                <div className="space-y-1 font-mono text-[11px] text-[var(--text-muted)]">
+                <div className="space-y-1 font-mono text-[11px] text-slate-500 dark:text-[var(--text-muted)]">
                   <div className="truncate">
                     <span>Issuer: </span>
-                    <span className="text-slate-300">{ssl?.issuer || "Let's Encrypt"}</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-medium">{ssl?.issuer || "Let's Encrypt"}</span>
                   </div>
                   <div className="truncate">
                     <span>Domain: </span>
-                    <span className="text-slate-300">{ssl?.subject || site.url.replace(/^https?:\/\//, "")}</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-medium">{ssl?.subject || site.url.replace(/^https?:\/\//, "")}</span>
                   </div>
                   <div>
                     <span>Protocol: </span>
-                    <span className="text-slate-300">TLS 1.3 / HTTP/2</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-medium">TLS 1.3 / HTTP/2</span>
                   </div>
                 </div>
               </div>
 
               {/* Endpoint & Console Quick Actions */}
-              <div className="p-3 rounded-xl bg-slate-900/50 dark:bg-slate-950/80 border border-[var(--border)] flex flex-col justify-between">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-[var(--border)] flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
-                      <Server className="h-3 w-3 text-blue-400" />
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-[var(--text-muted)] flex items-center gap-1.5">
+                      <Server className="h-3 w-3 text-blue-500 dark:text-blue-400" />
                       Probe Specs
                     </span>
-                    <span className="text-xs font-mono font-bold text-emerald-400">
+                    <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
                       HTTP {site.statusCode || 200}
                     </span>
                   </div>
-                  <p className="font-mono text-[11px] text-[var(--text-muted)] truncate">
-                    Target Route: <span className="text-slate-300">{site.workingEndpoint || "/"}</span>
+                  <p className="font-mono text-[11px] text-slate-500 dark:text-[var(--text-muted)] truncate">
+                    Target Route: <span className="text-slate-800 dark:text-slate-200 font-medium">{site.workingEndpoint || "/"}</span>
                   </p>
-                  <p className="font-mono text-[11px] text-[var(--text-muted)] truncate mt-1">
-                    Origin: <span className="text-slate-300">{site.url}</span>
+                  <p className="font-mono text-[11px] text-slate-500 dark:text-[var(--text-muted)] truncate mt-1">
+                    Origin: <span className="text-slate-800 dark:text-slate-200 font-medium">{site.url}</span>
                   </p>
                 </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800 mt-2">
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200 dark:border-slate-800 mt-2">
                   <Link
                     href={`/site/${site.id}`}
-                    className="text-xs text-[var(--accent)] hover:underline inline-flex items-center gap-1 font-mono"
+                    className="text-xs text-teal-600 dark:text-[var(--accent)] hover:underline inline-flex items-center gap-1 font-mono font-medium"
                   >
                     <Terminal className="h-3 w-3" />
                     Open Diagnostics Console →

@@ -127,7 +127,7 @@ export default function GitHubIncidentTimeline({
                                 {sev.label}
                               </span>
                               {isResolved && (
-                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 font-medium">
                                   Resolved
                                 </span>
                               )}

@@ -37,10 +37,10 @@ export default function MaintenanceBanner({ maintenanceList = [] }) {
         return (
           <div
             key={item.id}
-            className={`rounded-2xl border p-4 sm:p-5 transition-all shadow-md ${
+            className={`rounded-2xl border p-4 sm:p-5 transition-all shadow-sm ${
               isInProgress
-                ? "bg-gradient-to-r from-blue-950/40 via-indigo-950/20 to-transparent border-blue-500/40"
-                : "bg-slate-900/40 dark:bg-slate-900/60 border-slate-700/60"
+                ? "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 dark:from-blue-950/40 dark:via-indigo-950/20 dark:to-transparent dark:border-blue-500/40"
+                : "bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800"
             }`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -48,8 +48,8 @@ export default function MaintenanceBanner({ maintenanceList = [] }) {
                 <div
                   className={`p-2.5 rounded-xl shrink-0 ${
                     isInProgress
-                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse"
-                      : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                      ? "bg-blue-100 text-blue-600 border border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30 animate-pulse"
+                      : "bg-indigo-50 text-indigo-600 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20"
                   }`}
                 >
                   <Wrench className="h-5 w-5" />
@@ -59,23 +59,23 @@ export default function MaintenanceBanner({ maintenanceList = [] }) {
                     <span
                       className={`text-[10px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
                         isInProgress
-                          ? "bg-blue-500 text-slate-950"
-                          : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                          ? "bg-blue-600 text-white"
+                          : "bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30"
                       }`}
                     >
                       {item.status.replace("_", " ")}
                     </span>
-                    <span className="text-xs font-mono text-[var(--accent)] font-semibold">
+                    <span className="text-xs font-mono text-indigo-600 dark:text-[var(--accent)] font-semibold">
                       {countdownText}
                     </span>
-                    <span className="text-xs font-mono text-[var(--text-muted)]">
+                    <span className="text-xs font-mono text-slate-500 dark:text-[var(--text-muted)]">
                       • ID: {item.id}
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-[var(--text)] mt-1">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-[var(--text)] mt-1">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5 line-clamp-1">
+                  <p className="text-xs text-slate-600 dark:text-[var(--text-muted)] mt-0.5 line-clamp-1">
                     {item.summary}
                   </p>
                 </div>
@@ -95,7 +95,7 @@ export default function MaintenanceBanner({ maintenanceList = [] }) {
                 <button
                   type="button"
                   onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                  className="p-2 rounded-xl text-[var(--text-muted)] hover:bg-slate-800/40 hover:text-[var(--text)] transition-colors"
+                  className="p-2 rounded-xl text-[var(--text-muted)] hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-[var(--text)] transition-colors"
                   aria-label="Toggle details"
                 >
                   {isExpanded ? (
@@ -109,43 +109,43 @@ export default function MaintenanceBanner({ maintenanceList = [] }) {
 
             {/* Expanded details */}
             {isExpanded && (
-              <div className="mt-4 pt-4 border-t border-[var(--border)] space-y-3 text-xs text-[var(--text)] animate-in fade-in duration-200">
-                <p className="text-sm leading-relaxed text-[var(--text-muted)]">
+              <div className="mt-4 pt-4 border-t border-slate-200 dark:border-[var(--border)] space-y-3 text-xs text-[var(--text)] animate-in fade-in duration-200">
+                <p className="text-sm leading-relaxed text-slate-600 dark:text-[var(--text-muted)]">
                   {item.summary}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3 rounded-xl bg-slate-950/40 border border-[var(--border)]">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] block mb-1">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-[var(--border)]">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-[var(--text-muted)] block mb-1">
                       Scheduled Window (UTC)
                     </span>
                     <div className="flex items-center gap-2 font-mono text-xs">
-                      <Clock className="h-3.5 w-3.5 text-blue-400" />
+                      <Clock className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400" />
                       <span>
                         {startDate.toUTCString().slice(0, 22)} — {endDate.toUTCString().slice(17, 22)} UTC
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950/40 border border-[var(--border)]">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] block mb-1">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-[var(--border)]">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-[var(--text-muted)] block mb-1">
                       Expected Impact
                     </span>
-                    <span className="font-semibold capitalize text-amber-400">
+                    <span className="font-semibold capitalize text-amber-600 dark:text-amber-400">
                       {item.impact} impact expected
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] block mb-1.5">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-[var(--text-muted)] block mb-1.5">
                     Affected Components:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {item.affectedServices.map((srv, idx) => (
                       <span
                         key={idx}
-                        className="px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-300 font-mono text-[11px]"
+                        className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20 font-mono text-[11px]"
                       >
                         {srv}
                       </span>

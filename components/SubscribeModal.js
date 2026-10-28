@@ -282,8 +282,8 @@ export default function SubscribeModal({ isOpen, onClose }) {
             <p className="text-xs text-[var(--text-muted)]">
               Integrate with your existing RSS reader, Zapier, Feedly, or internal monitoring systems:
             </p>
-            <div className="p-3 rounded-xl border border-[var(--border)] bg-slate-950/40 flex items-center justify-between gap-3 font-mono text-xs">
-              <span className="truncate text-slate-300">
+            <div className="p-3 rounded-xl border border-slate-200 dark:border-[var(--border)] bg-slate-100 dark:bg-slate-950/40 flex items-center justify-between gap-3 font-mono text-xs">
+              <span className="truncate text-slate-700 dark:text-slate-300">
                 {typeof window !== "undefined"
                   ? `${window.location.origin}/api/feed`
                   : "/api/feed"}

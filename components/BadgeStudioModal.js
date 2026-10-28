@@ -111,11 +111,11 @@ export default function BadgeStudioModal({ isOpen, onClose, sites = [] }) {
           </div>
 
           {/* Live Preview Box */}
-          <div className="p-5 rounded-xl border border-[var(--border)] bg-slate-950/60 flex flex-col items-center justify-center text-center gap-2.5">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+          <div className="p-5 rounded-xl border border-slate-200 dark:border-[var(--border)] bg-slate-50 dark:bg-slate-950/60 flex flex-col items-center justify-center text-center gap-2.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Live Badge Preview
             </span>
-            <div className="p-2 rounded bg-black/40 border border-slate-800 shadow-inner">
+            <div className="p-2 rounded bg-white dark:bg-black/40 border border-slate-200 dark:border-slate-800 shadow-xs">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={selectedSite.badgeEndpoint}
@@ -126,7 +126,7 @@ export default function BadgeStudioModal({ isOpen, onClose, sites = [] }) {
                 }}
               />
             </div>
-            <span className="text-[11px] font-mono text-emerald-400">
+            <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
               Auto-refreshes every 30s with live HTTP telemetry
             </span>
           </div>
